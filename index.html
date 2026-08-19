@@ -888,6 +888,18 @@ function listenForOnlineState(){
     renderMiniRosters();
     if(S.current) renderOnlineCurrentPlayer();
     updateTurnUI();
+    if(S.turnTimerId) clearInterval(S.turnTimerId);
+    if(S.active && S.turn==='cpu'){
+      S.turnTimerId = setInterval(()=>{
+        S.tLeft -= 1;
+        updateRingUI();
+        if(S.tLeft<=0){
+          clearInterval(S.turnTimerId);
+          S.turnTimerId = null;
+          sendOnlineAction('timeout');
+        }
+      }, 1000);
+    }
   };
   onlineRoomRef.child('stateData').on('value', onlineStateListener, error=>{
     setOnlineStatus(`שגיאת סנכרון המשחק: ${error.message}`);
@@ -936,7 +948,7 @@ function listenForOnlineAction(){
     onlineLastActionId = action.id;
     if(S && S.turn==='cpu' && S.active){
       if(action.type==='bid') handleOnlineGuestBid();
-      if(action.type==='giveup') handleForfeit('cpu', 'giveup');
+      if(action.type==='giveup' || action.type==='timeout') handleForfeit('cpu', action.type);
     }
   };
   onlineRoomRef.child('action').on('value', onlineActionListener);
