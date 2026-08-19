@@ -958,9 +958,19 @@ function goToSetup(){
   document.getElementById('heroTeamGreeting').textContent = gameMode==='tournament'
     ? `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`
     : `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
-  setupModeSwitch.textContent = gameMode==='tournament' ? '🏀 חזרה למשחק קלאסי' : '🏆 לבחור טורניר במקום';
-  setupModeSwitch.onclick = gameMode==='tournament' ? chooseClassicFromSetup : chooseTournamentFromSetup;
+  if(gameMode==='online'){
+    setupModeSwitch.textContent = '← חזרה למשחק מול המחשב';
+    setupModeSwitch.onclick = leaveOnlineToComputer;
+  } else {
+    setupModeSwitch.textContent = gameMode==='tournament' ? '🏀 חזרה למשחק קלאסי' : '🏆 לבחור טורניר במקום';
+    setupModeSwitch.onclick = gameMode==='tournament' ? chooseClassicFromSetup : chooseTournamentFromSetup;
+  }
   showScreen('screen-setup');
+}
+
+function leaveOnlineToComputer(){
+  gameMode = 'classic';
+  showScreen('screen-mode');
 }
 
 function chooseTournamentFromSetup(){
