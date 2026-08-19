@@ -594,6 +594,12 @@ let onlineUser = null;
 let onlineRoomCode = '';
 let onlineRole = '';
 let pendingOnlineBudget = 0;
+let onlineRoomRef = null;
+let onlineActionListener = null;
+let onlineStateListener = null;
+let onlineResultListener = null;
+let onlineLastActionId = '';
+let onlineSyncTimer = null;
 
 const CPU_TEAM_NAMES = [
   'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
@@ -859,6 +865,106 @@ function onlineRoomReady(){
   setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget}.`);
 }
 
+function onlineStateSnapshot(){
+  return {...S, turnTimerId:null, cpuDecisionTimeout:null, cpuTeamName:pendingGuestTeamName || S.cpuTeamName};
+}
+
+let pendingGuestTeamName = '';
+
+function publishOnlineState(){
+  if(onlineRole!=='host' || !onlineRoomRef || !S) return;
+  onlineRoomRef.child('stateData').set(onlineStateSnapshot());
+}
+
+function sendOnlineAction(type){
+  if(!onlineRoomRef || onlineRole!=='guest') return;
+  onlineRoomRef.child('action').set({type, id:`${onlineUser.uid}-${Date.now()}`});
+}
+
+function listenForOnlineState(){
+  if(!onlineRoomRef) return;
+  if(onlineStateListener) onlineRoomRef.child('stateData').off('value', onlineStateListener);
+  onlineStateListener = snapshot=>{
+    if(onlineRole!=='guest') return;
+    const remoteState = snapshot.val();
+    if(!remoteState) return;
+    S = remoteState;
+    S.turnTimerId = null;
+    S.cpuDecisionTimeout = null;
+    document.getElementById('youLabel').textContent = S.cpuTeamName;
+    document.getElementById('cpuLabel').textContent = S.teamName;
+    document.getElementById('youBudget').textContent = '$'+S.cpuBudget;
+    document.getElementById('cpuBudget').textContent = '$'+S.youBudget;
+    showScreen('screen-draft');
+    updateQuotaRow();
+    renderMiniRosters();
+    if(S.current) renderOnlineCurrentPlayer();
+    updateTurnUI();
+  };
+  onlineRoomRef.child('stateData').on('value', onlineStateListener);
+  onlineResultListener = snapshot=>{
+    const result = snapshot.val();
+    if(onlineRole==='guest' && result) showOnlineResult(result);
+  };
+  onlineRoomRef.child('result').on('value', onlineResultListener);
+}
+
+function showOnlineResult(result){
+  showScreen('screen-result');
+  document.getElementById('fsYou').textContent = result.cpuScore;
+  document.getElementById('fsCpu').textContent = result.hostScore;
+  document.getElementById('winnerBanner').textContent = result.hostScore===result.cpuScore
+    ? 'תוצאת המשחק'
+    : (result.hostScore>result.cpuScore ? `${result.hostTeam} ניצחה!` : `${result.guestTeam} ניצחה!`);
+  document.getElementById('rcYouTitle').textContent = result.guestTeam;
+  document.getElementById('rcYouCoach').textContent = 'מאמן: '+result.guestCoach;
+  document.getElementById('rcCpuTitle').textContent = result.hostTeam;
+  document.getElementById('rcCpuCoach').textContent = 'מאמן: '+result.hostCoach;
+  document.getElementById('rcYou').innerHTML = orderedRoster(result.guestRoster).map(p=>`<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
+  document.getElementById('rcCpu').innerHTML = orderedRoster(result.hostRoster).map(p=>`<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
+  document.getElementById('shareResultBtn').style.display = 'inline-block';
+  document.getElementById('shareResultBtn').textContent = result.hostScore<result.cpuScore ? '📤 שתף את הניצחון' : '📤 שתף את התוצאה';
+}
+
+function renderOnlineCurrentPlayer(){
+  const player = S.current;
+  document.getElementById('roundPill').textContent = `אונליין · סבב ${S.round+1} / ${S.roundOrder.length}`;
+  document.getElementById('posBadge').textContent = player.roleLabel || 'ללא עמדה';
+  document.getElementById('pName').textContent = player.name;
+  const avatarImg=document.getElementById('avatarImg');
+  const avatarInitials=document.getElementById('avatarInitials');
+  avatarInitials.textContent=player.name.split(' ').map(w=>w[0]).join('');
+  if(player.image){ avatarImg.src=player.image; avatarImg.style.display='block'; avatarInitials.style.display='none'; }
+  else { avatarImg.removeAttribute('src'); avatarImg.style.display='none'; avatarInitials.style.display='block'; }
+}
+
+function listenForOnlineAction(){
+  if(onlineRole!=='host' || !onlineRoomRef) return;
+  onlineActionListener = snapshot=>{
+    const action = snapshot.val();
+    if(!action || action.id===onlineLastActionId) return;
+    onlineLastActionId = action.id;
+    if(S && S.turn==='cpu' && S.active){
+      if(action.type==='bid') handleOnlineGuestBid();
+      if(action.type==='giveup') handleForfeit('cpu', 'giveup');
+    }
+  };
+  onlineRoomRef.child('action').on('value', onlineActionListener);
+}
+
+function handleOnlineGuestBid(){
+  if(!S || !S.active || S.turn!=='cpu') return;
+  const nextPrice = S.price + 1;
+  if(nextPrice > S.cpuBudget) return;
+  S.price = nextPrice;
+  S.holder = 'cpu';
+  document.getElementById('bidPrice').textContent = '$'+S.price;
+  document.getElementById('bidHolder').textContent = `ההצעה המובילה: ${S.cpuTeamName}`;
+  updateBudgets();
+  startTurn('you');
+  publishOnlineState();
+}
+
 async function createOnlineRoom(){
   try {
     await ensureOnlineAuth();
@@ -866,10 +972,12 @@ async function createOnlineRoom(){
     while((await onlineDb.ref(`rooms/${code}`).get()).exists()) code = makeRoomCode();
     onlineRoomCode = code;
     onlineRole = 'host';
-    await onlineDb.ref(`rooms/${code}`).set({
+    onlineRoomRef = onlineDb.ref(`rooms/${code}`);
+    await onlineRoomRef.set({
       state:'waiting',
       hostUid:onlineUser.uid,
       guestUid:null,
+      hostTeamName:pendingTeamName,
       draftType,
       budget:pendingOnlineBudget,
       createdAt:firebase.database.ServerValue.TIMESTAMP
@@ -877,6 +985,7 @@ async function createOnlineRoom(){
     document.getElementById('onlineRoomCode').value = code;
     setOnlineStatus(`החדר נוצר. שלח את הקוד ${code} לחבר והמתן להצטרפות.`);
     listenForOnlineGuest();
+    listenForOnlineAction();
   } catch(error){
     setOnlineStatus('יצירת החדר נכשלה. בדוק את הגדרות Firebase.');
   }
@@ -892,10 +1001,15 @@ async function joinOnlineRoom(){
     if(!snapshot.exists()){ setOnlineStatus('החדר לא נמצא.'); return; }
     const room = snapshot.val();
     if(room.guestUid && room.guestUid!==onlineUser.uid){ setOnlineStatus('החדר כבר מלא.'); return; }
+    draftType = room.draftType || draftType;
+    pendingOnlineBudget = room.budget || pendingOnlineBudget;
     onlineRoomCode = code;
     onlineRole = 'guest';
-    await roomRef.update({guestUid:onlineUser.uid, state:'ready', draftType, budget:pendingOnlineBudget});
+    onlineRoomRef = roomRef;
+    pendingGuestTeamName = pendingTeamName;
+    await roomRef.update({guestUid:onlineUser.uid, guestTeamName:pendingTeamName, state:'ready', draftType, budget:pendingOnlineBudget});
     onlineRoomReady();
+    listenForOnlineState();
   } catch(error){
     setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
   }
@@ -905,9 +1019,38 @@ function listenForOnlineGuest(){
   onlineDb.ref(`rooms/${onlineRoomCode}`).on('value', snapshot=>{
     const room = snapshot.val();
     if(room && room.guestUid){
+      pendingGuestTeamName = room.guestTeamName || 'הקבוצה של האורח';
       onlineRoomReady();
+      if(!S) startOnlineGame();
     }
   });
+}
+
+function startOnlineGame(){
+  if(onlineRole!=='host' || !onlineRoomRef || S) return;
+  const pool = buildPool();
+  S = {
+    budget: pendingOnlineBudget,
+    youBudget: pendingOnlineBudget,
+    cpuBudget: pendingOnlineBudget,
+    teamName: pendingTeamName,
+    coachName: pendingCoachName,
+    cpuTeamName: pendingGuestTeamName || 'הקבוצה של האורח',
+    gameMode:'online', draftType,
+    round:0,
+    roundOrder: draftType==='free' ? buildFreeRoundOrder() : buildRoundOrder(),
+    pool, youRoster:[], cpuRoster:[],
+    youCount:{G:0,F:0,C:0}, cpuCount:{G:0,F:0,C:0},
+    current:null, price:0, holder:null, turn:null, tLeft:TURN_SECONDS,
+    turnTimerId:null, cpuDecisionTimeout:null, active:false
+  };
+  showScreen('screen-draft');
+  updateQuotaRow();
+  renderMiniRosters();
+  listenForOnlineState();
+  publishOnlineState();
+  onlineSyncTimer = setInterval(publishOnlineState, 500);
+  nextRound();
 }
 
 function chooseDraftType(type){
@@ -1219,7 +1362,8 @@ function startTurn(side){
   S.tLeft = TURN_SECONDS;
   updateTurnUI();
   S.turnTimerId = setInterval(turnTick, 1000);
-  if(side==='cpu'){ scheduleCpuDecision(); }
+  if(side==='cpu' && S.gameMode!=='online'){ scheduleCpuDecision(); }
+  publishOnlineState();
 }
 
 function updateTurnUI(){
@@ -1231,11 +1375,13 @@ function updateTurnUI(){
   digit.textContent = S.tLeft;
   ring.style.strokeDashoffset = 0;
   ring.classList.remove('warn');
-  if(S.turn==='you'){
+  const localTurn = S.gameMode==='online' && onlineRole==='guest' ? S.turn==='cpu' : S.turn==='you';
+  if(localTurn){
     label.textContent='התור שלך — הצע או וותר';
     label.className='turn-label you';
     ring.classList.remove('cpu-turn');
-    bidBtn.disabled = (S.price+1) > S.youBudget;
+    const budget = S.gameMode==='online' && onlineRole==='guest' ? S.cpuBudget : S.youBudget;
+    bidBtn.disabled = (S.price+1) > budget;
     giveUpBtn.disabled = false;
   } else {
     label.textContent=`תור ${S.cpuTeamName}...`;
@@ -1272,6 +1418,10 @@ function updateBudgets(){
 }
 
 function placeBid(){
+  if(S.gameMode==='online' && onlineRole==='guest'){
+    if(S.active && S.turn==='cpu' && S.price+1<=S.cpuBudget) sendOnlineAction('bid');
+    return;
+  }
   if(!S.active || S.turn!=='you') return;
   const nextPrice = S.price + 1;
   if(nextPrice > S.youBudget) return;
@@ -1280,9 +1430,14 @@ function placeBid(){
   document.getElementById('bidHolder').textContent = 'ההצעה המובילה: אתה';
   updateBudgets();
   startTurn('cpu');
+  publishOnlineState();
 }
 
 function giveUp(){
+  if(S && S.gameMode==='online' && onlineRole==='guest'){
+    if(S.active && S.turn==='cpu') sendOnlineAction('giveup');
+    return;
+  }
   if(!S.active || S.turn!=='you') return;
   handleForfeit('you', 'giveup');
 }
@@ -1381,6 +1536,19 @@ function showResult(){
   let youScore = Math.round(58 + youPower*0.7 + (Math.random()*10-5));
   let cpuScore = Math.round(58 + cpuPower*0.7 + (Math.random()*10-5));
   if(youScore===cpuScore){ if(youPower>=cpuPower) youScore+=1; else cpuScore+=1; }
+
+  if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef){
+    onlineRoomRef.child('result').set({
+      hostScore:youScore,
+      cpuScore,
+      hostTeam:S.teamName,
+      guestTeam:S.cpuTeamName,
+      hostCoach:S.coachName,
+      guestCoach:'אורח',
+      hostRoster:S.youRoster,
+      guestRoster:S.cpuRoster
+    });
+  }
 
   showScreen('screen-result');
   document.getElementById('shareResultBtn').style.display = 'none';
