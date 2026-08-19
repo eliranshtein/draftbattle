@@ -1042,6 +1042,7 @@ function startOnlineGame(){
     pool, youRoster:[], cpuRoster:[],
     youCount:{G:0,F:0,C:0}, cpuCount:{G:0,F:0,C:0},
     current:null, price:0, holder:null, turn:null, tLeft:TURN_SECONDS,
+    onlineStarter:Math.random()<0.5 ? 'you' : 'cpu',
     turnTimerId:null, cpuDecisionTimeout:null, active:false
   };
   showScreen('screen-draft');
@@ -1351,7 +1352,10 @@ function runBiddingRound(role){
   document.getElementById('bidPrice').textContent = '$'+S.price;
   document.getElementById('bidHolder').textContent = 'מחיר פתיחה — אין הצעות עדיין';
   updateBudgets();
-  const startSide = Math.random()<0.5 ? 'you':'cpu';
+  const startSide = S.gameMode==='online'
+    ? S.onlineStarter
+    : (Math.random()<0.5 ? 'you':'cpu');
+  if(S.gameMode==='online') S.onlineStarter = startSide==='you' ? 'cpu' : 'you';
   startTurn(startSide);
 }
 
