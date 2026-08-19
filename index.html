@@ -12,6 +12,9 @@
   gtag('js', new Date());
   gtag('config', 'G-013E35TS12');
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <title>Draft Battle | בנה חמישייה, נצח את המחשב</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
@@ -55,6 +58,7 @@
 
   .screen{display:none; flex-direction:column; gap:14px;}
   .screen.active{display:flex;}
+    .online-actions{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:10px;}
   #screen-splash,
   #screen-draft-type,
   #screen-mode,
@@ -109,6 +113,7 @@
   .share-result-btn{display:none; margin-top:10px; background:var(--gold); color:#211706;}
   .share-result-btn:hover{background:#ffd36a;}
   .mode-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+  #screen-mode .mode-grid{grid-template-columns:repeat(3,1fr);}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .mode-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
   .mode-opt .mode-icon{font-size:32px; line-height:1;}
@@ -308,7 +313,7 @@
         <div class="splash-eyebrow">🏀 קרב המכרזים המהיר בעיר</div>
         <h2 class="splash-title">Draft Battle</h2>
         <p class="splash-tagline">אתה מול קבוצה שלא נחה לרגע. תקציב מוגבל, שעון רץ, וכל שחקן שאתה מפספס — הוא שחקן שהיריב תופס. ברוכים הבאים לזירה.</p>
-        <button class="cta-btn" onclick="showScreen('screen-draft-type')">בוא נתחיל! 🏀</button>
+        <button class="cta-btn" onclick="showScreen('screen-mode')">בוא נתחיל! 🏀</button>
       </div>
     </div>
   </section>
@@ -330,7 +335,25 @@
           <div class="sub">2 גארדים, 2 פורוורדים וסנטר</div>
         </div>
       </div>
-      <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
+      <button class="ghost-btn" onclick="showScreen('screen-mode')">← הקודם</button>
+    </div>
+  </section>
+
+  <!-- ONLINE LOBBY -->
+  <section id="screen-online" class="screen">
+    <div class="setup-card">
+      <h2>משחק אונליין</h2>
+      <p>צור חדר ושלח את הקוד לחבר, או הצטרף לחדר קיים.</p>
+      <div class="field-group">
+        <label for="onlineRoomCode">קוד חדר</label>
+        <input id="onlineRoomCode" type="text" maxlength="6" placeholder="לדוגמה: A7K2P9" autocomplete="off">
+      </div>
+      <div class="online-actions">
+        <button class="primary-btn" onclick="createOnlineRoom()">➕ צור חדר</button>
+        <button class="ghost-btn" onclick="joinOnlineRoom()">🔗 הצטרף לחדר</button>
+      </div>
+      <div id="onlineStatus" class="tag" aria-live="polite"></div>
+      <button class="ghost-btn" onclick="showScreen('screen-mode')">← הקודם</button>
     </div>
   </section>
 
@@ -350,8 +373,13 @@
           <div class="nm">טורניר</div>
           <div class="sub">שמינית, רבע, חצי וגמר</div>
         </div>
+        <div class="mode-opt" onclick="chooseMode('online')">
+          <div class="mode-icon">🌐</div>
+          <div class="nm">אונליין</div>
+          <div class="sub">שחק מול אדם בחדר משותף</div>
+        </div>
       </div>
-      <button class="ghost-btn" onclick="showScreen('screen-draft-type')">← הקודם</button>
+      <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
     </div>
   </section>
 
@@ -549,6 +577,22 @@ const RING_C = 2*Math.PI*44;
 const ANNOUNCE_MS = 1900;
 const AUTO_PLACEMENT_ANNOUNCE_MS = 3700;
 const RESULT_ANIM_MS = 3000; // extended by 2s for more suspense
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDTwTaHVG6hnKRjnOLzp3K4_zHflekI2KQ',
+  authDomain: 'draft-battle-e8df9.firebaseapp.com',
+  databaseURL: 'https://draft-battle-e8df9-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'draft-battle-e8df9',
+  storageBucket: 'draft-battle-e8df9.firebasestorage.app',
+  messagingSenderId: '1015207762485',
+  appId: '1:1015207762485:web:2d5d115fbe1518d06daf7c'
+};
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const onlineAuth = firebase.auth(firebaseApp);
+const onlineDb = firebase.database(firebaseApp);
+let onlineUser = null;
+let onlineRoomCode = '';
+let onlineRole = '';
 
 const CPU_TEAM_NAMES = [
   'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
@@ -785,12 +829,96 @@ function closeTrophyRoom(){ document.getElementById('trophyModal').classList.rem
 
 function chooseMode(mode){
   gameMode = mode;
+  if(mode==='online'){
+    showScreen('screen-online');
+    setOnlineStatus('מתחבר לשירות האונליין...');
+    ensureOnlineAuth();
+    return;
+  }
+  showScreen('screen-draft-type');
+}
+
+function setOnlineStatus(message){
+  const status = document.getElementById('onlineStatus');
+  if(status) status.textContent = message;
+}
+
+function ensureOnlineAuth(){
+  if(onlineUser) return Promise.resolve(onlineUser);
+  return onlineAuth.signInAnonymously().then(result=>{
+    onlineUser = result.user;
+    setOnlineStatus('מחובר. אפשר ליצור חדר או להצטרף לחדר.');
+    return onlineUser;
+  }).catch(error=>{
+    setOnlineStatus('לא ניתן להתחבר כרגע. בדוק שהתחברות אנונימית מופעלת ב-Firebase.');
+    throw error;
+  });
+}
+
+function makeRoomCode(){
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:6}, ()=>alphabet[Math.floor(Math.random()*alphabet.length)]).join('');
+}
+
+function enterOnlineNames(){
+  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. אפשר להמשיך להזנת שם הקבוצה.`);
   showScreen('screen-names');
+}
+
+async function createOnlineRoom(){
+  try {
+    await ensureOnlineAuth();
+    let code = makeRoomCode();
+    while((await onlineDb.ref(`rooms/${code}`).get()).exists()) code = makeRoomCode();
+    onlineRoomCode = code;
+    onlineRole = 'host';
+    await onlineDb.ref(`rooms/${code}`).set({
+      state:'waiting',
+      hostUid:onlineUser.uid,
+      guestUid:null,
+      createdAt:firebase.database.ServerValue.TIMESTAMP
+    });
+    document.getElementById('onlineRoomCode').value = code;
+    setOnlineStatus(`החדר נוצר. שלח את הקוד ${code} לחבר והמתן להצטרפות.`);
+    listenForOnlineGuest();
+  } catch(error){
+    setOnlineStatus('יצירת החדר נכשלה. בדוק את הגדרות Firebase.');
+  }
+}
+
+async function joinOnlineRoom(){
+  const code = document.getElementById('onlineRoomCode').value.trim().toUpperCase();
+  if(code.length!==6){ setOnlineStatus('הזן קוד חדר בן 6 תווים.'); return; }
+  try {
+    await ensureOnlineAuth();
+    const roomRef = onlineDb.ref(`rooms/${code}`);
+    const snapshot = await roomRef.get();
+    if(!snapshot.exists()){ setOnlineStatus('החדר לא נמצא.'); return; }
+    const room = snapshot.val();
+    if(room.guestUid && room.guestUid!==onlineUser.uid){ setOnlineStatus('החדר כבר מלא.'); return; }
+    onlineRoomCode = code;
+    onlineRole = 'guest';
+    await roomRef.update({guestUid:onlineUser.uid, state:'ready'});
+    setOnlineStatus('הצטרפת לחדר. אפשר להמשיך להזנת שם הקבוצה.');
+    enterOnlineNames();
+  } catch(error){
+    setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
+  }
+}
+
+function listenForOnlineGuest(){
+  onlineDb.ref(`rooms/${onlineRoomCode}`).on('value', snapshot=>{
+    const room = snapshot.val();
+    if(room && room.guestUid){
+      setOnlineStatus('שחקן נוסף הצטרף. אפשר להתחיל.');
+      enterOnlineNames();
+    }
+  });
 }
 
 function chooseDraftType(type){
   draftType = type;
-  showScreen('screen-mode');
+  showScreen('screen-names');
 }
 
 function tournamentOpponentForRound(round){
