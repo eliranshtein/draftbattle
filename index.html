@@ -691,6 +691,7 @@ function buildPool(){
 function buildRoundOrder(){
   let order=[];
   ROLES.forEach(role=>{ for(let i=0;i<role.quota*2;i++) order.push(role.key); });
+  while(order.length<15) order.push(ROLES[Math.floor(Math.random()*ROLES.length)].key);
   for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
   return order;
 }
@@ -960,7 +961,6 @@ function showAnnounce(title, sub, icon, type){
 function hideAnnounce(){ document.getElementById('announceBg').classList.remove('active'); }
 
 function nextRound(){
-  if(S.youRoster.length >= 5 && S.cpuRoster.length >= 5){ endDraft(); return; }
   if(S.round >= S.roundOrder.length){ endDraft(); return; }
   const roleKey = S.roundOrder[S.round];
   const role = roleKey ? ROLE_MAP[roleKey] : null;
