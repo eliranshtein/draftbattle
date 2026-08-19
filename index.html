@@ -593,6 +593,7 @@ const onlineDb = firebase.database(firebaseApp);
 let onlineUser = null;
 let onlineRoomCode = '';
 let onlineRole = '';
+let pendingOnlineBudget = 0;
 
 const CPU_TEAM_NAMES = [
   'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
@@ -829,12 +830,6 @@ function closeTrophyRoom(){ document.getElementById('trophyModal').classList.rem
 
 function chooseMode(mode){
   gameMode = mode;
-  if(mode==='online'){
-    showScreen('screen-online');
-    setOnlineStatus('מתחבר לשירות האונליין...');
-    ensureOnlineAuth();
-    return;
-  }
   showScreen('screen-draft-type');
 }
 
@@ -860,9 +855,8 @@ function makeRoomCode(){
   return Array.from({length:6}, ()=>alphabet[Math.floor(Math.random()*alphabet.length)]).join('');
 }
 
-function enterOnlineNames(){
-  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. אפשר להמשיך להזנת שם הקבוצה.`);
-  showScreen('screen-names');
+function onlineRoomReady(){
+  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget}.`);
 }
 
 async function createOnlineRoom(){
@@ -876,6 +870,8 @@ async function createOnlineRoom(){
       state:'waiting',
       hostUid:onlineUser.uid,
       guestUid:null,
+      draftType,
+      budget:pendingOnlineBudget,
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
     document.getElementById('onlineRoomCode').value = code;
@@ -898,9 +894,8 @@ async function joinOnlineRoom(){
     if(room.guestUid && room.guestUid!==onlineUser.uid){ setOnlineStatus('החדר כבר מלא.'); return; }
     onlineRoomCode = code;
     onlineRole = 'guest';
-    await roomRef.update({guestUid:onlineUser.uid, state:'ready'});
-    setOnlineStatus('הצטרפת לחדר. אפשר להמשיך להזנת שם הקבוצה.');
-    enterOnlineNames();
+    await roomRef.update({guestUid:onlineUser.uid, state:'ready', draftType, budget:pendingOnlineBudget});
+    onlineRoomReady();
   } catch(error){
     setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
   }
@@ -910,8 +905,7 @@ function listenForOnlineGuest(){
   onlineDb.ref(`rooms/${onlineRoomCode}`).on('value', snapshot=>{
     const room = snapshot.val();
     if(room && room.guestUid){
-      setOnlineStatus('שחקן נוסף הצטרף. אפשר להתחיל.');
-      enterOnlineNames();
+      onlineRoomReady();
     }
   });
 }
@@ -984,6 +978,13 @@ function chooseClassicFromSetup(){
 }
 
 function startGame(budget, continueTournament=false){
+  if(gameMode==='online'){
+    pendingOnlineBudget = budget;
+    showScreen('screen-online');
+    setOnlineStatus('בחרת את המוד והתקציב. עכשיו צור חדר או הצטרף לחדר קיים.');
+    ensureOnlineAuth();
+    return;
+  }
   if(gameMode==='tournament' && !continueTournament){
     tournamentOpponents = [...CPU_TEAM_NAMES].sort(()=>Math.random()-0.5);
     tournamentRound = 0;
