@@ -620,7 +620,12 @@ let onlineActionListener = null;
 let onlineStateListener = null;
 let onlineResultListener = null;
 let onlineLastActionId = '';
+let onlineAnnouncementListener = null;
+let onlineLastAnnouncementId = '';
 let onlineSyncTimer = null;
+let onlineGuestTimerId = null;
+let onlineGuestTimerDeadline = 0;
+let onlineGuestTimeoutSent = false;
 
 const CPU_TEAM_NAMES = [
   'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
@@ -846,6 +851,8 @@ function closeTrophyRoom(){ document.getElementById('trophyModal').classList.rem
 function chooseMode(mode){
   gameMode = mode;
   if(mode==='online'){
+    S = null;
+    pendingOnlineBudget = 0;
     showScreen('screen-online-path');
     return;
   }
@@ -901,8 +908,56 @@ function publishOnlineState(){
 }
 
 function sendOnlineAction(type){
-  if(!onlineRoomRef || onlineRole!=='guest') return;
-  onlineRoomRef.child('action').set({type, id:`${onlineUser.uid}-${Date.now()}`});
+  if(!onlineRoomRef || onlineRole!=='guest'){
+    setOnlineTurnMessage('החדר לא מחובר לאורח.');
+    return;
+  }
+  setOnlineTurnMessage('שולח פעולה למארח...');
+  onlineRoomRef.child('action').set({type, id:`${onlineUser.uid}-${Date.now()}`})
+    .then(()=>setOnlineTurnMessage('הפעולה נשלחה. ממתין לעדכון מהמארח.'))
+    .catch(error=>setOnlineStatus(`שליחת הפעולה נכשלה: ${error.message}`));
+}
+
+function setOnlineTurnMessage(message){
+  const label = document.getElementById('turnLabel');
+  if(label && onlineRole==='guest') label.textContent = message;
+}
+
+function updateOnlineGuestBudgets(){
+  document.getElementById('youBudget').textContent = '$'+(S.cpuBudget - (S.holder==='cpu' ? S.price : 0));
+  document.getElementById('cpuBudget').textContent = '$'+(S.youBudget - (S.holder==='you' ? S.price : 0));
+}
+
+function canGuestActOnline(){
+  return Boolean(S && onlineRole==='guest' && onlineRoomRef && S.current && S.turn==='cpu');
+}
+
+function startOnlineGuestClock(deadline){
+  if(!deadline || onlineGuestTimerDeadline===deadline) return;
+  if(onlineGuestTimerId) clearInterval(onlineGuestTimerId);
+  onlineGuestTimerDeadline = deadline; // used only to detect a new turn from the host
+  // Compute the countdown against the GUEST's own clock, giving them a fresh
+  // full TURN_SECONDS window from the moment their screen updates. Comparing
+  // directly against the host's absolute deadline (Date.now() on the host's
+  // machine) silently ate seconds to network latency and any clock drift
+  // between the two devices - sometimes leaving the guest with 0-1 seconds
+  // (or an already-expired timer) the instant their turn started.
+  const localDeadline = Date.now() + TURN_SECONDS*1000;
+  onlineGuestTimeoutSent = false;
+  const tick = ()=>{
+    if(!S || onlineRole!=='guest' || S.turn!=='cpu') return;
+    S.tLeft = Math.max(0, Math.ceil((localDeadline-Date.now())/1000));
+    updateRingUI();
+    if(S.tLeft<=0 && !onlineGuestTimeoutSent){
+      onlineGuestTimeoutSent = true;
+      clearInterval(onlineGuestTimerId);
+      onlineGuestTimerId = null;
+      sendOnlineAction('timeout');
+    }
+  };
+  updateTurnUI();
+  tick();
+  onlineGuestTimerId = setInterval(tick, 200);
 }
 
 function listenForOnlineState(){
@@ -915,27 +970,42 @@ function listenForOnlineState(){
     S = remoteState;
     S.turnTimerId = null;
     S.cpuDecisionTimeout = null;
+    // Firebase Realtime Database silently drops keys whose value is an empty
+    // array (e.g. youRoster:[] is stored as nothing at all). While a roster
+    // still has 0 players, S.youRoster/S.cpuRoster arrive here as `undefined`
+    // instead of `[]`. Roster rendering then calls .filter() on that and
+    // throws - and because that render call happens BEFORE the timer/ring
+    // update code further down this same function, the crash was silently
+    // aborting everything after it, including the guest's clock/ring update.
+    // That's the real cause of the "frozen screen".
+    S.youRoster = S.youRoster || [];
+    S.cpuRoster = S.cpuRoster || [];
+    S.pool = S.pool || [];
+    if(S.turn!=='cpu'){
+      // Only trust the host's absolute deadline when it's NOT the guest's turn.
+      // During the guest's own turn, startOnlineGuestClock() below owns tLeft
+      // via the guest's local clock - otherwise this line was overwriting it
+      // every ~500ms (on every routine state sync from the host) with a value
+      // skewed by network latency/clock drift, which is why the ring looked
+      // like it wasn't really counting down.
+      S.tLeft = S.turnDeadline ? Math.max(0, Math.ceil((S.turnDeadline-Date.now())/1000)) : (S.tLeft || 0);
+    }
     document.getElementById('youLabel').textContent = S.cpuTeamName;
     document.getElementById('cpuLabel').textContent = S.teamName;
-    document.getElementById('youBudget').textContent = '$'+S.cpuBudget;
-    document.getElementById('cpuBudget').textContent = '$'+S.youBudget;
-    showScreen('screen-draft');
+    document.getElementById('bidPrice').textContent = S.price ? '$'+S.price : '$0';
+    document.getElementById('bidHolder').textContent = S.holder==='cpu'
+      ? `ההצעה המובילה: ${S.cpuTeamName}`
+      : S.holder==='you' ? `ההצעה המובילה: ${S.teamName}` : 'מחיר פתיחה — אין הצעות עדיין';
+    updateOnlineGuestBudgets();
+    if(S.current){
+      showScreen('screen-draft');
+      renderOnlineCurrentPlayer();
+    }
     updateQuotaRow();
     renderMiniRosters();
-    if(S.current) renderOnlineCurrentPlayer();
     updateTurnUI();
-    if(S.turnTimerId) clearInterval(S.turnTimerId);
-    if(S.active && S.turn==='cpu'){
-      S.turnTimerId = setInterval(()=>{
-        S.tLeft -= 1;
-        updateRingUI();
-        if(S.tLeft<=0){
-          clearInterval(S.turnTimerId);
-          S.turnTimerId = null;
-          sendOnlineAction('timeout');
-        }
-      }, 1000);
-    }
+    updateRingUI();
+    if(S.turn==='cpu') startOnlineGuestClock(S.turnDeadline);
   };
   onlineRoomRef.child('stateData').on('value', onlineStateListener, error=>{
     setOnlineStatus(`שגיאת סנכרון המשחק: ${error.message}`);
@@ -945,6 +1015,20 @@ function listenForOnlineState(){
     if(onlineRole==='guest' && result) showOnlineResult(result);
   };
   onlineRoomRef.child('result').on('value', onlineResultListener);
+  listenForOnlineAnnouncements();
+}
+
+function listenForOnlineAnnouncements(){
+  if(!onlineRoomRef || onlineRole!=='guest') return;
+  if(onlineAnnouncementListener) onlineRoomRef.child('announcement').off('value', onlineAnnouncementListener);
+  onlineAnnouncementListener = snapshot=>{
+    const announcement = snapshot.val();
+    if(!announcement || announcement.id===onlineLastAnnouncementId) return;
+    onlineLastAnnouncementId = announcement.id;
+    showAnnounce(announcement.title, announcement.sub, announcement.icon, announcement.type, false);
+    setTimeout(()=>hideAnnounce(false), announcement.duration || ANNOUNCE_MS);
+  };
+  onlineRoomRef.child('announcement').on('value', onlineAnnouncementListener);
 }
 
 function showOnlineResult(result){
@@ -974,6 +1058,12 @@ function renderOnlineCurrentPlayer(){
   avatarInitials.textContent=player.name.split(' ').map(w=>w[0]).join('');
   if(player.image){ avatarImg.src=player.image; avatarImg.style.display='block'; avatarInitials.style.display='none'; }
   else { avatarImg.removeAttribute('src'); avatarImg.style.display='none'; avatarInitials.style.display='block'; }
+  const toast = document.getElementById('playerEntryToast');
+  const initials = player.name.split(' ').map(word=>word[0]).join('');
+  toast.innerHTML = player.image
+    ? `<img class="toast-avatar" src="${player.image}" alt="${player.name}"><span>שחקן חדש נכנס למכרז: ${player.name}</span>`
+    : `<span class="toast-initials">${initials}</span><span>שחקן חדש נכנס למכרז: ${player.name}</span>`;
+  toast.classList.add('show');
 }
 
 function listenForOnlineAction(){
@@ -982,7 +1072,7 @@ function listenForOnlineAction(){
     const action = snapshot.val();
     if(!action || action.id===onlineLastActionId) return;
     onlineLastActionId = action.id;
-    if(S && S.turn==='cpu' && S.active){
+    if(S && S.current && S.turn==='cpu'){
       if(action.type==='bid') handleOnlineGuestBid();
       if(action.type==='giveup' || action.type==='timeout') handleForfeit('cpu', action.type);
     }
@@ -991,7 +1081,7 @@ function listenForOnlineAction(){
 }
 
 function handleOnlineGuestBid(){
-  if(!S || !S.active || S.turn!=='cpu') return;
+  if(!S || !S.current || S.turn!=='cpu') return;
   const nextPrice = S.price + 1;
   if(nextPrice > S.cpuBudget) return;
   S.price = nextPrice;
@@ -1005,6 +1095,7 @@ function handleOnlineGuestBid(){
 
 async function createOnlineRoom(){
   try {
+    S = null;
     await ensureOnlineAuth();
     let code = makeRoomCode();
     while((await onlineDb.ref(`rooms/${code}`).get()).exists()) code = makeRoomCode();
@@ -1045,9 +1136,6 @@ async function joinOnlineRoom(){
     onlineRole = 'guest';
     onlineRoomRef = roomRef;
     pendingGuestTeamName = pendingTeamName;
-    await roomRef.update({guestUid:onlineUser.uid, guestTeamName:pendingTeamName, state:'ready', draftType, budget:pendingOnlineBudget});
-    onlineRoomReady();
-    listenForOnlineState();
     showScreen('screen-names');
   } catch(error){
     setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
@@ -1057,7 +1145,7 @@ async function joinOnlineRoom(){
 function listenForOnlineGuest(){
   onlineDb.ref(`rooms/${onlineRoomCode}`).on('value', snapshot=>{
     const room = snapshot.val();
-    if(room && room.guestUid){
+    if(room && room.guestUid && room.guestTeamName){
       pendingGuestTeamName = room.guestTeamName || 'הקבוצה של האורח';
       draftType = room.draftType || draftType;
       pendingOnlineBudget = room.budget || pendingOnlineBudget;
@@ -1090,10 +1178,10 @@ function startOnlineGame(){
   updateQuotaRow();
   renderMiniRosters();
   listenForOnlineState();
-  publishOnlineState();
   onlineRoomRef.update({state:'playing'});
   onlineSyncTimer = setInterval(publishOnlineState, 500);
   nextRound();
+  publishOnlineState();
 }
 
 function chooseDraftType(type){
@@ -1141,7 +1229,8 @@ function goToSetup(){
   pendingTeamName = document.getElementById('teamNameInput').value.trim() || 'הקבוצה שלי';
   pendingCoachName = document.getElementById('coachNameInput').value.trim() || 'מאמן אלמוני';
   if(gameMode==='online' && onlineRole==='guest' && onlineRoomRef){
-    onlineRoomRef.update({guestTeamName:pendingTeamName, guestCoachName:pendingCoachName});
+    onlineRoomRef.update({guestUid:onlineUser.uid, guestTeamName:pendingTeamName, guestCoachName:pendingCoachName, state:'ready'});
+    listenForOnlineState();
     setOnlineStatus(`הצטרפת לחדר ${onlineRoomCode}. ממתין שהמארח יתחיל את המשחק.`);
     showScreen('screen-online');
     return;
@@ -1221,12 +1310,17 @@ function startGame(budget, continueTournament=false){
 
 function updateQuotaRow(){
   const row = document.getElementById('quotaRow');
+  const isGuestView = onlineRole==='guest' && onlineRoomRef;
+  const mineCount = isGuestView ? S.cpuCount : S.youCount;
+  const mineRoster = isGuestView ? S.cpuRoster : S.youRoster;
+  const oppCount = isGuestView ? S.youCount : S.cpuCount;
+  const oppRoster = isGuestView ? S.youRoster : S.cpuRoster;
   if(S.draftType==='free'){
-    row.innerHTML = `<span>סגל: <b>${S.youRoster.length}/5</b> נגד <b>${S.cpuRoster.length}/5</b></span>`;
+    row.innerHTML = `<span>סגל: <b>${mineRoster.length}/5</b> נגד <b>${oppRoster.length}/5</b></span>`;
     return;
   }
   row.innerHTML = ROLES.map(r=>
-    `<span>${r.label}: <b>${S.youCount[r.key]}/${r.quota}</b> נגד <b>${S.cpuCount[r.key]}/${r.quota}</b></span>`
+    `<span>${r.label}: <b>${mineCount[r.key]}/${r.quota}</b> נגד <b>${oppCount[r.key]}/${r.quota}</b></span>`
   ).join('');
 }
 
@@ -1241,6 +1335,7 @@ function lastName(name){
 }
 
 function slotListFor(roster){
+  roster = roster || [];
   if(S && S.draftType==='free'){
     return Array.from({length:5}, (_,index)=>({role:null, player:roster[index] || null, index}));
   }
@@ -1263,8 +1358,13 @@ function renderMiniRoster(elId, teamName, roster){
 }
 
 function renderMiniRosters(){
-  renderMiniRoster('miniYou', S.teamName, S.youRoster);
-  renderMiniRoster('miniCpu', S.cpuTeamName, S.cpuRoster);
+  if(onlineRole==='guest' && onlineRoomRef){
+    renderMiniRoster('miniYou', S.cpuTeamName, S.cpuRoster);
+    renderMiniRoster('miniCpu', S.teamName, S.youRoster);
+  } else {
+    renderMiniRoster('miniYou', S.teamName, S.youRoster);
+    renderMiniRoster('miniCpu', S.cpuTeamName, S.cpuRoster);
+  }
 }
 
 function pickPlayerForRole(roleKey){
@@ -1283,14 +1383,21 @@ function resetRingDisplay(digitText){
   ring.classList.remove('warn');
 }
 
-function showAnnounce(title, sub, icon, type){
+function showAnnounce(title, sub, icon, type, broadcast=true){
   document.getElementById('announceIcon').textContent = icon;
   document.getElementById('announceTitle').textContent = title;
   document.getElementById('announceSub').textContent = sub;
   document.getElementById('announceCard').className = 'announce-card '+type;
   document.getElementById('announceBg').classList.add('active');
+  if(broadcast && onlineRole==='host' && onlineRoomRef){
+    const duration = title==='שיבוץ אוטומטי' ? AUTO_PLACEMENT_ANNOUNCE_MS : ANNOUNCE_MS;
+    onlineRoomRef.child('announcement').set({title, sub, icon, type, duration, id:`${Date.now()}-${Math.random()}`});
+  }
 }
-function hideAnnounce(){ document.getElementById('announceBg').classList.remove('active'); }
+function hideAnnounce(broadcast=true){
+  document.getElementById('announceBg').classList.remove('active');
+  if(broadcast && onlineRole==='host' && onlineRoomRef) onlineRoomRef.child('announcement').remove();
+}
 
 function nextRound(){
   if(S.youRoster.length >= 5 && S.cpuRoster.length >= 5){ endDraft(); return; }
@@ -1412,6 +1519,7 @@ function startTurn(side){
   clearTimeout(S.cpuDecisionTimeout);
   S.turn = side;
   S.tLeft = TURN_SECONDS;
+  S.turnDeadline = Date.now() + TURN_SECONDS*1000;
   updateTurnUI();
   S.turnTimerId = setInterval(turnTick, 1000);
   if(side==='cpu' && S.gameMode!=='online'){ scheduleCpuDecision(); }
@@ -1427,16 +1535,18 @@ function updateTurnUI(){
   digit.textContent = S.tLeft;
   ring.style.strokeDashoffset = 0;
   ring.classList.remove('warn');
-  const localTurn = S.gameMode==='online' && onlineRole==='guest' ? S.turn==='cpu' : S.turn==='you';
+  const localTurn = onlineRole==='guest' && onlineRoomRef ? canGuestActOnline() : S.turn==='you';
   if(localTurn){
     label.textContent='התור שלך — הצע או וותר';
     label.className='turn-label you';
     ring.classList.remove('cpu-turn');
-    const budget = S.gameMode==='online' && onlineRole==='guest' ? S.cpuBudget : S.youBudget;
+    const budget = onlineRole==='guest' && onlineRoomRef ? S.cpuBudget : S.youBudget;
     bidBtn.disabled = (S.price+1) > budget;
     giveUpBtn.disabled = false;
   } else {
-    label.textContent=`תור ${S.cpuTeamName}...`;
+    label.textContent=onlineRole==='guest' && onlineRoomRef
+      ? `ממתין לתור של ${S.teamName}...`
+      : `תור ${S.cpuTeamName}...`;
     label.className='turn-label cpu';
     ring.classList.add('cpu-turn');
     bidBtn.disabled = true;
@@ -1470,8 +1580,8 @@ function updateBudgets(){
 }
 
 function placeBid(){
-  if(S.gameMode==='online' && onlineRole==='guest'){
-    if(S.active && S.turn==='cpu' && S.price+1<=S.cpuBudget) sendOnlineAction('bid');
+  if(onlineRole==='guest' && onlineRoomRef){
+    if(canGuestActOnline() && S.price+1<=S.cpuBudget) sendOnlineAction('bid');
     return;
   }
   if(!S.active || S.turn!=='you') return;
@@ -1486,8 +1596,8 @@ function placeBid(){
 }
 
 function giveUp(){
-  if(S && S.gameMode==='online' && onlineRole==='guest'){
-    if(S.active && S.turn==='cpu') sendOnlineAction('giveup');
+  if(S && onlineRole==='guest' && onlineRoomRef){
+    if(canGuestActOnline()) sendOnlineAction('giveup');
     return;
   }
   if(!S.active || S.turn!=='you') return;
