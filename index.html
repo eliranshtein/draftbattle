@@ -105,6 +105,8 @@
   .setup-mode-switch{display:flex; justify-content:center; margin-top:16px;}
   .setup-mode-switch button{background:transparent; border:1px solid var(--line); border-radius:8px; color:var(--gold); font-family:'Heebo',sans-serif; font-weight:700; font-size:12px; padding:8px 14px; cursor:pointer;}
   .setup-mode-switch button:hover{border-color:var(--gold); background:rgba(244,185,62,.08);}
+  .share-result-btn{margin-top:10px; background:var(--gold); color:#211706;}
+  .share-result-btn:hover{background:#ffd36a;}
   .mode-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .mode-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
@@ -465,6 +467,7 @@
       </div>
       <div>
         <button class="primary-btn" id="resultActionBtn" onclick="resetGame()">שחק שוב</button>
+        <button class="primary-btn share-result-btn" id="shareResultBtn" onclick="shareResultImage()">📤 שתף את התוצאה</button>
       </div>
     </div>
   </section>
@@ -1207,6 +1210,10 @@ function showResult(){
     animateScore('fsCpu', cpuScore, RESULT_ANIM_MS)
   ]).then(()=>{
     const userWon = youScore > cpuScore;
+    const shareButton = document.getElementById('shareResultBtn');
+    shareButton.textContent = userWon
+      ? (S.gameMode==='tournament' && S.tournamentRound===TOURNAMENT_ROUNDS.length-1 ? '📤 שתף את זכיית הגביע' : '📤 שתף את הניצחון')
+      : '📤 שתף את התוצאה';
     updateWinStreak(userWon, S.gameMode==='classic');
     if(userWon && S.gameMode==='classic') unlockAchievement('classicWin');
     if(userWon && S.gameMode==='classic'){
@@ -1260,6 +1267,91 @@ function showResult(){
       }
     }
   });
+}
+
+async function shareResultImage(){
+  if(!S) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 1000;
+  const ctx = canvas.getContext('2d');
+  const winnerText = document.getElementById('winnerBanner').textContent.trim();
+  const isCupWin = winnerText.includes('גביע');
+  const title = isCupWin ? 'זכייה בגביע!' : winnerText || 'תוצאת המשחק';
+  const youScore = document.getElementById('fsYou').textContent;
+  const cpuScore = document.getElementById('fsCpu').textContent;
+
+  ctx.fillStyle = '#0B0F14';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#182430';
+  ctx.fillRect(36, 36, canvas.width-72, canvas.height-72);
+  ctx.strokeStyle = '#E8590C';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(36, 36, canvas.width-72, canvas.height-72);
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = isCupWin ? '#F4B93E' : '#F3EFE8';
+  ctx.font = '900 48px Rubik, sans-serif';
+  ctx.fillText(title, canvas.width/2, 110);
+  ctx.fillStyle = '#9BA8B4';
+  ctx.font = '700 24px Heebo, sans-serif';
+  ctx.fillText(`${S.teamName} נגד ${S.cpuTeamName}`, canvas.width/2, 154);
+  ctx.fillStyle = '#F3EFE8';
+  ctx.font = '900 64px Rubik, sans-serif';
+  ctx.fillText(`${youScore}  -  ${cpuScore}`, canvas.width/2, 230);
+
+  function drawTeam(x, teamName, coach, roster, accent){
+    ctx.fillStyle = '#131A22';
+    ctx.fillRect(x-250, 280, 500, 610);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x-250, 280, 500, 610);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = accent;
+    ctx.font = '900 30px Rubik, sans-serif';
+    ctx.fillText(teamName, x, 335);
+    ctx.fillStyle = '#9BA8B4';
+    ctx.font = '500 21px Heebo, sans-serif';
+    ctx.fillText(coach, x, 372);
+    ctx.textAlign = 'right';
+    orderedRoster(roster).forEach((player, index)=>{
+      const y = 445 + index*76;
+      ctx.fillStyle = '#F3EFE8';
+      ctx.font = '700 24px Heebo, sans-serif';
+      ctx.fillText(player.name, x+205, y);
+      ctx.fillStyle = '#9BA8B4';
+      ctx.font = '500 19px Heebo, sans-serif';
+      ctx.fillText(`${player.roleLabel} · ${player.rating}`, x+205, y+29);
+    });
+  }
+
+  drawTeam(350, S.teamName, `מאמן: ${S.coachName}`, S.youRoster, '#F4B93E');
+  drawTeam(850, S.cpuTeamName, 'מאמן: יריב', S.cpuRoster, '#E8590C');
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#5C6975';
+  ctx.font = '500 18px Heebo, sans-serif';
+  ctx.fillText('Draft Battle', canvas.width/2, 945);
+
+  const blob = await new Promise(resolve=>canvas.toBlob(resolve, 'image/png'));
+  if(!blob) return;
+  const file = new File([blob], 'draft-battle-result.png', {type:'image/png'});
+  const shareButton = document.getElementById('shareResultBtn');
+  try {
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({title, text:title, files:[file]});
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.name;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+    shareButton.textContent = '✅ התמונה מוכנה לשיתוף';
+    setTimeout(()=>{ shareButton.textContent = isCupWin ? '📤 שתף את זכיית הגביע' : '📤 שתף את הניצחון'; }, 2200);
+  } catch(error){
+    shareButton.textContent = '📤 שתף את הניצחון';
+  }
 }
 
 function bracketTeam(name, state='pending'){
