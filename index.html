@@ -961,6 +961,7 @@ function showAnnounce(title, sub, icon, type){
 function hideAnnounce(){ document.getElementById('announceBg').classList.remove('active'); }
 
 function nextRound(){
+  if(S.youRoster.length >= 5 && S.cpuRoster.length >= 5){ endDraft(); return; }
   if(S.round >= S.roundOrder.length){ endDraft(); return; }
   const roleKey = S.roundOrder[S.round];
   const role = roleKey ? ROLE_MAP[roleKey] : null;
