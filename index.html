@@ -889,7 +889,9 @@ function listenForOnlineState(){
     if(S.current) renderOnlineCurrentPlayer();
     updateTurnUI();
   };
-  onlineRoomRef.child('stateData').on('value', onlineStateListener);
+  onlineRoomRef.child('stateData').on('value', onlineStateListener, error=>{
+    setOnlineStatus(`שגיאת סנכרון המשחק: ${error.message}`);
+  });
   onlineResultListener = snapshot=>{
     const result = snapshot.val();
     if(onlineRole==='guest' && result) showOnlineResult(result);
@@ -1008,10 +1010,12 @@ function listenForOnlineGuest(){
     const room = snapshot.val();
     if(room && room.guestUid){
       pendingGuestTeamName = room.guestTeamName || 'הקבוצה של האורח';
+      draftType = room.draftType || draftType;
+      pendingOnlineBudget = room.budget || pendingOnlineBudget;
       onlineRoomReady();
       if(!S) startOnlineGame();
     }
-  });
+  }, error=>setOnlineStatus(`שגיאת חדר: ${error.message}`));
 }
 
 function startOnlineGame(){
@@ -1038,6 +1042,7 @@ function startOnlineGame(){
   renderMiniRosters();
   listenForOnlineState();
   publishOnlineState();
+  onlineRoomRef.update({state:'playing'});
   onlineSyncTimer = setInterval(publishOnlineState, 500);
   nextRound();
 }
