@@ -1278,8 +1278,15 @@ async function shareResultImage(){
   const winnerText = document.getElementById('winnerBanner').textContent.trim();
   const isCupWin = winnerText.includes('גביע');
   const title = isCupWin ? 'זכייה בגביע!' : winnerText || 'תוצאת המשחק';
-  const youScore = document.getElementById('fsYou').textContent;
-  const cpuScore = document.getElementById('fsCpu').textContent;
+  const youScore = Number(document.getElementById('fsYou').textContent);
+  const cpuScore = Number(document.getElementById('fsCpu').textContent);
+  const userWon = youScore > cpuScore;
+  const leftTeam = userWon
+    ? {name:S.teamName, coach:`מאמן: ${S.coachName}`, roster:S.youRoster, accent:'#F4B93E', score:youScore}
+    : {name:S.cpuTeamName, coach:'מאמן: יריב', roster:S.cpuRoster, accent:'#E8590C', score:cpuScore};
+  const rightTeam = userWon
+    ? {name:S.cpuTeamName, coach:'מאמן: יריב', roster:S.cpuRoster, accent:'#E8590C', score:cpuScore}
+    : {name:S.teamName, coach:`מאמן: ${S.coachName}`, roster:S.youRoster, accent:'#F4B93E', score:youScore};
 
   ctx.fillStyle = '#0B0F14';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1298,7 +1305,7 @@ async function shareResultImage(){
   ctx.fillText(`${S.teamName} נגד ${S.cpuTeamName}`, canvas.width/2, 154);
   ctx.fillStyle = '#F3EFE8';
   ctx.font = '900 64px Rubik, sans-serif';
-  ctx.fillText(`${youScore}  -  ${cpuScore}`, canvas.width/2, 230);
+  ctx.fillText(`${leftTeam.score}  -  ${rightTeam.score}`, canvas.width/2, 230);
 
   function drawTeam(x, teamName, coach, roster, accent){
     ctx.fillStyle = '#131A22';
@@ -1321,12 +1328,12 @@ async function shareResultImage(){
       ctx.fillText(player.name, x+205, y);
       ctx.fillStyle = '#9BA8B4';
       ctx.font = '500 19px Heebo, sans-serif';
-      ctx.fillText(`${player.roleLabel} · ${player.rating}`, x+205, y+29);
+      ctx.fillText(player.roleLabel, x+205, y+29);
     });
   }
 
-  drawTeam(350, S.teamName, `מאמן: ${S.coachName}`, S.youRoster, '#F4B93E');
-  drawTeam(850, S.cpuTeamName, 'מאמן: יריב', S.cpuRoster, '#E8590C');
+  drawTeam(350, leftTeam.name, leftTeam.coach, leftTeam.roster, leftTeam.accent);
+  drawTeam(850, rightTeam.name, rightTeam.coach, rightTeam.roster, rightTeam.accent);
   ctx.textAlign = 'center';
   ctx.fillStyle = '#5C6975';
   ctx.font = '500 18px Heebo, sans-serif';
