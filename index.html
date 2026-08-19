@@ -339,6 +339,27 @@
     </div>
   </section>
 
+  <!-- ONLINE PATH -->
+  <section id="screen-online-path" class="screen">
+    <div class="setup-card">
+      <h2>איך נכנסים לאונליין?</h2>
+      <p>צור חדר חדש כמארח או הצטרף לחדר קיים עם קוד.</p>
+      <div class="mode-grid">
+        <div class="mode-opt" onclick="chooseOnlinePath('host')">
+          <div class="mode-icon">➕</div>
+          <div class="nm">יצירת חדר</div>
+          <div class="sub">בחר מוד ותקציב והזמן שחקן</div>
+        </div>
+        <div class="mode-opt" onclick="chooseOnlinePath('guest')">
+          <div class="mode-icon">🔗</div>
+          <div class="nm">הצטרפות לחדר</div>
+          <div class="sub">הזן קוד וקבל את הגדרות המארח</div>
+        </div>
+      </div>
+      <button class="ghost-btn" onclick="showScreen('screen-online-path')">← הקודם</button>
+    </div>
+  </section>
+
   <!-- ONLINE LOBBY -->
   <section id="screen-online" class="screen">
     <div class="setup-card">
@@ -824,7 +845,22 @@ function closeTrophyRoom(){ document.getElementById('trophyModal').classList.rem
 
 function chooseMode(mode){
   gameMode = mode;
+  if(mode==='online'){
+    showScreen('screen-online-path');
+    return;
+  }
   showScreen('screen-draft-type');
+}
+
+function chooseOnlinePath(path){
+  onlineRole = path==='host' ? '' : 'guest';
+  if(path==='host'){
+    showScreen('screen-draft-type');
+    return;
+  }
+  showScreen('screen-online');
+  setOnlineStatus('הזן קוד חדר כדי להצטרף. המוד והתקציב יגיעו מהמארח.');
+  ensureOnlineAuth();
 }
 
 function setOnlineStatus(message){
@@ -1012,6 +1048,7 @@ async function joinOnlineRoom(){
     await roomRef.update({guestUid:onlineUser.uid, guestTeamName:pendingTeamName, state:'ready', draftType, budget:pendingOnlineBudget});
     onlineRoomReady();
     listenForOnlineState();
+    showScreen('screen-names');
   } catch(error){
     setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
   }
@@ -1103,6 +1140,12 @@ function resolveTournamentStage(roundIndex, userWon){
 function goToSetup(){
   pendingTeamName = document.getElementById('teamNameInput').value.trim() || 'הקבוצה שלי';
   pendingCoachName = document.getElementById('coachNameInput').value.trim() || 'מאמן אלמוני';
+  if(gameMode==='online' && onlineRole==='guest' && onlineRoomRef){
+    onlineRoomRef.update({guestTeamName:pendingTeamName, guestCoachName:pendingCoachName});
+    setOnlineStatus(`הצטרפת לחדר ${onlineRoomCode}. ממתין שהמארח יתחיל את המשחק.`);
+    showScreen('screen-online');
+    return;
+  }
   const setupModeSwitch = document.getElementById('setupModeSwitch');
   document.getElementById('heroTeamGreeting').textContent = gameMode==='tournament'
     ? `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`
