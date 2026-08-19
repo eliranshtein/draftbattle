@@ -106,7 +106,7 @@
   .setup-mode-switch{display:flex; justify-content:center; margin-top:16px;}
   .setup-mode-switch button{background:transparent; border:1px solid var(--line); border-radius:8px; color:var(--gold); font-family:'Heebo',sans-serif; font-weight:700; font-size:12px; padding:8px 14px; cursor:pointer;}
   .setup-mode-switch button:hover{border-color:var(--gold); background:rgba(244,185,62,.08);}
-  .share-result-btn{margin-top:10px; background:var(--gold); color:#211706;}
+  .share-result-btn{display:none; margin-top:10px; background:var(--gold); color:#211706;}
   .share-result-btn:hover{background:#ffd36a;}
   .mode-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
@@ -546,7 +546,7 @@ const ROLES = [
 const ROLE_MAP = Object.fromEntries(ROLES.map(r=>[r.key,r]));
 const TURN_SECONDS = 8;
 const RING_C = 2*Math.PI*44;
-const ANNOUNCE_MS = 1900;
+const ANNOUNCE_MS = 2900;
 const RESULT_ANIM_MS = 3000; // extended by 2s for more suspense
 
 const CPU_TEAM_NAMES = [
@@ -1036,16 +1036,20 @@ function skipPlayer(role, player){
 function autoAward(winner, role, player){
   const price = startPrice(player.rating);
   const p = {...player, price};
+  const filledSide = winner==='you' ? S.cpuTeamName : S.teamName;
+  const placementMessage = role
+    ? `העמדה ${role.label} מלאה אצל ${filledSide}, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`
+    : `${filledSide} כבר השלימה חמישייה, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`;
   if(winner==='you'){
     S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
     document.getElementById('bidPrice').textContent = '$'+price;
-    document.getElementById('bidHolder').textContent = `${S.cpuTeamName} כבר מילאה את המכסה — השחקן עובר אליך`;
-    showAnnounce('אין תחרות!', `${player.name} מצטרף ל${S.teamName} תמורת $${price}`, '🎯', 'neutral');
+    document.getElementById('bidHolder').textContent = placementMessage;
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
   } else {
     S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
     document.getElementById('bidPrice').textContent = '$'+price;
-    document.getElementById('bidHolder').textContent = `מילאת את המכסה — השחקן עובר ל${S.cpuTeamName}`;
-    showAnnounce('אין תחרות!', `${player.name} מצטרף ל${S.cpuTeamName} תמורת $${price}`, '🎯', 'neutral');
+    document.getElementById('bidHolder').textContent = placementMessage;
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
   }
   updateQuotaRow(); updateBudgets(); renderMiniRosters();
   S.round += 1;
@@ -1233,6 +1237,7 @@ function showResult(){
   if(youScore===cpuScore){ if(youPower>=cpuPower) youScore+=1; else cpuScore+=1; }
 
   showScreen('screen-result');
+  document.getElementById('shareResultBtn').style.display = 'none';
 
   const banner = document.getElementById('winnerBanner');
   banner.textContent = '\u00A0';
@@ -1257,6 +1262,7 @@ function showResult(){
   ]).then(()=>{
     const userWon = youScore > cpuScore;
     const shareButton = document.getElementById('shareResultBtn');
+    shareButton.style.display = 'inline-block';
     shareButton.textContent = userWon
       ? (S.gameMode==='tournament' && S.tournamentRound===TOURNAMENT_ROUNDS.length-1 ? '📤 שתף את זכיית הגביע' : '📤 שתף את הניצחון')
       : '📤 שתף את התוצאה';
