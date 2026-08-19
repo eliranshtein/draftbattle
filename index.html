@@ -307,8 +307,29 @@
         <div class="splash-eyebrow">🏀 קרב המכרזים המהיר בעיר</div>
         <h2 class="splash-title">Draft Battle</h2>
         <p class="splash-tagline">אתה מול קבוצה שלא נחה לרגע. תקציב מוגבל, שעון רץ, וכל שחקן שאתה מפספס — הוא שחקן שהיריב תופס. ברוכים הבאים לזירה.</p>
-        <button class="cta-btn" onclick="showScreen('screen-mode')">בוא נתחיל! 🏀</button>
+        <button class="cta-btn" onclick="showScreen('screen-draft-type')">בוא נתחיל! 🏀</button>
       </div>
+    </div>
+  </section>
+
+  <!-- DRAFT TYPE -->
+  <section id="screen-draft-type" class="screen">
+    <div class="setup-card">
+      <h2>איך תרצה לבנות את החמישייה?</h2>
+      <p>בחר אם לשחק לפי עמדות או לבחור כל חמישה שחקנים שתרצה.</p>
+      <div class="mode-grid">
+        <div class="mode-opt" onclick="chooseDraftType('free')">
+          <div class="mode-icon">🎯</div>
+          <div class="nm">ללא עמדות</div>
+          <div class="sub">תבנו איזה חמישייה שתרצו</div>
+        </div>
+        <div class="mode-opt" onclick="chooseDraftType('positions')">
+          <div class="mode-icon">📋</div>
+          <div class="nm">לפי עמדות</div>
+          <div class="sub">2 גארדים, 2 פורוורדים וסנטר</div>
+        </div>
+      </div>
+      <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
     </div>
   </section>
 
@@ -329,6 +350,7 @@
           <div class="sub">שמינית, רבע, חצי וגמר</div>
         </div>
       </div>
+      <button class="ghost-btn" onclick="showScreen('screen-draft-type')">← הקודם</button>
     </div>
   </section>
 
@@ -672,7 +694,12 @@ function buildRoundOrder(){
   return order;
 }
 
+function buildFreeRoundOrder(){
+  return Array.from({length:15}, ()=>null);
+}
+
 let pendingTeamName='', pendingCoachName='';
+let draftType='positions';
 let gameMode='classic';
 let tournamentOpponents=[];
 let tournamentRound=0;
@@ -758,6 +785,11 @@ function chooseMode(mode){
   showScreen('screen-names');
 }
 
+function chooseDraftType(type){
+  draftType = type;
+  showScreen('screen-mode');
+}
+
 function tournamentOpponentForRound(round){
   const match = tournamentBracket[round] && tournamentBracket[round][0];
   if(!match) return tournamentOpponents[round] || 'יריבה';
@@ -835,7 +867,7 @@ function startGame(budget, continueTournament=false){
     budget, youBudget: budget, cpuBudget: budget,
     teamName: pendingTeamName, coachName: pendingCoachName, cpuTeamName,
     gameMode, tournamentRound,
-    round: 0, roundOrder: buildRoundOrder(), pool,
+    draftType, round: 0, roundOrder: draftType==='free' ? buildFreeRoundOrder() : buildRoundOrder(), pool,
     youRoster: [], cpuRoster: [],
     youCount: {G:0,F:0,C:0}, cpuCount: {G:0,F:0,C:0},
     current: null, price: 0, holder: null,
@@ -855,6 +887,10 @@ function startGame(budget, continueTournament=false){
 
 function updateQuotaRow(){
   const row = document.getElementById('quotaRow');
+  if(S.draftType==='free'){
+    row.innerHTML = `<span>סגל: <b>${S.youRoster.length}/5</b> נגד <b>${S.cpuRoster.length}/5</b></span>`;
+    return;
+  }
   row.innerHTML = ROLES.map(r=>
     `<span>${r.label}: <b>${S.youCount[r.key]}/${r.quota}</b> נגד <b>${S.cpuCount[r.key]}/${r.quota}</b></span>`
   ).join('');
@@ -871,6 +907,9 @@ function lastName(name){
 }
 
 function slotListFor(roster){
+  if(S && S.draftType==='free'){
+    return Array.from({length:5}, (_,index)=>({role:null, player:roster[index] || null, index}));
+  }
   let out=[];
   ROLES.forEach(role=>{
     const players = roster.filter(p=>p.role===role.key);
@@ -884,7 +923,7 @@ function slotListFor(roster){
 function renderMiniRoster(elId, teamName, roster){
   const slots = slotListFor(roster);
   const rows = slots.map(s=>
-    `<div class="mr-row"><span class="mr-role">${s.role.short}</span><span class="mr-name ${s.player?'filled':'empty'}">${s.player ? lastName(s.player.name) : 'פנוי'}</span></div>`
+    `<div class="mr-row"><span class="mr-role">${s.role ? s.role.short : (s.index+1)}</span><span class="mr-name ${s.player?'filled':'empty'}">${s.player ? lastName(s.player.name) : 'פנוי'}</span></div>`
   ).join('');
   document.getElementById(elId).innerHTML = `<div class="mr-title">${teamName}</div>${rows}`;
 }
@@ -923,16 +962,16 @@ function nextRound(){
   if(S.youRoster.length >= 5 && S.cpuRoster.length >= 5){ endDraft(); return; }
   if(S.round >= S.roundOrder.length){ endDraft(); return; }
   const roleKey = S.roundOrder[S.round];
-  const role = ROLE_MAP[roleKey];
-  const youEligible = S.youCount[roleKey] < role.quota;
-  const cpuEligible = S.cpuCount[roleKey] < role.quota;
-  const player = pickPlayerForRole(roleKey);
+  const role = roleKey ? ROLE_MAP[roleKey] : null;
+  const youEligible = S.draftType==='free' ? S.youRoster.length < 5 : S.youCount[roleKey] < role.quota;
+  const cpuEligible = S.draftType==='free' ? S.cpuRoster.length < 5 : S.cpuCount[roleKey] < role.quota;
+  const player = S.draftType==='free' ? pickAnyPlayer() : pickPlayerForRole(roleKey);
   S.current = player;
 
   document.getElementById('roundPill').textContent = S.gameMode==='tournament'
     ? `${TOURNAMENT_ROUNDS[S.tournamentRound]} · סבב ${S.round+1} / ${S.roundOrder.length}`
     : `סבב ${S.round+1} / ${S.roundOrder.length}`;
-  document.getElementById('posBadge').textContent = role.label;
+  document.getElementById('posBadge').textContent = role ? role.label : 'ללא עמדה';
   const avatarImg=document.getElementById('avatarImg'); const avatarInitials=document.getElementById('avatarInitials'); avatarInitials.textContent=player.name.split(' ').map(w=>w[0]).join(''); if(player.image){ avatarImg.src=player.image; avatarImg.style.display='block'; avatarInitials.style.display='none'; } else { avatarImg.removeAttribute('src'); avatarImg.style.display='none'; avatarInitials.style.display='block'; }
   document.getElementById('pName').textContent = player.name;
   const playerCard = document.getElementById('playerCard');
@@ -970,11 +1009,17 @@ function nextRound(){
   }
 }
 
+function pickAnyPlayer(){
+  const idx = Math.floor(Math.random()*S.pool.length);
+  const chosen = S.pool[idx];
+  S.pool.splice(idx, 1);
+  return chosen;
+}
+
 function skipPlayer(role, player){
   S.active = false;
   clearInterval(S.turnTimerId);
   clearTimeout(S.cpuDecisionTimeout);
-  if(S.roundOrder.length < 12) S.roundOrder.push(role.key);
   resetRingDisplay('–');
   document.getElementById('turnLabel').textContent = 'שתי הקבוצות ויתרו על השחקן';
   document.getElementById('turnLabel').className = 'turn-label';
@@ -991,12 +1036,12 @@ function autoAward(winner, role, player){
   const price = startPrice(player.rating);
   const p = {...player, price};
   if(winner==='you'){
-    S.youBudget-=price; S.youRoster.push(p); S.youCount[role.key]++;
+    S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
     document.getElementById('bidPrice').textContent = '$'+price;
     document.getElementById('bidHolder').textContent = `${S.cpuTeamName} כבר מילאה את המכסה — השחקן עובר אליך`;
     showAnnounce('אין תחרות!', `${player.name} מצטרף ל${S.teamName} תמורת $${price}`, '🎯', 'neutral');
   } else {
-    S.cpuBudget-=price; S.cpuRoster.push(p); S.cpuCount[role.key]++;
+    S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
     document.getElementById('bidPrice').textContent = '$'+price;
     document.getElementById('bidHolder').textContent = `מילאת את המכסה — השחקן עובר ל${S.cpuTeamName}`;
     showAnnounce('אין תחרות!', `${player.name} מצטרף ל${S.cpuTeamName} תמורת $${price}`, '🎯', 'neutral');
@@ -1138,12 +1183,12 @@ function resolveRoundTurn(winner, reason){
   let title, sub, icon, type;
 
   if(winner==='you'){
-    S.youBudget -= S.price; S.youRoster.push(player); S.youCount[roleKey]++;
+    S.youBudget -= S.price; S.youRoster.push(player); if(S.draftType!=='free') S.youCount[roleKey]++;
     icon='🏆'; type='win';
     title = `${S.teamName} זכתה ב-${player.name}`;
     sub = `${S.cpuTeamName} ויתרה על ${player.name}`;
   } else {
-    S.cpuBudget -= S.price; S.cpuRoster.push(player); S.cpuCount[roleKey]++;
+    S.cpuBudget -= S.price; S.cpuRoster.push(player); if(S.draftType!=='free') S.cpuCount[roleKey]++;
     icon='💻'; type='lose';
     title = `${S.cpuTeamName} זכתה ב-${player.name}`;
     sub = `${S.teamName} ויתרה על ${player.name}`;
@@ -1403,12 +1448,13 @@ function advanceTournament(){
 
 function resetGame(){
   S = null;
+  draftType = 'positions';
   gameMode = 'classic';
   tournamentOpponents = [];
   tournamentRound = 0;
   tournamentHistory = [];
   tournamentBracket = [];
-  showScreen('screen-mode');
+  showScreen('screen-draft-type');
 }
 
 function showScreen(id){
