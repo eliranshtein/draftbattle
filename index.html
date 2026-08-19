@@ -546,7 +546,8 @@ const ROLES = [
 const ROLE_MAP = Object.fromEntries(ROLES.map(r=>[r.key,r]));
 const TURN_SECONDS = 8;
 const RING_C = 2*Math.PI*44;
-const ANNOUNCE_MS = 2900;
+const ANNOUNCE_MS = 1900;
+const AUTO_PLACEMENT_ANNOUNCE_MS = 3700;
 const RESULT_ANIM_MS = 3000; // extended by 2s for more suspense
 
 const CPU_TEAM_NAMES = [
@@ -1054,7 +1055,7 @@ function autoAward(winner, role, player){
   }
   updateQuotaRow(); updateBudgets(); renderMiniRosters();
   S.round += 1;
-  setTimeout(()=>{ hideAnnounce(); nextRound(); }, ANNOUNCE_MS);
+  setTimeout(()=>{ hideAnnounce(); nextRound(); }, AUTO_PLACEMENT_ANNOUNCE_MS);
 }
 
 function runBiddingRound(role){
