@@ -966,6 +966,11 @@ function nextRound(){
   if(S.round >= S.roundOrder.length){ endDraft(); return; }
   const roleKey = S.roundOrder[S.round];
   const role = roleKey ? ROLE_MAP[roleKey] : null;
+  if(S.draftType==='positions' && role && S.youCount[roleKey] >= role.quota && S.cpuCount[roleKey] >= role.quota){
+    S.round += 1;
+    nextRound();
+    return;
+  }
   const youEligible = S.draftType==='free' ? S.youRoster.length < 5 : S.youCount[roleKey] < role.quota;
   const cpuEligible = S.draftType==='free' ? S.cpuRoster.length < 5 : S.cpuCount[roleKey] < role.quota;
   const player = S.draftType==='free' ? pickAnyPlayer() : pickPlayerForRole(roleKey);
