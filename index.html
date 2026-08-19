@@ -95,6 +95,9 @@
   .budget-opt .lg{font-family:'Rubik',sans-serif; font-weight:900; font-size:34px; color:var(--gold); line-height:1; letter-spacing:-.01em;}
   .budget-opt .nm{font-weight:700; font-size:14px; margin-top:7px;}
   .budget-opt .sub{font-size:10.5px; color:var(--ink-dim); margin-top:3px;}
+  .setup-mode-switch{display:flex; justify-content:center; margin-top:16px;}
+  .setup-mode-switch button{background:transparent; border:1px solid var(--line); border-radius:8px; color:var(--gold); font-family:'Heebo',sans-serif; font-weight:700; font-size:12px; padding:8px 14px; cursor:pointer;}
+  .setup-mode-switch button:hover{border-color:var(--gold); background:rgba(244,185,62,.08);}
   .mode-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .mode-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
@@ -365,6 +368,9 @@
           <div class="nm">תקציב עתק</div>
           <div class="sub">הגיע בעלים רעב לקבוצה</div>
         </div>
+      </div>
+      <div class="setup-mode-switch">
+        <button type="button" id="setupModeSwitch" onclick="chooseTournamentFromSetup()">🏆 לבחור טורניר במקום</button>
       </div>
     </div>
   </section>
@@ -758,8 +764,27 @@ function resolveTournamentStage(roundIndex, userWon){
 function goToSetup(){
   pendingTeamName = document.getElementById('teamNameInput').value.trim() || 'הקבוצה שלי';
   pendingCoachName = document.getElementById('coachNameInput').value.trim() || 'מאמן אלמוני';
-  document.getElementById('heroTeamGreeting').textContent = `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
+  const setupModeSwitch = document.getElementById('setupModeSwitch');
+  document.getElementById('heroTeamGreeting').textContent = gameMode==='tournament'
+    ? `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`
+    : `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
+  setupModeSwitch.textContent = gameMode==='tournament' ? '🏀 חזרה למשחק קלאסי' : '🏆 לבחור טורניר במקום';
+  setupModeSwitch.onclick = gameMode==='tournament' ? chooseClassicFromSetup : chooseTournamentFromSetup;
   showScreen('screen-setup');
+}
+
+function chooseTournamentFromSetup(){
+  gameMode = 'tournament';
+  document.getElementById('heroTeamGreeting').textContent = `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`;
+  document.getElementById('setupModeSwitch').textContent = '🏀 חזרה למשחק קלאסי';
+  document.getElementById('setupModeSwitch').onclick = chooseClassicFromSetup;
+}
+
+function chooseClassicFromSetup(){
+  gameMode = 'classic';
+  document.getElementById('heroTeamGreeting').textContent = `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
+  document.getElementById('setupModeSwitch').textContent = '🏆 לבחור טורניר במקום';
+  document.getElementById('setupModeSwitch').onclick = chooseTournamentFromSetup;
 }
 
 function startGame(budget, continueTournament=false){
