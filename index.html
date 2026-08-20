@@ -512,7 +512,7 @@
       <h2 style="font-family:'Rubik'; margin:0;">החמישייה נבנתה!</h2>
       <p style="color:var(--ink-dim); font-size:13px; margin:0;">רגע לפני התוצאה...</p>
       <div class="ad-slot">מקום לפרסומת · <b>Interstitial 320×250</b><br><span style="font-size:10px;">(כאן תוצג פרסומת אמיתית בגרסה החיה)</span></div>
-      <button class="primary-btn" onclick="showResult()">👀 צפה בתוצאת המשחק</button>
+      <button class="primary-btn" onclick="viewResult()">👀 צפה בתוצאת המשחק</button>
     </div>
   </section>
 
@@ -539,8 +539,10 @@
       </div>
       <div>
         <button class="primary-btn" id="resultActionBtn" onclick="resetGame()">שחק שוב</button>
+        <button class="ghost-btn" id="onlineHomeBtn" onclick="declineRematch()" style="display:none;">🏠 חזרה לדף הבית</button>
         <button class="primary-btn share-result-btn" id="shareResultBtn" onclick="shareResultImage()">📤 שתף את התוצאה</button>
       </div>
+      <div class="tag" id="rematchStatus" style="display:none;"></div>
     </div>
   </section>
 
@@ -626,6 +628,7 @@ let onlineSyncTimer = null;
 let onlineGuestTimerId = null;
 let onlineGuestTimerDeadline = 0;
 let onlineGuestTimeoutSent = false;
+let onlineRematchListener = null;
 
 const CPU_TEAM_NAMES = [
   'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
@@ -1000,6 +1003,9 @@ function listenForOnlineState(){
     if(S.current){
       showScreen('screen-draft');
       renderOnlineCurrentPlayer();
+    } else if(S.youRoster.length>=5 && S.cpuRoster.length>=5){
+      const onResultAlready = document.getElementById('screen-result').classList.contains('active');
+      if(!onResultAlready) showScreen('screen-inter');
     }
     updateQuotaRow();
     renderMiniRosters();
@@ -1031,8 +1037,28 @@ function listenForOnlineAnnouncements(){
   onlineRoomRef.child('announcement').on('value', onlineAnnouncementListener);
 }
 
+function configureResultButtons(){
+  const resultAction = document.getElementById('resultActionBtn');
+  const homeBtn = document.getElementById('onlineHomeBtn');
+  const status = document.getElementById('rematchStatus');
+  const isOnline = S && S.gameMode==='online';
+  resultAction.disabled = false;
+  if(isOnline){
+    resultAction.textContent = 'שחק שוב';
+    resultAction.onclick = requestRematch;
+    homeBtn.style.display = 'inline-block';
+  } else {
+    resultAction.textContent = S && S.gameMode==='tournament' ? 'חזרה להתחלה' : 'שחק שוב';
+    resultAction.onclick = resetGame;
+    homeBtn.style.display = 'none';
+  }
+  status.style.display = 'none';
+  status.textContent = '';
+}
+
 function showOnlineResult(result){
   showScreen('screen-result');
+  configureResultButtons();
   document.getElementById('fsYou').textContent = result.cpuScore;
   document.getElementById('fsCpu').textContent = result.hostScore;
   document.getElementById('winnerBanner').textContent = result.hostScore===result.cpuScore
@@ -1081,7 +1107,7 @@ function listenForOnlineAction(){
 }
 
 function handleOnlineGuestBid(){
-  if(!S || !S.current || S.turn!=='cpu') return;
+  if(!S || !S.active || !S.current || S.turn!=='cpu') return;
   const nextPrice = S.price + 1;
   if(nextPrice > S.cpuBudget) return;
   S.price = nextPrice;
@@ -1109,12 +1135,14 @@ async function createOnlineRoom(){
       hostTeamName:pendingTeamName,
       draftType,
       budget:pendingOnlineBudget,
+      rematch:{hostReady:false, guestReady:false, declined:false},
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
     document.getElementById('onlineRoomCode').value = code;
     setOnlineStatus(`החדר נוצר. שלח את הקוד ${code} לחבר והמתן להצטרפות.`);
     listenForOnlineGuest();
     listenForOnlineAction();
+    listenForOnlineRematch();
   } catch(error){
     setOnlineStatus('יצירת החדר נכשלה. בדוק את הגדרות Firebase.');
   }
@@ -1231,6 +1259,7 @@ function goToSetup(){
   if(gameMode==='online' && onlineRole==='guest' && onlineRoomRef){
     onlineRoomRef.update({guestUid:onlineUser.uid, guestTeamName:pendingTeamName, guestCoachName:pendingCoachName, state:'ready'});
     listenForOnlineState();
+    listenForOnlineRematch();
     setOnlineStatus(`הצטרפת לחדר ${onlineRoomCode}. ממתין שהמארח יתחיל את המשחק.`);
     showScreen('screen-online');
     return;
@@ -1463,6 +1492,8 @@ function pickAnyPlayer(){
 }
 
 function skipPlayer(role, player){
+  if(!S.current) return; // already resolved this round
+  S.current = null;
   S.active = false;
   clearInterval(S.turnTimerId);
   clearTimeout(S.cpuDecisionTimeout);
@@ -1479,6 +1510,8 @@ function skipPlayer(role, player){
 }
 
 function autoAward(winner, role, player){
+  if(!S.current) return; // already resolved this round
+  S.current = null;
   const price = startPrice(player.rating);
   const p = {...player, price};
   const filledSide = winner==='you' ? S.cpuTeamName : S.teamName;
@@ -1486,12 +1519,16 @@ function autoAward(winner, role, player){
     ? `העמדה ${role.label} מלאה אצל ${filledSide}, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`
     : `${filledSide} כבר השלימה חמישייה, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`;
   if(winner==='you'){
-    S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
+    if(S.youRoster.length < 5){
+      S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
+    }
     document.getElementById('bidPrice').textContent = '$'+price;
     document.getElementById('bidHolder').textContent = placementMessage;
     showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
   } else {
-    S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
+    if(S.cpuRoster.length < 5){
+      S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
+    }
     document.getElementById('bidPrice').textContent = '$'+price;
     document.getElementById('bidHolder').textContent = placementMessage;
     showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
@@ -1629,6 +1666,7 @@ function cpuAct(){
 }
 
 function handleForfeit(side, reason){
+  if(!S.active) return; // round already resolved - ignore a duplicate/late trigger
   clearInterval(S.turnTimerId);
   clearTimeout(S.cpuDecisionTimeout);
   if(S.holder===null){
@@ -1646,17 +1684,23 @@ function handleForfeit(side, reason){
 }
 
 function resolveRoundTurn(winner, reason){
+  if(!S.current) return; // already resolved this round - never award the same player twice
   const roleKey = S.current.role;
   const player = {...S.current, price: S.price};
+  S.current = null;
   let title, sub, icon, type;
 
   if(winner==='you'){
-    S.youBudget -= S.price; S.youRoster.push(player); if(S.draftType!=='free') S.youCount[roleKey]++;
+    if(S.youRoster.length < 5){
+      S.youBudget -= S.price; S.youRoster.push(player); if(S.draftType!=='free') S.youCount[roleKey]++;
+    }
     icon='🏆'; type='win';
     title = `${S.teamName} זכתה ב-${player.name}`;
     sub = `${S.cpuTeamName} ויתרה על ${player.name}`;
   } else {
-    S.cpuBudget -= S.price; S.cpuRoster.push(player); if(S.draftType!=='free') S.cpuCount[roleKey]++;
+    if(S.cpuRoster.length < 5){
+      S.cpuBudget -= S.price; S.cpuRoster.push(player); if(S.draftType!=='free') S.cpuCount[roleKey]++;
+    }
     icon='💻'; type='lose';
     title = `${S.cpuTeamName} זכתה ב-${player.name}`;
     sub = `${S.teamName} ויתרה על ${player.name}`;
@@ -1671,7 +1715,25 @@ function resolveRoundTurn(winner, reason){
   setTimeout(()=>{ hideAnnounce(); nextRound(); }, ANNOUNCE_MS);
 }
 
-function endDraft(){ showScreen('screen-inter'); }
+function normalizeRoster(roster){
+  const seen = new Set();
+  const clean = [];
+  for(const p of roster){
+    if(seen.has(p.name)) continue;
+    seen.add(p.name);
+    clean.push(p);
+    if(clean.length>=5) break;
+  }
+  return clean;
+}
+
+function endDraft(){
+  S.current = null;
+  S.youRoster = normalizeRoster(S.youRoster);
+  S.cpuRoster = normalizeRoster(S.cpuRoster);
+  if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef) publishOnlineState();
+  showScreen('screen-inter');
+}
 
 function teamPower(roster){
   if(roster.length===0) return 0;
@@ -1691,8 +1753,129 @@ function animateScore(id, target, duration){
   });
 }
 
+function listenForOnlineRematch(){
+  if(!onlineRoomRef) return;
+  if(onlineRematchListener) onlineRoomRef.child('rematch').off('value', onlineRematchListener);
+  onlineRematchListener = snapshot=>{
+    const rematch = snapshot.val();
+    if(!rematch) return;
+    if(rematch.declined){
+      const who = rematch.declinedBy==='host' ? (S ? S.teamName : 'המארח') : (S ? S.cpuTeamName : 'האורח');
+      leaveOnlineRoom(`${who} בחר/ה לא לשחק שוב. חזרתם לדף הבית.`);
+      return;
+    }
+    updateRematchStatusUI(rematch);
+    if(rematch.hostReady && rematch.guestReady && onlineRole==='host'){
+      startOnlineRematchGame();
+    }
+  };
+  onlineRoomRef.child('rematch').on('value', onlineRematchListener);
+}
+
+function updateRematchStatusUI(rematch){
+  const el = document.getElementById('rematchStatus');
+  if(!el) return;
+  if(!rematch.hostReady && !rematch.guestReady){
+    el.style.display = 'none';
+    el.textContent = '';
+    return;
+  }
+  const myReady = onlineRole==='host' ? rematch.hostReady : rematch.guestReady;
+  const otherReady = onlineRole==='host' ? rematch.guestReady : rematch.hostReady;
+  el.style.display = 'block';
+  el.textContent = myReady && otherReady
+    ? 'שני השחקנים אישרו — המשחק החדש מתחיל...'
+    : myReady
+      ? 'ממתינים לאישור השחקן השני למשחק חוזר...'
+      : 'השחקן השני מוכן למשחק חוזר — לחצו "שחק שוב" כדי לאשר.';
+}
+
+function requestRematch(){
+  if(!(S && S.gameMode==='online' && onlineRoomRef)){ resetGame(); return; }
+  const key = onlineRole==='host' ? 'hostReady' : 'guestReady';
+  onlineRoomRef.child('rematch').update({[key]:true, declined:false}).catch(()=>{});
+  const btn = document.getElementById('resultActionBtn');
+  if(btn) btn.disabled = true;
+}
+
+function declineRematch(){
+  if(!(S && S.gameMode==='online' && onlineRoomRef)){ resetGame(); return; }
+  onlineRoomRef.child('rematch').set({hostReady:false, guestReady:false, declined:true, declinedBy:onlineRole}).catch(()=>{});
+}
+
+function startOnlineRematchGame(){
+  if(onlineRole!=='host' || !onlineRoomRef) return;
+  if(onlineSyncTimer){ clearInterval(onlineSyncTimer); onlineSyncTimer = null; }
+  onlineRoomRef.child('result').remove();
+  onlineRoomRef.child('rematch').set({hostReady:false, guestReady:false, declined:false});
+  S = null; // startOnlineGame() reuses pendingTeamName/pendingCoachName/pendingGuestTeamName/draftType/pendingOnlineBudget - same rules as the game that just ended
+  startOnlineGame();
+}
+
+function leaveOnlineRoom(message){
+  if(onlineRoomRef){
+    if(onlineStateListener) onlineRoomRef.child('stateData').off('value', onlineStateListener);
+    if(onlineResultListener) onlineRoomRef.child('result').off('value', onlineResultListener);
+    if(onlineActionListener) onlineRoomRef.child('action').off('value', onlineActionListener);
+    if(onlineAnnouncementListener) onlineRoomRef.child('announcement').off('value', onlineAnnouncementListener);
+    if(onlineRematchListener) onlineRoomRef.child('rematch').off('value', onlineRematchListener);
+  }
+  if(onlineRoomCode) onlineDb.ref(`rooms/${onlineRoomCode}`).off('value');
+  if(onlineSyncTimer){ clearInterval(onlineSyncTimer); onlineSyncTimer = null; }
+  if(onlineGuestTimerId){ clearInterval(onlineGuestTimerId); onlineGuestTimerId = null; }
+  if(S){ clearInterval(S.turnTimerId); clearTimeout(S.cpuDecisionTimeout); }
+  onlineRoomRef = null;
+  onlineRoomCode = '';
+  onlineRole = '';
+  S = null;
+  gameMode = 'classic';
+  draftType = 'positions';
+  setOnlineStatus(message || '');
+  showScreen('screen-mode');
+}
+
+function viewResult(){
+  if(onlineRole==='guest' && onlineRoomRef){
+    viewResultAsGuest();
+    return;
+  }
+  showResult();
+}
+
+async function viewResultAsGuest(){
+  recordCompletedGame();
+  try {
+    const existing = await onlineRoomRef.child('result').get();
+    if(existing.exists()){ showOnlineResult(existing.val()); return; }
+  } catch(e){ /* fall through and try to compute our own */ }
+
+  S.youRoster = normalizeRoster(S.youRoster);
+  S.cpuRoster = normalizeRoster(S.cpuRoster);
+  const youPower = teamPower(S.youRoster);
+  const cpuPower = teamPower(S.cpuRoster);
+  let hostScore = Math.round(58 + youPower*0.7 + (Math.random()*10-5));
+  let guestScore = Math.round(58 + cpuPower*0.7 + (Math.random()*10-5));
+  if(hostScore===guestScore){ if(youPower>=cpuPower) hostScore+=1; else guestScore+=1; }
+  const result = {
+    hostScore, cpuScore:guestScore,
+    hostTeam:S.teamName, guestTeam:S.cpuTeamName,
+    hostCoach:S.coachName, guestCoach:'אורח',
+    hostRoster:S.youRoster, guestRoster:S.cpuRoster
+  };
+  try {
+    // Someone (the host) may have published a result in the moment between
+    // our check above and now - don't clobber it, just show it.
+    const recheck = await onlineRoomRef.child('result').get();
+    if(recheck.exists()){ showOnlineResult(recheck.val()); return; }
+    await onlineRoomRef.child('result').set(result);
+  } catch(e){ /* still show locally even if the write failed */ }
+  showOnlineResult(result);
+}
+
 function showResult(){
   recordCompletedGame();
+  S.youRoster = normalizeRoster(S.youRoster);
+  S.cpuRoster = normalizeRoster(S.cpuRoster);
   const youPower = teamPower(S.youRoster);
   const cpuPower = teamPower(S.cpuRoster);
   let youScore = Math.round(58 + youPower*0.7 + (Math.random()*10-5));
@@ -1713,14 +1896,12 @@ function showResult(){
   }
 
   showScreen('screen-result');
+  configureResultButtons();
   document.getElementById('shareResultBtn').style.display = 'none';
 
   const banner = document.getElementById('winnerBanner');
   banner.textContent = '\u00A0';
   banner.className = 'winner-banner';
-  const resultAction = document.getElementById('resultActionBtn');
-  resultAction.textContent = S.gameMode==='tournament' ? 'חזרה להתחלה' : 'שחק שוב';
-  resultAction.onclick = resetGame;
 
   document.getElementById('rcYouTitle').textContent = S.teamName;
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+S.coachName;
