@@ -864,12 +864,17 @@ function chooseMode(mode){
 
 function chooseOnlinePath(path){
   onlineRole = path==='host' ? '' : 'guest';
+
+  // באונליין תמיד משחקים לפי עמדות
+  draftType = 'positions';
+
   if(path==='host'){
-    showScreen('screen-draft-type');
+    showScreen('screen-names');
     return;
   }
+
   showScreen('screen-online');
-  setOnlineStatus('הזן קוד חדר כדי להצטרף. המוד והתקציב יגיעו מהמארח.');
+  setOnlineStatus('הזן קוד חדר כדי להצטרף. המשחק מתנהל לפי עמדות והתקציב יגיע מהמארח.');
   ensureOnlineAuth();
 }
 
