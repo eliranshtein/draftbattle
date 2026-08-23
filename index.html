@@ -136,6 +136,12 @@
   .player-entry-toast .toast-avatar{width:96px; height:96px; flex-shrink:0; border-radius:50%; object-fit:cover; object-position:center 35%; border:2px solid var(--gold); background:var(--surface-2);}
   .player-entry-toast .toast-initials{width:96px; height:96px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid var(--gold); background:var(--surface-2); color:var(--ink-dim); font-size:27px;}
   .player-entry-toast.show{visibility:visible; animation:playerToast 2s ease both;}
+  .achievement-toast{position:fixed; top:14px; left:50%; z-index:120; display:flex; align-items:center; gap:10px; padding:10px 18px; border:2px solid var(--gold); border-radius:16px; background:rgba(11,15,20,.96); color:var(--gold); font-family:'Rubik'; font-size:14px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,.5), 0 0 25px rgba(244,185,62,.22); opacity:0; visibility:hidden; transform:translate(-50%,-14px); pointer-events:none;}
+  .achievement-toast .ach-icon{font-size:22px; line-height:1;}
+  .achievement-toast .ach-text{display:flex; flex-direction:column; align-items:flex-start; line-height:1.3;}
+  .achievement-toast .ach-label{font-size:10px; color:var(--ink-dim); font-weight:400;}
+  .achievement-toast .ach-name{font-weight:700;}
+  .achievement-toast.show{visibility:visible; animation:achievementToast 2s ease both;}
   .player-card.player-enter{animation:playerEnter 2s ease both;}
   .mr-title{font-family:'Rubik'; font-weight:700; font-size:8.5px; color:var(--ink-dim); text-align:center; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .mr-row{display:flex; justify-content:space-between; font-size:9px; gap:2px;}
@@ -193,16 +199,16 @@
 
   .modal-bg{position:fixed; inset:0; background:rgba(5,7,10,.75); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; padding:16px; z-index:50;}
   .modal-bg.active{display:flex;}
-  .modal-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px; max-width:520px; width:100%; text-align:center;}
+  .modal-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px; max-width:520px; width:100%; text-align:center; max-height:calc(100vh - 32px); overflow-y:auto;}
   .modal-card h3{font-family:'Rubik'; margin:0 0 8px;}
   .modal-card p{font-size:13px; color:var(--ink-dim); line-height:1.6; margin:0 0 16px;}
-  .trophy-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; text-align:center; margin:14px 0 4px;}
+  .trophy-grid{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; text-align:center; margin:14px 0 4px;}
   .trophy-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:100px; padding:8px 5px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2);}
   .trophy-item.locked{opacity:.42; filter:grayscale(1);}
   .trophy-icon{font-size:24px; width:30px; text-align:center; flex-shrink:0;}
   .trophy-name{font-weight:700; font-size:10px; line-height:1.2;}
   .trophy-desc{color:var(--ink-dim); font-size:9px; margin-top:2px; line-height:1.25;}
-  @media (max-width:560px){ .trophy-grid{grid-template-columns:repeat(4,minmax(58px,1fr)); gap:5px;} .trophy-item{min-height:88px; padding:6px 3px;} .trophy-icon{font-size:21px;} .trophy-name{font-size:9px;} .trophy-desc{font-size:8px;} }
+  @media (max-width:560px){ .trophy-grid{grid-template-columns:repeat(5,minmax(48px,1fr)); gap:4px;} .trophy-item{min-height:82px; padding:5px 2px;} .trophy-icon{font-size:18px;} .trophy-name{font-size:8px;} .trophy-desc{font-size:7px;} }
 
   .announce-bg{position:fixed; inset:0; background:rgba(5,7,10,0.85); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; z-index:70; padding:20px; opacity:0; pointer-events:none; transition:opacity .22s;}
   .announce-bg.active{opacity:1; pointer-events:auto;}
@@ -245,10 +251,13 @@
   @keyframes swish{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);}}
   .won-flash{animation:swish .35s ease-out;}
   @keyframes playerToast{0%{opacity:0;visibility:hidden;transform:translate(-50%,-50%) scale(.82);}18%,78%{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;visibility:hidden;transform:translate(-50%,-50%) scale(1.03);}}
+  @keyframes achievementToast{0%{opacity:0;visibility:hidden;transform:translate(-50%,-14px);}12%,78%{opacity:1;visibility:visible;transform:translate(-50%,0);}100%{opacity:0;visibility:hidden;transform:translate(-50%,-10px);}}
   @keyframes playerEnter{0%{opacity:0;transform:translateY(12px) scale(.96);}22%{opacity:1;transform:translateY(0) scale(1);}100%{opacity:1;transform:translateY(0) scale(1);}}
 </style>
 </head>
 <body>
+
+<div class="achievement-toast" id="achievementToast" aria-live="polite"></div>
 
 <svg class="court-bg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
   <rect x="20" y="20" width="1160" height="660" fill="none" stroke="#E8590C" stroke-width="5"/>
@@ -356,7 +365,7 @@
           <div class="sub">הזן קוד וקבל את הגדרות המארח</div>
         </div>
       </div>
-      <button class="ghost-btn" onclick="showScreen('screen-online-path')">← הקודם</button>
+      <button class="ghost-btn" onclick="showScreen('screen-mode')">← הקודם</button>
     </div>
   </section>
 
@@ -610,9 +619,16 @@ const firebaseConfig = {
   messagingSenderId: '1015207762485',
   appId: '1:1015207762485:web:2d5d115fbe1518d06daf7c'
 };
-const firebaseApp = firebase.initializeApp(firebaseConfig);
-const onlineAuth = firebase.auth(firebaseApp);
-const onlineDb = firebase.database(firebaseApp);
+let firebaseReady = true;
+let firebaseApp = null, onlineAuth = null, onlineDb = null;
+try {
+  firebaseApp = firebase.initializeApp(firebaseConfig);
+  onlineAuth = firebase.auth(firebaseApp);
+  onlineDb = firebase.database(firebaseApp);
+} catch(error){
+  firebaseReady = false;
+  console.warn('Firebase failed to initialize; online mode will be unavailable.', error);
+}
 let onlineUser = null;
 let onlineRoomCode = '';
 let onlineRole = '';
@@ -667,7 +683,7 @@ const PLAYER_IMAGES = {
   'שחר דורון':'https://basket.co.il/pics/2016/2025/Media_days/Netanya/1-doron.jpg',
   'גיל נויוביץ\'':'https://basket.co.il/pics/2025-2026/gil.jpg',
   'רועי פריצקי':'https://basket.co.il/pics/2022/6rp24.jpg',
-  'אור טפירו':'https://basket.co.il/pics/2025-2026/tapiro.jpg',
+  'ברייס בראון':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/brown.jpg',
   'רומן סורקין':'https://basket.co.il/pics/2025-2026/sorkin.jpg',
   'עידן זלמנסון':'https://basket.co.il/pics/2016/2025/Media_days/Holon/20.jpg',
   'נועם אביבי':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/avivi.jpg',
@@ -685,7 +701,7 @@ const PLAYER_IMAGES = {
   'שון דאוסון':'https://basket.co.il/pics/2025-2026/seanprofile.jpg',
   'וויל ריימן':'https://basket.co.il/pics/2016/2025/Media_days/MaccabiTA/11.jpg',
   'ג\'יי ג\'יי קפלן':'https://basket.co.il/pics/2025-2026/kaplan.jpg', // https://basket.co.il/pics/2025-2026/kaplan.jpg
-  'ווילי וורקמן':'https://basket.co.il/pics/2016/2025/Media_days/HHaifa/1-workman.jpg',
+  'בן קלהון גולד':'https://ibasketball.co.il/wp-content/uploads/2008/04/%D7%A2%D7%99%D7%A6%D7%95%D7%91-%D7%9C%D7%9C%D7%90-%D7%A9%D7%9D-37-768x960.png',
   'רפי מנקו':'https://basket.co.il/pics/2022/8rm24.jpg',
   'ליאור קררה':'https://basket.co.il/pics/2025-2026/lior.jpg',
   'יהל מלמד':'https://basket.co.il/pics/2025-2026/melamed.jpg',
@@ -708,7 +724,17 @@ const PLAYER_IMAGES = {
   'איפה לונדברג':'https://basket.co.il/pics/2025-2026/lund.jpg',
   'ג׳ימי קלארק':'https://basket.co.il/pics/2025-2026/clark.jpg',
   'אנטוניו בלייקני':'https://basket.co.il/pics/2025-2026/blakeny.jpg',
-  'אלייז׳ה בראיינט':'https://basket.co.il/pics/2025-2026/bryantr.jpg'
+  'אלייז׳ה בראיינט':'https://basket.co.il/pics/2025-2026/bryantr.jpg',
+  'בונזי קולסון':'https://basket.co.il/pics/2022/50bc24.jpg',
+  'שחר שלמון':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxn2p2xUH2hZUlRpJnbMK_O251C6HNGpzfsErduK_xbQ&s=10',
+'עומר בן דוד':'https://basket.co.il/pics/2016/2025/Media_days/BH/18.jpg', 
+'זיו וייסמן':'https://basket.co.il/pics/2025-2026/zivnew.jpg',
+'אליעד טל':'https://basket.co.il/pics/2016/2025/Media_days/Holon/23.jpg',
+'בן רוינה':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/ruina.png',
+'צוף בן משה':'https://basket.co.il/pics/2016/2025/Media_days/NessZiona/8.jpg',
+'דניאל רוזנבאום':'https://basket.co.il/pics/2016/2025/Media_days/HHaifa/10-rosenbaum.jpg'
+
+
 };
 
 const ROSTER = [
@@ -718,14 +744,14 @@ const ROSTER = [
   {name:'עמית גרשון', role:'G', rating:83},
   {name:'ניב משגב', role:'G', rating:87}, {name:'תמיר בלאט', role:'G', rating:88},
   {name:'בר טימור', role:'G', rating:84}, {name:'תומר אסייג', role:'G', rating:79},
-  {name:'יובל שניידרמן', role:'G', rating:78}, {name:'ג\'ון דיברתולומיאו', role:'G', rating:81},
+  {name:'יובל שניידרמן', role:'G', rating:75}, {name:'ג\'ון דיברתולומיאו', role:'G', rating:81},
   {name:'איתי מושקוביץ\'', role:'G', rating:76}, {name:'יאיר קרביץ', role:'G', rating:83},
   {name:'איתן בורג', role:'G', rating:82}, {name:'גיל בני', role:'G', rating:74},
-  {name:'יפתח זיו', role:'G', rating:74}, {name:'גולן גוט', role:'G', rating:74},
-  {name:'רועי הובר', role:'G', rating:74},
-  {name:'גיא פלטין', role:'G', rating:80}, {name:'שחר דורון', role:'G', rating:72},
-  {name:'גיל נויוביץ\'', role:'G', rating:71}, {name:'רועי פריצקי', role:'G', rating:71},
-  {name:'אור טפירו', role:'G', rating:70}, {name:'ג\'ארד הארפר', role:'G', rating:96},
+  {name:'יפתח זיו', role:'G', rating:75}, {name:'גולן גוט', role:'G', rating:74},
+  {name:'רועי הובר', role:'G', rating:79},
+  {name:'גיא פלטין', role:'G', rating:79}, {name:'שחר דורון', role:'G', rating:72},
+  {name:'גיל נויוביץ\'', role:'G', rating:72}, {name:'רועי פריצקי', role:'G', rating:77},
+  {name:'ברייס בראון', role:'G', rating:86}, {name:'ג\'ארד הארפר', role:'G', rating:96},
   {name:'ואסיליה מיציץ\'', role:'G', rating:95},
   // סנטרים (C)
   {name:'רומן סורקין', role:'C', rating:93}, {name:'עידן זלמנסון', role:'C', rating:83},
@@ -735,13 +761,13 @@ const ROSTER = [
   {name:'אדאמה סאנוגו', role:'C', rating:92}, {name:'דן אוטורו', role:'C', rating:95},
   {name:'טאי אודיאסי', role:'C', rating:94}, {name:'גבי צ׳אצ׳אשווילי', role:'C', rating:74},
   // פורוורדים (F)
-  {name:'נתנאל ארצי', role:'F', rating:86}, {name:'חואקין שוכמן', role:'F', rating:84},
-  {name:'גור לביא', role:'F', rating:83}, {name:'שלו לוגשי', role:'F', rating:82},
-  {name:'ספנסר וייס', role:'F', rating:81}, {name:'נמרוד לוי', role:'F', rating:81},
-  {name:'יותם חנוכי', role:'F', rating:80}, {name:'שון דאוסון', role:'F', rating:79},
+  {name:'נתנאל ארצי', role:'F', rating:86}, {name:'חואקין שוכמן', role:'F', rating:82},
+  {name:'גור לביא', role:'F', rating:83}, {name:'שלו לוגשי', role:'F', rating:84},
+  {name:'ספנסר וייס', role:'F', rating:81}, {name:'נמרוד לוי', role:'F', rating:84},
+  {name:'יותם חנוכי', role:'F', rating:83}, {name:'שון דאוסון', role:'F', rating:79},
   {name:'ג\'וש פרוינד', role:'F', rating:78},
   {name:'וויל ריימן', role:'F', rating:76},
-  {name:'ג\'יי ג\'יי קפלן', role:'F', rating:75}, {name:'ווילי וורקמן', role:'F', rating:75},
+  {name:'ג\'יי ג\'יי קפלן', role:'F', rating:75}, {name:'בן קלהון גולד', role:'F', rating:74},
   {name:'רפי מנקו', role:'F', rating:75}, {name:'ליאור קררה', role:'F', rating:75},
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
   {name:'לוקאס גולדנברג', role:'F', rating:74}, {name:'רועי נציה', role:'F', rating:73},
@@ -751,6 +777,9 @@ const ROSTER = [
   {name:'אושיי בריסט', role:'F', rating:88},
   {name:'איפה לונדברג', role:'G', rating:90}, {name:'ג׳ימי קלארק', role:'G', rating:91},
   {name:'אנטוניו בלייקני', role:'G', rating:94}, {name:'אלייז׳ה בראיינט', role:'G', rating:96},
+  {name:'בונזי קולסון', role:'F', rating:89}, {name:'שחר שלמון', role:'F', rating:70},{name:'עומר בן דוד', role:'G', rating:72},
+  {name:'זיו וייסמן', role:'G', rating:71}, {name:'אליעד טל', role:'F', rating:74}, 
+  {name:'בן רוינה', role:'C', rating:72}, {name:'צוף בן משה', role:'F', rating:76}, {name:'דניאל רוזנבאום', role:'F', rating:75},
 ];
 
 function buildPool(){
@@ -760,13 +789,13 @@ function buildPool(){
 function buildRoundOrder(){
   let order=[];
   ROLES.forEach(role=>{ for(let i=0;i<role.quota*2;i++) order.push(role.key); });
-  while(order.length<15) order.push(ROLES[Math.floor(Math.random()*ROLES.length)].key);
+  while(order.length<20) order.push(ROLES[Math.floor(Math.random()*ROLES.length)].key);
   for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
   return order;
 }
 
 function buildFreeRoundOrder(){
-  return Array.from({length:15}, ()=>null);
+  return Array.from({length:20}, ()=>null);
 }
 
 let pendingTeamName='', pendingCoachName='';
@@ -786,6 +815,11 @@ const ACHIEVEMENTS = [
   {id:'semifinal', icon:'⚡', name:'בין הגדולים', desc:'לעלות לחצי הגמר'},
   {id:'final', icon:'🌟', name:'משחק על כל הקופה', desc:'להגיע לגמר'},
   {id:'champion', icon:'🏆', name:'אלוף הטורניר', desc:'לזכות בגביע'},
+  {id:'onlineWin1', icon:'🥇', name:'ניצחון ראשון אונליין', desc:'לנצח משחק אונליין אחד'},
+  {id:'onlineWin5', icon:'🏵️', name:'חמישיית ניצחונות', desc:'לנצח 5 משחקי אונליין'},
+  {id:'onlineWin10', icon:'🎗️', name:'עשיריית ניצחונות', desc:'לנצח 10 משחקי אונליין'},
+  {id:'onlineBigWin', icon:'💥', name:'מחיקה אונליין', desc:'לנצח משחק אונליין בהפרש של יותר מ־20 נקודות'},
+  {id:'onlineWin50', icon:'👑', name:'מלך האונליין', desc:'לנצח 50 משחקי אונליין'},
   {id:'lowBudgetWin', icon:'🪙', name:'Small Market', desc:'לנצח משחק קלאסי עם תקציב $15 · קל'},
   {id:'underdog', icon:'🐕', name:'Underdog', desc:'לנצח קבוצה עם ממוצע רייטינג גבוה יותר · בינוני'},
   {id:'centuryClub', icon:'💯', name:'Century Club', desc:'להגיע ל־100 נקודות במשחק קלאסי · בינוני'},
@@ -810,6 +844,27 @@ function unlockAchievement(id){
   if(achievements[id]) return;
   achievements[id] = true;
   localStorage.setItem('draftBattleAchievements', JSON.stringify(achievements));
+  queueAchievementToast(id);
+}
+
+let achievementToastQueue = [];
+let achievementToastShowing = false;
+function queueAchievementToast(id){
+  const item = ACHIEVEMENTS.find(a=>a.id===id);
+  if(!item) return;
+  achievementToastQueue.push(item);
+  if(!achievementToastShowing) showNextAchievementToast();
+}
+function showNextAchievementToast(){
+  const item = achievementToastQueue.shift();
+  if(!item){ achievementToastShowing = false; return; }
+  achievementToastShowing = true;
+  const toast = document.getElementById('achievementToast');
+  toast.innerHTML = `<span class="ach-icon">${item.icon}</span><span class="ach-text"><span class="ach-label">גביע חדש נפתח</span><span class="ach-name">${item.name}</span></span>`;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  setTimeout(showNextAchievementToast, 2000);
 }
 
 function updateWinStreak(userWon, isClassic){
@@ -838,6 +893,16 @@ function recordCompletedGame(){
   if(gamesPlayed >= 100) unlockAchievement('games100');
 }
 
+function recordOnlineWin(margin){
+  const onlineWins = Number(localStorage.getItem('draftBattleOnlineWins') || 0) + 1;
+  localStorage.setItem('draftBattleOnlineWins', String(onlineWins));
+  if(onlineWins >= 1) unlockAchievement('onlineWin1');
+  if(onlineWins >= 5) unlockAchievement('onlineWin5');
+  if(onlineWins >= 10) unlockAchievement('onlineWin10');
+  if(onlineWins >= 50) unlockAchievement('onlineWin50');
+  if(margin > 20) unlockAchievement('onlineBigWin');
+}
+
 function openTrophyRoom(){
   const achievements = getAchievements();
   const unlocked = ACHIEVEMENTS.filter(item=>achievements[item.id]).length;
@@ -863,6 +928,11 @@ function chooseMode(mode){
 }
 
 function chooseOnlinePath(path){
+  if(!firebaseReady){
+    setOnlineStatus('מצב אונליין לא זמין כרגע (בעיית התחברות לשרת). אפשר לשחק במוד קלאסי או טורניר.');
+    showScreen('screen-online');
+    return;
+  }
   onlineRole = path==='host' ? '' : 'guest';
 
   // באונליין תמיד משחקים לפי עמדות
@@ -884,6 +954,7 @@ function setOnlineStatus(message){
 }
 
 function ensureOnlineAuth(){
+  if(!firebaseReady) return Promise.reject(new Error('Firebase not available'));
   if(onlineUser) return Promise.resolve(onlineUser);
   return onlineAuth.signInAnonymously().then(result=>{
     onlineUser = result.user;
@@ -1077,6 +1148,10 @@ function showOnlineResult(result){
   document.getElementById('rcCpu').innerHTML = orderedRoster(result.hostRoster).map(p=>`<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
   document.getElementById('shareResultBtn').style.display = 'inline-block';
   document.getElementById('shareResultBtn').textContent = result.hostScore<result.cpuScore ? '📤 שתף את הניצחון' : '📤 שתף את התוצאה';
+  if(S && !S.onlineWinRecorded){
+    S.onlineWinRecorded = true;
+    if(result.cpuScore > result.hostScore) recordOnlineWin(result.cpuScore - result.hostScore);
+  }
 }
 
 function renderOnlineCurrentPlayer(){
@@ -1858,8 +1933,8 @@ async function viewResultAsGuest(){
   S.cpuRoster = normalizeRoster(S.cpuRoster);
   const youPower = teamPower(S.youRoster);
   const cpuPower = teamPower(S.cpuRoster);
-  let hostScore = Math.round(58 + youPower*0.7 + (Math.random()*10-5));
-  let guestScore = Math.round(58 + cpuPower*0.7 + (Math.random()*10-5));
+  let hostScore = Math.round(58 + youPower*0.8 + (Math.random()*10-5));
+  let guestScore = Math.round(58 + cpuPower*0.8 + (Math.random()*10-5));
   if(hostScore===guestScore){ if(youPower>=cpuPower) hostScore+=1; else guestScore+=1; }
   const result = {
     hostScore, cpuScore:guestScore,
@@ -1883,8 +1958,8 @@ function showResult(){
   S.cpuRoster = normalizeRoster(S.cpuRoster);
   const youPower = teamPower(S.youRoster);
   const cpuPower = teamPower(S.cpuRoster);
-  let youScore = Math.round(58 + youPower*0.7 + (Math.random()*10-5));
-  let cpuScore = Math.round(58 + cpuPower*0.7 + (Math.random()*10-5));
+  let youScore = Math.round(58 + youPower*0.8 + (Math.random()*10-5));
+  let cpuScore = Math.round(58 + cpuPower*0.8 + (Math.random()*10-5));
   if(youScore===cpuScore){ if(youPower>=cpuPower) youScore+=1; else cpuScore+=1; }
 
   if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef){
@@ -1948,6 +2023,10 @@ function showResult(){
       if(S.tournamentRound===2) unlockAchievement('final');
       if(S.tournamentRound===3) unlockAchievement('champion');
     }
+    if(userWon && S.gameMode==='online' && !S.onlineWinRecorded){
+      S.onlineWinRecorded = true;
+      recordOnlineWin(youScore - cpuScore);
+    }
     if(S.gameMode==='tournament'){
       tournamentHistory[S.tournamentRound] = {
         stage: TOURNAMENT_ROUNDS[S.tournamentRound],
@@ -1957,6 +2036,7 @@ function showResult(){
       };
       resolveTournamentStage(S.tournamentRound, userWon);
     }
+    const resultAction = document.getElementById('resultActionBtn');
     if(youScore>cpuScore){
       if(S.gameMode==='tournament' && S.tournamentRound===TOURNAMENT_ROUNDS.length-1){
         banner.textContent = `🏆 ${S.teamName} זכתה בגביע!`;
