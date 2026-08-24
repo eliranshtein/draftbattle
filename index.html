@@ -192,7 +192,8 @@
   .rosters-compare{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; text-align:right;}
   .rc-col h4{font-family:'Rubik'; font-size:13px; margin:0 0 2px; color:var(--ink);}
   .rc-col .rc-coach{font-size:10.5px; color:var(--ink-dim); margin:0 0 8px;}
-  .rc-row{font-size:12px; padding:5px 0; border-bottom:1px solid var(--line);}
+  .rc-row{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px; padding:5px 0; border-bottom:1px solid var(--line);}
+  .rc-pts{font-weight:700; color:var(--gold); flex-shrink:0;}
 
   .primary-btn{background:var(--orange); color:#1A0D04; border:none; border-radius:12px; font-family:'Rubik'; font-weight:900; font-size:15px; padding:14px 26px; cursor:pointer; margin-top:14px;}
   .ghost-btn{background:transparent; color:var(--ink-dim); border:1px solid var(--line); border-radius:12px; font-family:'Heebo'; font-weight:600; font-size:13px; padding:12px 20px; cursor:pointer; margin-top:14px; margin-inline-start:8px;}
@@ -732,8 +733,10 @@ const PLAYER_IMAGES = {
 'אליעד טל':'https://basket.co.il/pics/2016/2025/Media_days/Holon/23.jpg',
 'בן רוינה':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/ruina.png',
 'צוף בן משה':'https://basket.co.il/pics/2016/2025/Media_days/NessZiona/8.jpg',
-'דניאל רוזנבאום':'https://basket.co.il/pics/2016/2025/Media_days/HHaifa/10-rosenbaum.jpg'
-
+'דניאל רוזנבאום':'https://basket.co.il/pics/2016/2025/Media_days/HHaifa/10-rosenbaum.jpg',
+'די ג׳יי ברנס':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/dj.jpg', 
+'נואה קרטר':'https://basket.co.il/pics/2025-2026/carter.jpg',
+'דשון פרנסיס':'https://basket.co.il/pics/2025-2026/desean.jpg', 
 
 };
 
@@ -780,6 +783,7 @@ const ROSTER = [
   {name:'בונזי קולסון', role:'F', rating:89}, {name:'שחר שלמון', role:'F', rating:70},{name:'עומר בן דוד', role:'G', rating:72},
   {name:'זיו וייסמן', role:'G', rating:71}, {name:'אליעד טל', role:'F', rating:74}, 
   {name:'בן רוינה', role:'C', rating:72}, {name:'צוף בן משה', role:'F', rating:76}, {name:'דניאל רוזנבאום', role:'F', rating:75},
+  {name:'די ג׳יי ברנס', role:'C', rating:82}, {name:'נואה קרטר', role:'F', rating:84}, {name:'דשון פרנסיס', role:'G', rating:81},
 ];
 
 function buildPool(){
@@ -1144,8 +1148,8 @@ function showOnlineResult(result){
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+result.guestCoach;
   document.getElementById('rcCpuTitle').textContent = result.hostTeam;
   document.getElementById('rcCpuCoach').textContent = 'מאמן: '+result.hostCoach;
-  document.getElementById('rcYou').innerHTML = orderedRoster(result.guestRoster).map(p=>`<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
-  document.getElementById('rcCpu').innerHTML = orderedRoster(result.hostRoster).map(p=>`<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
+  document.getElementById('rcYou').innerHTML = orderedRoster(result.guestRoster).map(p=>`<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts">${p.gamePoints ?? 0}</span></div>`).join('');
+  document.getElementById('rcCpu').innerHTML = orderedRoster(result.hostRoster).map(p=>`<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts">${p.gamePoints ?? 0}</span></div>`).join('');
   document.getElementById('shareResultBtn').style.display = 'inline-block';
   document.getElementById('shareResultBtn').textContent = result.hostScore<result.cpuScore ? '📤 שתף את הניצחון' : '📤 שתף את התוצאה';
   if(S && !S.onlineWinRecorded){
@@ -1820,6 +1824,19 @@ function teamPower(roster){
   return roster.reduce((a,p)=>a+p.rating,0)/roster.length;
 }
 
+function distributeScorers(roster, teamTotal){
+  if(!roster || roster.length===0) return;
+  const weights = roster.map(p => Math.max(1, (p.rating||75)) * (0.82 + Math.random()*0.36));
+  const totalWeight = weights.reduce((a,b)=>a+b,0) || 1;
+  let pts = weights.map(w => Math.round(teamTotal * w / totalWeight));
+  const diff = teamTotal - pts.reduce((a,b)=>a+b,0);
+  if(diff !== 0){
+    const idx = pts.indexOf(Math.max(...pts));
+    pts[idx] += diff;
+  }
+  roster.forEach((p,i)=>{ p.gamePoints = Math.max(0, pts[i]); });
+}
+
 function animateScore(id, target, duration){
   return new Promise(resolve=>{
     const el = document.getElementById(id);
@@ -1827,6 +1844,19 @@ function animateScore(id, target, duration){
     function frame(now){
       const t = Math.min(1, (now-start)/duration);
       el.textContent = Math.round(target*t);
+      if(t<1){ requestAnimationFrame(frame); } else { resolve(); }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+function animateNumbers(entries, duration){
+  return new Promise(resolve=>{
+    const items = entries.map(e=>({el:document.getElementById(e.id), target:e.target})).filter(e=>e.el);
+    const start = performance.now();
+    function frame(now){
+      const t = Math.min(1, (now-start)/duration);
+      items.forEach(e=>{ e.el.textContent = Math.round(e.target*t); });
       if(t<1){ requestAnimationFrame(frame); } else { resolve(); }
     }
     requestAnimationFrame(frame);
@@ -1933,9 +1963,11 @@ async function viewResultAsGuest(){
   S.cpuRoster = normalizeRoster(S.cpuRoster);
   const youPower = teamPower(S.youRoster);
   const cpuPower = teamPower(S.cpuRoster);
-  let hostScore = Math.round(58 + youPower*0.8 + (Math.random()*10-5));
-  let guestScore = Math.round(58 + cpuPower*0.8 + (Math.random()*10-5));
+  let hostScore = Math.round(40 + youPower*0.8 + (Math.random()*10-5));
+  let guestScore = Math.round(40 + cpuPower*0.8 + (Math.random()*10-5));
   if(hostScore===guestScore){ if(youPower>=cpuPower) hostScore+=1; else guestScore+=1; }
+  distributeScorers(S.youRoster, hostScore);
+  distributeScorers(S.cpuRoster, guestScore);
   const result = {
     hostScore, cpuScore:guestScore,
     hostTeam:S.teamName, guestTeam:S.cpuTeamName,
@@ -1958,9 +1990,11 @@ function showResult(){
   S.cpuRoster = normalizeRoster(S.cpuRoster);
   const youPower = teamPower(S.youRoster);
   const cpuPower = teamPower(S.cpuRoster);
-  let youScore = Math.round(58 + youPower*0.8 + (Math.random()*10-5));
-  let cpuScore = Math.round(58 + cpuPower*0.8 + (Math.random()*10-5));
+  let youScore = Math.round(40 + youPower*0.8 + (Math.random()*10-5));
+  let cpuScore = Math.round(40 + cpuPower*0.8 + (Math.random()*10-5));
   if(youScore===cpuScore){ if(youPower>=cpuPower) youScore+=1; else cpuScore+=1; }
+  distributeScorers(S.youRoster, youScore);
+  distributeScorers(S.cpuRoster, cpuScore);
 
   if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef){
     onlineRoomRef.child('result').set({
@@ -1988,15 +2022,21 @@ function showResult(){
   document.getElementById('rcCpuTitle').textContent = S.cpuTeamName;
   document.getElementById('rcCpuCoach').textContent = 'מאמן יריב';
 
-  document.getElementById('rcYou').innerHTML = orderedRoster(S.youRoster).map(p=>
-    `<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
-  document.getElementById('rcCpu').innerHTML = orderedRoster(S.cpuRoster).map(p=>
-    `<div class="rc-row">${p.roleLabel} · ${p.name}</div>`).join('');
+  document.getElementById('rcYou').innerHTML = orderedRoster(S.youRoster).map((p,i)=>
+    `<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts" id="ptsYou${i}">0</span></div>`).join('');
+  document.getElementById('rcCpu').innerHTML = orderedRoster(S.cpuRoster).map((p,i)=>
+    `<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts" id="ptsCpu${i}">0</span></div>`).join('');
 
-  Promise.all([
-    animateScore('fsYou', youScore, RESULT_ANIM_MS),
-    animateScore('fsCpu', cpuScore, RESULT_ANIM_MS)
-  ]).then(()=>{
+  const youOrdered = orderedRoster(S.youRoster);
+  const cpuOrdered = orderedRoster(S.cpuRoster);
+  const scoreAnimEntries = [
+    {id:'fsYou', target:youScore},
+    {id:'fsCpu', target:cpuScore},
+    ...youOrdered.map((p,i)=>({id:`ptsYou${i}`, target:p.gamePoints||0})),
+    ...cpuOrdered.map((p,i)=>({id:`ptsCpu${i}`, target:p.gamePoints||0}))
+  ];
+
+  animateNumbers(scoreAnimEntries, RESULT_ANIM_MS).then(()=>{
     const userWon = youScore > cpuScore;
     const shareButton = document.getElementById('shareResultBtn');
     shareButton.style.display = 'inline-block';
@@ -2123,6 +2163,11 @@ async function shareResultImage(){
       ctx.fillStyle = '#9BA8B4';
       ctx.font = '500 19px Heebo, sans-serif';
       ctx.fillText(player.roleLabel, x+205, y+29);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = accent;
+      ctx.font = '900 26px Rubik, sans-serif';
+      ctx.fillText(String(player.gamePoints ?? 0), x-205, y+8);
+      ctx.textAlign = 'right';
     });
   }
 
@@ -2216,3 +2261,4 @@ function closeStore(){ document.getElementById('storeModal').classList.remove('a
 </script>
 </body>
 </html>
+<p style="text-align: center; margin-top: 40px;"><a href="privacy.html" style="color: #666; text-decoration: underline;">מדיניות פרטיות</a></p>
