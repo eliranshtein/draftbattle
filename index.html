@@ -180,20 +180,31 @@
   .interstitial{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:36px 18px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px;}
   .interstitial .ad-slot{width:100%; max-width:340px; padding:40px 10px;}
 
-  .result-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; text-align:center;}
+  .result-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px; text-align:center;}
   .final-score{display:flex; align-items:center; justify-content:center; gap:18px; margin:12px 0;}
-  .fs-num{font-family:'Rubik',sans-serif; font-weight:900; font-size:52px; line-height:1;}
+  .fs-num{font-family:'Rubik',sans-serif; font-weight:900; font-size:56px; line-height:1;}
   .fs-num.you{color:var(--green);}
   .fs-num.cpu{color:var(--red);}
   .fs-vs{color:var(--ink-dim); font-size:13px; font-weight:700;}
-  .winner-banner{font-family:'Rubik'; font-weight:900; font-size:21px; margin-bottom:4px; min-height:26px;}
+  .winner-banner{font-family:'Rubik'; font-weight:900; font-size:22px; margin-bottom:4px; min-height:26px;}
   .winner-banner.win{color:var(--green);}
   .winner-banner.lose{color:var(--red);}
-  .rosters-compare{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; text-align:right;}
-  .rc-col h4{font-family:'Rubik'; font-size:13px; margin:0 0 2px; color:var(--ink);}
-  .rc-col .rc-coach{font-size:10.5px; color:var(--ink-dim); margin:0 0 8px;}
-  .rc-row{display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px; padding:5px 0; border-bottom:1px solid var(--line);}
+  .rosters-compare{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; text-align:right;}
+  .rc-col h4{font-family:'Rubik'; font-size:14px; margin:0 0 2px; color:var(--ink);}
+  .rc-col .rc-coach{font-size:11px; color:var(--ink-dim); margin:0 0 8px;}
+  .rc-row{display:flex; justify-content:space-between; align-items:center; gap:6px; font-size:12.5px; padding:6px 0; border-bottom:1px solid var(--line);}
+  .rc-player{display:flex; align-items:center; gap:6px; min-width:0; flex:1;}
+  .rc-pname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .rc-avatar{width:22px; height:22px; border-radius:50%; object-fit:cover; object-position:center 35%; flex-shrink:0; border:1px solid var(--line); background:var(--surface-2);}
+  .rc-avatar-ph{width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,var(--surface-2),#0d1319); border:1px solid var(--line); color:var(--ink-dim); font-family:'Rubik'; font-weight:700; font-size:9px;}
   .rc-pts{font-weight:700; color:var(--gold); flex-shrink:0;}
+  @media (max-width:380px){
+    .result-card{padding:18px 14px;}
+    .fs-num{font-size:46px;}
+    .rosters-compare{gap:8px;}
+    .rc-row{font-size:11px; gap:4px;}
+    .rc-avatar, .rc-avatar-ph{width:18px; height:18px; font-size:8px;}
+  }
 
   .primary-btn{background:var(--orange); color:#1A0D04; border:none; border-radius:12px; font-family:'Rubik'; font-weight:900; font-size:15px; padding:14px 26px; cursor:pointer; margin-top:14px;}
   .ghost-btn{background:transparent; color:var(--ink-dim); border:1px solid var(--line); border-radius:12px; font-family:'Heebo'; font-weight:600; font-size:13px; padding:12px 20px; cursor:pointer; margin-top:14px; margin-inline-start:8px;}
@@ -737,6 +748,14 @@ const PLAYER_IMAGES = {
 'די ג׳יי ברנס':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/dj.jpg', 
 'נואה קרטר':'https://basket.co.il/pics/2025-2026/carter.jpg',
 'דשון פרנסיס':'https://basket.co.il/pics/2025-2026/desean.jpg', 
+'בניה סרור': 'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/sror.jpg',
+'סי ג׳יי אלבי':'https://basket.co.il/pics/2025-2026/eleby.jpg',
+'יובל לוין':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/levin.jpg',
+'ג׳קסון רואו':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/rowe.jpg',
+'קווה גרנט':'https://basket.co.il/pics/2025-2026/grant.jpg',
+'מייקל בריסקר':'https://basket.co.il/pics/2022/5mb23.jpg',
+'רון ציפר':'https://basket.co.il/pics/2016/2025/Media_days/BSheva/16.jpg',
+'נועם דוברת':'https://basket.co.il/pics/2016/2025/Media_days/HapJer/8.jpg',
 
 };
 
@@ -784,6 +803,12 @@ const ROSTER = [
   {name:'זיו וייסמן', role:'G', rating:71}, {name:'אליעד טל', role:'F', rating:74}, 
   {name:'בן רוינה', role:'C', rating:72}, {name:'צוף בן משה', role:'F', rating:76}, {name:'דניאל רוזנבאום', role:'F', rating:75},
   {name:'די ג׳יי ברנס', role:'C', rating:82}, {name:'נואה קרטר', role:'F', rating:84}, {name:'דשון פרנסיס', role:'G', rating:81},
+ { name:'בניה סרור', role: 'C', rating: 74 }, {name:'סי ג׳יי אלבי', role: 'F', rating: 88 },
+ { name:'יובל לוין', role: 'F', rating: 76 },
+ { name:'ג׳קסון רואו', role: 'F', rating: 83 }, { name: 'קווה גרנט', role: 'G', rating: 83 },
+ { name:'מייקל בריסקר', role: 'G', rating: 80 },
+ { name:'רון ציפר', role: 'G', rating: 77 },
+ { name:'נועם דוברת', role: 'G', rating: 78 },
 ];
 
 function buildPool(){
@@ -1117,6 +1142,18 @@ function listenForOnlineAnnouncements(){
   onlineRoomRef.child('announcement').on('value', onlineAnnouncementListener);
 }
 
+function renderRosterRows(roster, idPrefix){
+  return roster.map((p,i)=>{
+    const initials = p.name.split(' ').map(w=>w[0]).join('');
+    const avatar = p.image
+      ? `<img class="rc-avatar" src="${p.image}" alt="${p.name}">`
+      : `<span class="rc-avatar-ph">${initials}</span>`;
+    const ptsIdAttr = idPrefix ? ` id="${idPrefix}${i}"` : '';
+    const ptsValue = idPrefix ? 0 : (p.gamePoints ?? 0);
+    return `<div class="rc-row"><span class="rc-player">${avatar}<span class="rc-pname">${p.roleLabel} · ${p.name}</span></span><span class="rc-pts"${ptsIdAttr}>${ptsValue}</span></div>`;
+  }).join('');
+}
+
 function configureResultButtons(){
   const resultAction = document.getElementById('resultActionBtn');
   const homeBtn = document.getElementById('onlineHomeBtn');
@@ -1148,8 +1185,8 @@ function showOnlineResult(result){
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+result.guestCoach;
   document.getElementById('rcCpuTitle').textContent = result.hostTeam;
   document.getElementById('rcCpuCoach').textContent = 'מאמן: '+result.hostCoach;
-  document.getElementById('rcYou').innerHTML = orderedRoster(result.guestRoster).map(p=>`<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts">${p.gamePoints ?? 0}</span></div>`).join('');
-  document.getElementById('rcCpu').innerHTML = orderedRoster(result.hostRoster).map(p=>`<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts">${p.gamePoints ?? 0}</span></div>`).join('');
+  document.getElementById('rcYou').innerHTML = renderRosterRows(orderedRoster(result.guestRoster));
+  document.getElementById('rcCpu').innerHTML = renderRosterRows(orderedRoster(result.hostRoster));
   document.getElementById('shareResultBtn').style.display = 'inline-block';
   document.getElementById('shareResultBtn').textContent = result.hostScore<result.cpuScore ? '📤 שתף את הניצחון' : '📤 שתף את התוצאה';
   if(S && !S.onlineWinRecorded){
@@ -2022,10 +2059,8 @@ function showResult(){
   document.getElementById('rcCpuTitle').textContent = S.cpuTeamName;
   document.getElementById('rcCpuCoach').textContent = 'מאמן יריב';
 
-  document.getElementById('rcYou').innerHTML = orderedRoster(S.youRoster).map((p,i)=>
-    `<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts" id="ptsYou${i}">0</span></div>`).join('');
-  document.getElementById('rcCpu').innerHTML = orderedRoster(S.cpuRoster).map((p,i)=>
-    `<div class="rc-row"><span>${p.roleLabel} · ${p.name}</span><span class="rc-pts" id="ptsCpu${i}">0</span></div>`).join('');
+  document.getElementById('rcYou').innerHTML = renderRosterRows(orderedRoster(S.youRoster), 'ptsYou');
+  document.getElementById('rcCpu').innerHTML = renderRosterRows(orderedRoster(S.cpuRoster), 'ptsCpu');
 
   const youOrdered = orderedRoster(S.youRoster);
   const cpuOrdered = orderedRoster(S.cpuRoster);
