@@ -51,6 +51,7 @@
   .ball::after{border-top:1.5px solid rgba(0,0,0,.4); top:50%; transform:translateY(-50%); height:1.5px; border-radius:0; box-shadow:0 -8px 0 -7.2px rgba(0,0,0,.4), 0 8px 0 -7.2px rgba(0,0,0,.4);}
   h1{font-family:'Rubik',sans-serif; font-weight:900; font-size:19px; margin:0; letter-spacing:.01em; direction:ltr; text-align:right;}
   .tag{font-size:10.5px; color:var(--ink-dim); margin-top:1px;}
+  .mode-indicator{font-size:12px; font-weight:700; color:var(--ink); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:8px; padding:4px 10px; display:inline-block; margin-bottom:10px;}
   .store-btn{background:var(--surface-2); border:1px solid var(--line); color:var(--gold); font-family:'Heebo',sans-serif; font-weight:700; font-size:12px; padding:7px 11px; border-radius:8px; cursor:pointer;}
   .trophy-btn{font-size:14px; padding:9px 14px;}
   .store-btn:hover{border-color:var(--gold);}
@@ -119,6 +120,13 @@
   .mode-opt .mode-icon{font-size:32px; line-height:1;}
   .mode-opt .nm{font-weight:700; font-size:15px; margin-top:9px;}
   .mode-opt .sub{font-size:11px; color:var(--ink-dim); margin-top:4px; line-height:1.5;}
+  .lineup-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px;}
+  .lineup-card{background:var(--surface-2); border:2px solid var(--line); border-radius:12px; padding:10px; cursor:pointer; transition:.15s; text-align:right;}
+  .lineup-card.selected{border-color:var(--gold); background:rgba(212,175,55,0.12);}
+  .lineup-card .lc-name{font-weight:700; font-size:13px;}
+  .lineup-card .lc-role{font-size:10.5px; color:var(--ink-dim); margin-top:2px;}
+  .lineup-card .lc-badge{font-size:10px; color:var(--gold); font-weight:700; margin-top:4px;}
+  .lineup-counter{font-weight:700; font-size:14px; margin-bottom:12px;}
 
   /* ---- Draft screen (mobile-first, compact) ---- */
   .scoreboard{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:9px 12px;}
@@ -198,6 +206,8 @@
   .rc-avatar{width:22px; height:22px; border-radius:50%; object-fit:cover; object-position:center 35%; flex-shrink:0; border:1px solid var(--line); background:var(--surface-2);}
   .rc-avatar-ph{width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,var(--surface-2),#0d1319); border:1px solid var(--line); color:var(--ink-dim); font-family:'Rubik'; font-weight:700; font-size:9px;}
   .rc-pts{font-weight:700; color:var(--gold); flex-shrink:0;}
+  .rc-group-title{font-family:'Rubik'; font-weight:700; font-size:11.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.03em; margin:10px 0 2px; padding-top:6px; border-top:1px solid var(--line);}
+  .rc-group-title:first-child{margin-top:0; padding-top:0; border-top:none;}
   @media (max-width:380px){
     .result-card{padding:18px 14px;}
     .fs-num{font-size:46px;}
@@ -291,7 +301,7 @@
   <div class="ad-slot top">מקום לפרסומת · <b>Banner 320×50</b></div>
 
   <header>
-    <div class="brand">
+    <button class="brand" id="brandHomeBtn" onclick="goHome()" aria-label="חזרה למסך הבית" style="background:none; border:none; padding:0; cursor:pointer; text-align:inherit; color:inherit; font:inherit;">
       <svg class="brand-mark" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Draft Battle logo" role="img">
         <defs>
           <radialGradient id="brandBall" cx="32%" cy="28%" r="72%">
@@ -320,12 +330,13 @@
         <h1>Draft Battle</h1>
         <div class="tag">האם אתם מוכנים לקרבות הדראפט?</div>
       </div>
-    </div>
+    </button>
     <div class="header-actions">
       <button class="store-btn trophy-btn" onclick="openTrophyRoom()">🏆 ארון הגביעים</button>
       <button class="store-btn" onclick="openStore()">🛒 חנות</button>
     </div>
   </header>
+  <div class="mode-indicator" id="modeIndicatorBadge" style="display:none"></div>
 
   <!-- SPLASH -->
   <section id="screen-splash" class="screen active">
@@ -334,8 +345,29 @@
         <div class="splash-eyebrow">🏀 קרב המכרזים המהיר בעיר</div>
         <h2 class="splash-title">Draft Battle</h2>
         <p class="splash-tagline">אתה מול קבוצה שלא נחה לרגע. תקציב מוגבל, שעון רץ, וכל שחקן שאתה מפספס — הוא שחקן שהיריב תופס. ברוכים הבאים לזירה.</p>
-        <button class="cta-btn" onclick="showScreen('screen-mode')">בוא נתחיל! 🏀</button>
+        <button class="cta-btn" onclick="showScreen('screen-game-size')">בוא נתחיל! 🏀</button>
       </div>
+    </div>
+  </section>
+
+  <!-- GAME SIZE -->
+  <section id="screen-game-size" class="screen">
+    <div class="setup-card">
+      <h2>איזה סוג משחק?</h2>
+      <p>בחר בין חמישייה קלאסית למאבק על סגל שלם עם ספסל.</p>
+      <div class="mode-grid">
+        <div class="mode-opt" onclick="chooseGameSize('quick')">
+          <div class="mode-icon">⚡</div>
+          <div class="nm">משחק מהיר</div>
+          <div class="sub">חמישייה אחת ראש בראש</div>
+        </div>
+        <div class="mode-opt" onclick="chooseGameSize('full')">
+          <div class="mode-icon">🏟️</div>
+          <div class="nm">משחק מלא</div>
+          <div class="sub">קבוצה שלמה, מאבק גדול</div>
+        </div>
+      </div>
+      <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
     </div>
   </section>
 
@@ -415,13 +447,13 @@
           <div class="nm">טורניר</div>
           <div class="sub">שמינית, רבע, חצי וגמר</div>
         </div>
-        <div class="mode-opt" onclick="chooseMode('online')">
+        <div class="mode-opt" id="modeOptOnline" onclick="chooseMode('online')">
           <div class="mode-icon">🌐</div>
           <div class="nm">אונליין</div>
           <div class="sub">שחק מול אדם בחדר משותף</div>
         </div>
       </div>
-      <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
+      <button class="ghost-btn" onclick="showScreen('screen-game-size')">← הקודם</button>
     </div>
   </section>
 
@@ -439,6 +471,7 @@
         <input type="text" id="coachNameInput" placeholder="לדוגמה: קוץ׳ אלירן" maxlength="24">
       </div>
       <button class="primary-btn" onclick="goToSetup()">המשך לבחירת תקציב</button>
+      <button class="ghost-btn" id="namesBackBtn" style="display:none" onclick="showScreen('screen-mode')">← חזרה לבחירת קלאסי/טורניר</button>
     </div>
   </section>
 
@@ -453,8 +486,8 @@
 
     <div class="setup-card">
       <h2>בחר תקציב</h2>
-      <p>המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה חמישייה: 2 גארדים, 2 פורוורדים וסנטר.</p>
-      <div class="budget-grid">
+      <p id="setupBudgetDesc">המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה חמישייה: 2 גארדים, 2 פורוורדים וסנטר.</p>
+      <div class="budget-grid" id="budgetGrid">
         <div class="budget-opt" onclick="startGame(15)">
           <div class="lg">$15</div>
           <div class="nm">תקציב מצומצם</div>
@@ -471,9 +504,10 @@
           <div class="sub">הגיע בעלים רעב לקבוצה</div>
         </div>
       </div>
-      <div class="setup-mode-switch">
+      <div class="setup-mode-switch" id="setupModeSwitchWrap">
         <button type="button" id="setupModeSwitch" onclick="chooseTournamentFromSetup()">🏆 לבחור טורניר במקום</button>
       </div>
+      <button class="ghost-btn" id="setupBackBtn" style="display:none" onclick="showScreen('screen-mode')">← חזרה לבחירת קלאסי/טורניר</button>
     </div>
   </section>
 
@@ -530,10 +564,21 @@
   <!-- INTERSTITIAL -->
   <section id="screen-inter" class="screen">
     <div class="interstitial">
-      <h2 style="font-family:'Rubik'; margin:0;">החמישייה נבנתה!</h2>
-      <p style="color:var(--ink-dim); font-size:13px; margin:0;">רגע לפני התוצאה...</p>
+      <h2 id="interTitle" style="font-family:'Rubik'; margin:0;">החמישייה נבנתה!</h2>
+      <p id="interSub" style="color:var(--ink-dim); font-size:13px; margin:0;">רגע לפני התוצאה...</p>
       <div class="ad-slot">מקום לפרסומת · <b>Interstitial 320×250</b><br><span style="font-size:10px;">(כאן תוצג פרסומת אמיתית בגרסה החיה)</span></div>
       <button class="primary-btn" onclick="viewResult()">👀 צפה בתוצאת המשחק</button>
+    </div>
+  </section>
+
+  <!-- LINEUP (חמישייה ראשונה מול ספסל, למצב משחק מלא) -->
+  <section id="screen-lineup" class="screen">
+    <div class="setup-card">
+      <h2>בחר את החמישייה הראשונה</h2>
+      <p>בחר 5 מתוך 10 השחקנים שלך שיהיו החמישייה הראשונה. היא תשקלל כ-2/3 מתוצאת המשחק, לעומת שליש לספסל.</p>
+      <div class="lineup-counter" id="lineupCounter">נבחרו 0/5</div>
+      <div class="lineup-grid" id="lineupGrid"></div>
+      <button class="primary-btn" id="lineupConfirmBtn" onclick="confirmLineup()" disabled>אישור החמישייה</button>
     </div>
   </section>
 
@@ -722,7 +767,6 @@ const PLAYER_IMAGES = {
   'רועי נציה':'https://basket.co.il/pics/2016/2025/Media_days/Gilboa/14.jpg',
   'לוטן אמסלם':'https://basket.co.il/pics/2022/2023-24/8la24.jpg',
   'עוז בלייזר':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7nlhcKL1kZEOUKLwF5jaQta149YqY2eGyIfHoSRg3vgQdvzqdkUyXs5mD&s=10',
-  'עופרי שטרית':'https://basket.co.il/pics/2016/2025/Media_days/BSheva/5.jpg',
   'ג\'וש פרוינד':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVFTz_pkIi0j8-8D3R1zqNglZ7oHY2fGurRxXb_dbva_dlO57qsIDcIlQ&s=10',
   'אדאמה סאנוגו':'https://basket.co.il/pics/2025-2026/%D7%A9%D7%95%D7%A0%D7%95%D7%AA/sanogo.png',
   'דן אוטורו':'https://basket.co.il/pics/2025-2026/dan.jpg',
@@ -794,7 +838,6 @@ const ROSTER = [
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
   {name:'לוקאס גולדנברג', role:'F', rating:74}, {name:'רועי נציה', role:'F', rating:73},
   {name:'לוטן אמסלם', role:'F', rating:73}, {name:'עוז בלייזר', role:'F', rating:78},
-  {name:'עופרי שטרית', role:'F', rating:70},
   {name:'ג\'יילן הורד', role:'F', rating:92}, {name:'איש וויינרייט', role:'F', rating:88},
   {name:'אושיי בריסט', role:'F', rating:88},
   {name:'איפה לונדברג', role:'G', rating:90}, {name:'ג׳ימי קלארק', role:'G', rating:91},
@@ -815,21 +858,27 @@ function buildPool(){
   return ROSTER.map(p=>({name:p.name, role:p.role, roleLabel:ROLE_MAP[p.role].label, rating:p.rating, image:PLAYER_IMAGES[p.name] || ''}));
 }
 
+
 function buildRoundOrder(){
   let order=[];
   ROLES.forEach(role=>{ for(let i=0;i<role.quota*2;i++) order.push(role.key); });
-  while(order.length<20) order.push(ROLES[Math.floor(Math.random()*ROLES.length)].key);
+  const cap = rosterSize===10 ? 40 : 20;
+  while(order.length<cap) order.push(ROLES[Math.floor(Math.random()*ROLES.length)].key);
   for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
   return order;
 }
 
 function buildFreeRoundOrder(){
-  return Array.from({length:20}, ()=>null);
+  return Array.from({length: rosterSize===10?40:20}, ()=>null);
 }
 
 let pendingTeamName='', pendingCoachName='';
 let draftType='positions';
 let gameMode='classic';
+let rosterSize=5; // 5 = משחק מהיר (חמישייה), 10 = משחק מלא (סגל עם ספסל)
+let modeChosen=false; // true מהרגע שהשחקן בחר משחק מהיר/מלא, עד חזרה למסך הבית
+const MENU_SCREENS = new Set(['screen-game-size','screen-mode','screen-draft-type','screen-online-path','screen-online','screen-names','screen-setup']);
+const BASE_ROLE_QUOTA = {G:2, F:2, C:1};
 let tournamentOpponents=[];
 let tournamentRound=0;
 let tournamentHistory=[];
@@ -945,12 +994,27 @@ function openTrophyRoom(){
 
 function closeTrophyRoom(){ document.getElementById('trophyModal').classList.remove('active'); }
 
+function chooseGameSize(size){
+  modeChosen = true;
+  rosterSize = size==='full' ? 10 : 5;
+  ROLES.forEach(r=>{ r.quota = BASE_ROLE_QUOTA[r.key] * (rosterSize===10 ? 2 : 1); });
+  document.getElementById('namesBackBtn').style.display = 'none';
+  showScreen('screen-mode');
+}
+
 function chooseMode(mode){
   gameMode = mode;
   if(mode==='online'){
     S = null;
     pendingOnlineBudget = 0;
     showScreen('screen-online-path');
+    return;
+  }
+  if(rosterSize===10){
+    // משחק מלא נתמך כרגע רק לפי עמדות, כך שמדלגים על מסך בחירת סוג המכרז
+    draftType = 'positions';
+    document.getElementById('namesBackBtn').style.display = '';
+    showScreen('screen-names');
     return;
   }
   showScreen('screen-draft-type');
@@ -968,12 +1032,13 @@ function chooseOnlinePath(path){
   draftType = 'positions';
 
   if(path==='host'){
+    document.getElementById('namesBackBtn').style.display = rosterSize===10 ? '' : 'none';
     showScreen('screen-names');
     return;
   }
 
   showScreen('screen-online');
-  setOnlineStatus('הזן קוד חדר כדי להצטרף. המשחק מתנהל לפי עמדות והתקציב יגיע מהמארח.');
+  setOnlineStatus('הזן קוד חדר כדי להצטרף. המשחק מתנהל לפי עמדות והתקציב והגודל יגיעו מהמארח.');
   ensureOnlineAuth();
 }
 
@@ -1001,7 +1066,7 @@ function makeRoomCode(){
 }
 
 function onlineRoomReady(){
-  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget}.`);
+  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget} · גודל סגל: ${rosterSize===10?'10 (משחק מלא)':'5 (משחק מהיר)'}.`);
 }
 
 function onlineStateSnapshot(){
@@ -1015,13 +1080,13 @@ function publishOnlineState(){
   onlineRoomRef.child('stateData').set(onlineStateSnapshot());
 }
 
-function sendOnlineAction(type){
+function sendOnlineAction(type, extra){
   if(!onlineRoomRef || onlineRole!=='guest'){
     setOnlineTurnMessage('החדר לא מחובר לאורח.');
     return;
   }
   setOnlineTurnMessage('שולח פעולה למארח...');
-  onlineRoomRef.child('action').set({type, id:`${onlineUser.uid}-${Date.now()}`})
+  onlineRoomRef.child('action').set({type, id:`${onlineUser.uid}-${Date.now()}`, ...(extra||{})})
     .then(()=>setOnlineTurnMessage('הפעולה נשלחה. ממתין לעדכון מהמארח.'))
     .catch(error=>setOnlineStatus(`שליחת הפעולה נכשלה: ${error.message}`));
 }
@@ -1089,6 +1154,11 @@ function listenForOnlineState(){
     S.youRoster = S.youRoster || [];
     S.cpuRoster = S.cpuRoster || [];
     S.pool = S.pool || [];
+    S.youStarters = S.youStarters || [];
+    S.cpuStarters = S.cpuStarters || [];
+    S.youBench = S.youBench || [];
+    S.cpuBench = S.cpuBench || [];
+    S.rosterSize = S.rosterSize || 5;
     if(S.turn!=='cpu'){
       // Only trust the host's absolute deadline when it's NOT the guest's turn.
       // During the guest's own turn, startOnlineGuestClock() below owns tLeft
@@ -1108,9 +1178,18 @@ function listenForOnlineState(){
     if(S.current){
       showScreen('screen-draft');
       renderOnlineCurrentPlayer();
-    } else if(S.youRoster.length>=5 && S.cpuRoster.length>=5){
-      const onResultAlready = document.getElementById('screen-result').classList.contains('active');
-      if(!onResultAlready) showScreen('screen-inter');
+    } else if(S.youRoster.length>=S.rosterSize && S.cpuRoster.length>=S.rosterSize){
+      if(S.rosterSize===10){
+        if(!S.guestLineupReady){
+          if(!document.getElementById('screen-lineup').classList.contains('active')) showLineupScreen();
+        } else if(S.hostLineupReady){
+          const onResultAlready = document.getElementById('screen-result').classList.contains('active');
+          if(!onResultAlready) showScreen('screen-inter');
+        }
+      } else {
+        const onResultAlready = document.getElementById('screen-result').classList.contains('active');
+        if(!onResultAlready) showScreen('screen-inter');
+      }
     }
     updateQuotaRow();
     renderMiniRosters();
@@ -1142,16 +1221,39 @@ function listenForOnlineAnnouncements(){
   onlineRoomRef.child('announcement').on('value', onlineAnnouncementListener);
 }
 
-function renderRosterRows(roster, idPrefix){
+function resultOrder(roster, benchNameSet){
+  if(benchNameSet && benchNameSet.size>0){
+    const starters = orderedRoster(roster.filter(p=>!benchNameSet.has(p.name)));
+    const bench = orderedRoster(roster.filter(p=>benchNameSet.has(p.name)));
+    return {starters, bench, all: starters.concat(bench)};
+  }
+  const all = orderedRoster(roster);
+  return {starters: all, bench: [], all};
+}
+
+function renderRosterGroup(roster, idPrefix, offset){
   return roster.map((p,i)=>{
+    const idx = offset+i;
     const initials = p.name.split(' ').map(w=>w[0]).join('');
     const avatar = p.image
       ? `<img class="rc-avatar" src="${p.image}" alt="${p.name}">`
       : `<span class="rc-avatar-ph">${initials}</span>`;
-    const ptsIdAttr = idPrefix ? ` id="${idPrefix}${i}"` : '';
+    const ptsIdAttr = idPrefix ? ` id="${idPrefix}${idx}"` : '';
     const ptsValue = idPrefix ? 0 : (p.gamePoints ?? 0);
     return `<div class="rc-row"><span class="rc-player">${avatar}<span class="rc-pname">${p.roleLabel} · ${p.name}</span></span><span class="rc-pts"${ptsIdAttr}>${ptsValue}</span></div>`;
   }).join('');
+}
+
+function renderRosterRows(roster, idPrefix, benchSet){
+  const {starters, bench} = resultOrder(roster, benchSet);
+  if(bench.length>0){
+    let html = '<div class="rc-group-title">חמישייה ראשונה</div>';
+    html += renderRosterGroup(starters, idPrefix, 0);
+    html += '<div class="rc-group-title">ספסל</div>';
+    html += renderRosterGroup(bench, idPrefix, starters.length);
+    return html;
+  }
+  return renderRosterGroup(starters, idPrefix, 0);
 }
 
 function configureResultButtons(){
@@ -1185,8 +1287,8 @@ function showOnlineResult(result){
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+result.guestCoach;
   document.getElementById('rcCpuTitle').textContent = result.hostTeam;
   document.getElementById('rcCpuCoach').textContent = 'מאמן: '+result.hostCoach;
-  document.getElementById('rcYou').innerHTML = renderRosterRows(orderedRoster(result.guestRoster));
-  document.getElementById('rcCpu').innerHTML = renderRosterRows(orderedRoster(result.hostRoster));
+  document.getElementById('rcYou').innerHTML = renderRosterRows(result.guestRoster, null, new Set(result.guestBenchNames||[]));
+  document.getElementById('rcCpu').innerHTML = renderRosterRows(result.hostRoster, null, new Set(result.hostBenchNames||[]));
   document.getElementById('shareResultBtn').style.display = 'inline-block';
   document.getElementById('shareResultBtn').textContent = result.hostScore<result.cpuScore ? '📤 שתף את הניצחון' : '📤 שתף את התוצאה';
   if(S && !S.onlineWinRecorded){
@@ -1219,6 +1321,17 @@ function listenForOnlineAction(){
     const action = snapshot.val();
     if(!action || action.id===onlineLastActionId) return;
     onlineLastActionId = action.id;
+    if(action.type==='submitLineup'){
+      if(S && S.rosterSize===10 && !S.current && S.cpuRoster && S.cpuRoster.length>=S.rosterSize){
+        const chosen = S.cpuRoster.filter(p=>(action.starterNames||[]).includes(p.name));
+        S.cpuStarters = chosen.length===5 ? chosen : autoPickStarters(S.cpuRoster);
+        S.cpuBench = S.cpuRoster.filter(p=>!S.cpuStarters.includes(p));
+        S.guestLineupReady = true;
+        publishOnlineState();
+        if(S.hostLineupReady) showScreen('screen-inter');
+      }
+      return;
+    }
     if(S && S.current && S.turn==='cpu'){
       if(action.type==='bid') handleOnlineGuestBid();
       if(action.type==='giveup' || action.type==='timeout') handleForfeit('cpu', action.type);
@@ -1256,6 +1369,7 @@ async function createOnlineRoom(){
       hostTeamName:pendingTeamName,
       draftType,
       budget:pendingOnlineBudget,
+      rosterSize,
       rematch:{hostReady:false, guestReady:false, declined:false},
       createdAt:firebase.database.ServerValue.TIMESTAMP
     });
@@ -1281,10 +1395,13 @@ async function joinOnlineRoom(){
     if(room.guestUid && room.guestUid!==onlineUser.uid){ setOnlineStatus('החדר כבר מלא.'); return; }
     draftType = room.draftType || draftType;
     pendingOnlineBudget = room.budget || pendingOnlineBudget;
+    rosterSize = room.rosterSize || 5;
+    ROLES.forEach(r=>{ r.quota = BASE_ROLE_QUOTA[r.key] * (rosterSize===10 ? 2 : 1); });
     onlineRoomCode = code;
     onlineRole = 'guest';
     onlineRoomRef = roomRef;
     pendingGuestTeamName = pendingTeamName;
+    document.getElementById('namesBackBtn').style.display = 'none'; // אורח לא בוחר מוד בעצמו - הוא מאמץ את הגדרות המארח
     showScreen('screen-names');
   } catch(error){
     setOnlineStatus('ההצטרפות נכשלה. בדוק את קוד החדר והגדרות Firebase.');
@@ -1314,15 +1431,18 @@ function startOnlineGame(){
     teamName: pendingTeamName,
     coachName: pendingCoachName,
     cpuTeamName: pendingGuestTeamName || 'הקבוצה של האורח',
-    gameMode:'online', draftType,
+    gameMode:'online', draftType, rosterSize,
     round:0,
     roundOrder: draftType==='free' ? buildFreeRoundOrder() : buildRoundOrder(),
     pool, youRoster:[], cpuRoster:[],
+    youStarters:[], cpuStarters:[], youBench:[], cpuBench:[],
+    hostLineupReady:false, guestLineupReady:false,
     youCount:{G:0,F:0,C:0}, cpuCount:{G:0,F:0,C:0},
     current:null, price:0, holder:null, turn:null, tLeft:TURN_SECONDS,
     onlineStarter:Math.random()<0.5 ? 'you' : 'cpu',
     turnTimerId:null, cpuDecisionTimeout:null, active:false
   };
+  lineupPickState = [];
   showScreen('screen-draft');
   updateQuotaRow();
   renderMiniRosters();
@@ -1389,14 +1509,67 @@ function goToSetup(){
   document.getElementById('heroTeamGreeting').textContent = gameMode==='tournament'
     ? `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`
     : `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
-  if(gameMode==='online'){
-    setupModeSwitch.textContent = '← חזרה למשחק מול המחשב';
-    setupModeSwitch.onclick = leaveOnlineToComputer;
+  renderBudgetOptions();
+  const modeSwitchWrap = document.getElementById('setupModeSwitchWrap');
+  const setupBackBtn = document.getElementById('setupBackBtn');
+  if(rosterSize===10){
+    // במשחק מלא משתמשים בכפתור חזרה קבוע במקום מתג טורניר/אונליין
+    modeSwitchWrap.style.display = 'none';
+    setupBackBtn.style.display = '';
   } else {
-    setupModeSwitch.textContent = gameMode==='tournament' ? '🏀 חזרה למשחק קלאסי' : '🏆 לבחור טורניר במקום';
-    setupModeSwitch.onclick = gameMode==='tournament' ? chooseClassicFromSetup : chooseTournamentFromSetup;
+    modeSwitchWrap.style.display = '';
+    setupBackBtn.style.display = 'none';
+    if(gameMode==='online'){
+      setupModeSwitch.textContent = '← חזרה למשחק מול המחשב';
+      setupModeSwitch.onclick = leaveOnlineToComputer;
+    } else {
+      setupModeSwitch.textContent = gameMode==='tournament' ? '🏀 חזרה למשחק קלאסי' : '🏆 לבחור טורניר במקום';
+      setupModeSwitch.onclick = gameMode==='tournament' ? chooseClassicFromSetup : chooseTournamentFromSetup;
+    }
   }
   showScreen('screen-setup');
+}
+
+function renderBudgetOptions(){
+  const desc = document.getElementById('setupBudgetDesc');
+  const grid = document.getElementById('budgetGrid');
+  if(rosterSize===10){
+    desc.textContent = 'המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה סגל של 10 שחקנים: 4 גארדים, 4 פורוורדים ו-2 סנטרים.';
+    grid.innerHTML = `
+      <div class="budget-opt" onclick="startGame(30)">
+        <div class="lg">$30</div>
+        <div class="nm">תקציב מצומצם</div>
+        <div class="sub">קבוצה צנועה, מאתגר</div>
+      </div>
+      <div class="budget-opt" onclick="startGame(42)">
+        <div class="lg">$42</div>
+        <div class="nm">איזון קלאסי</div>
+        <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
+      </div>
+      <div class="budget-opt" onclick="startGame(100)">
+        <div class="lg">$100</div>
+        <div class="nm">תקציב עתק</div>
+        <div class="sub">הגיע בעלים רעב לקבוצה</div>
+      </div>`;
+  } else {
+    desc.textContent = 'המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה חמישייה: 2 גארדים, 2 פורוורדים וסנטר.';
+    grid.innerHTML = `
+      <div class="budget-opt" onclick="startGame(15)">
+        <div class="lg">$15</div>
+        <div class="nm">תקציב מצומצם</div>
+        <div class="sub">קבוצה צנועה, מאתגר</div>
+      </div>
+      <div class="budget-opt" onclick="startGame(21)">
+        <div class="lg">$21</div>
+        <div class="nm">איזון קלאסי</div>
+        <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
+      </div>
+      <div class="budget-opt" onclick="startGame(50)">
+        <div class="lg">$50</div>
+        <div class="nm">תקציב עתק</div>
+        <div class="sub">הגיע בעלים רעב לקבוצה</div>
+      </div>`;
+  }
 }
 
 function leaveOnlineToComputer(){
@@ -1409,6 +1582,7 @@ function chooseTournamentFromSetup(){
   document.getElementById('heroTeamGreeting').textContent = `${pendingCoachName}, בחר תקציב לטורניר עם ${pendingTeamName}`;
   document.getElementById('setupModeSwitch').textContent = '🏀 חזרה למשחק קלאסי';
   document.getElementById('setupModeSwitch').onclick = chooseClassicFromSetup;
+  updateModeIndicator('screen-setup');
 }
 
 function chooseClassicFromSetup(){
@@ -1416,6 +1590,7 @@ function chooseClassicFromSetup(){
   document.getElementById('heroTeamGreeting').textContent = `${pendingCoachName}, בחר תקציב ל${pendingTeamName}`;
   document.getElementById('setupModeSwitch').textContent = '🏆 לבחור טורניר במקום';
   document.getElementById('setupModeSwitch').onclick = chooseTournamentFromSetup;
+  updateModeIndicator('screen-setup');
 }
 
 function startGame(budget, continueTournament=false){
@@ -1439,9 +1614,10 @@ function startGame(budget, continueTournament=false){
   S = {
     budget, youBudget: budget, cpuBudget: budget,
     teamName: pendingTeamName, coachName: pendingCoachName, cpuTeamName,
-    gameMode, tournamentRound,
+    gameMode, tournamentRound, rosterSize,
     draftType, round: 0, roundOrder: draftType==='free' ? buildFreeRoundOrder() : buildRoundOrder(), pool,
     youRoster: [], cpuRoster: [],
+    youStarters: [], cpuStarters: [], youBench: [], cpuBench: [],
     youCount: {G:0,F:0,C:0}, cpuCount: {G:0,F:0,C:0},
     current: null, price: 0, holder: null,
     turn: null, tLeft: TURN_SECONDS,
@@ -1466,7 +1642,7 @@ function updateQuotaRow(){
   const oppCount = isGuestView ? S.youCount : S.cpuCount;
   const oppRoster = isGuestView ? S.youRoster : S.cpuRoster;
   if(S.draftType==='free'){
-    row.innerHTML = `<span>סגל: <b>${mineRoster.length}/5</b> נגד <b>${oppRoster.length}/5</b></span>`;
+    row.innerHTML = `<span>סגל: <b>${mineRoster.length}/${S.rosterSize}</b> נגד <b>${oppRoster.length}/${S.rosterSize}</b></span>`;
     return;
   }
   row.innerHTML = ROLES.map(r=>
@@ -1487,7 +1663,7 @@ function lastName(name){
 function slotListFor(roster){
   roster = roster || [];
   if(S && S.draftType==='free'){
-    return Array.from({length:5}, (_,index)=>({role:null, player:roster[index] || null, index}));
+    return Array.from({length:S.rosterSize||5}, (_,index)=>({role:null, player:roster[index] || null, index}));
   }
   let out=[];
   ROLES.forEach(role=>{
@@ -1550,7 +1726,7 @@ function hideAnnounce(broadcast=true){
 }
 
 function nextRound(){
-  if(S.youRoster.length >= 5 && S.cpuRoster.length >= 5){ endDraft(); return; }
+  if(S.youRoster.length >= S.rosterSize && S.cpuRoster.length >= S.rosterSize){ endDraft(); return; }
   if(S.round >= S.roundOrder.length){ endDraft(); return; }
   const roleKey = S.roundOrder[S.round];
   const role = roleKey ? ROLE_MAP[roleKey] : null;
@@ -1559,10 +1735,12 @@ function nextRound(){
     nextRound();
     return;
   }
-  const youEligible = S.draftType==='free' ? S.youRoster.length < 5 : S.youCount[roleKey] < role.quota;
-  const cpuEligible = S.draftType==='free' ? S.cpuRoster.length < 5 : S.cpuCount[roleKey] < role.quota;
+  const youEligible = S.draftType==='free' ? S.youRoster.length < S.rosterSize : S.youCount[roleKey] < role.quota;
+  const cpuEligible = S.draftType==='free' ? S.cpuRoster.length < S.rosterSize : S.cpuCount[roleKey] < role.quota;
   const player = S.draftType==='free' ? pickAnyPlayer() : pickPlayerForRole(roleKey);
   S.current = player;
+  S.cpuValuation = null;
+  S.cpuMood = null;
 
   document.getElementById('roundPill').textContent = S.gameMode==='tournament'
     ? `${TOURNAMENT_ROUNDS[S.tournamentRound]} · סבב ${S.round+1} / ${S.roundOrder.length}`
@@ -1640,14 +1818,14 @@ function autoAward(winner, role, player){
     ? `העמדה ${role.label} מלאה אצל ${filledSide}, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`
     : `${filledSide} כבר השלימה חמישייה, ולכן ${player.name} שובץ אוטומטית ל${winner==='you' ? S.teamName : S.cpuTeamName}`;
   if(winner==='you'){
-    if(S.youRoster.length < 5){
+    if(S.youRoster.length < S.rosterSize){
       S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
     }
     document.getElementById('bidPrice').textContent = '$'+price;
     document.getElementById('bidHolder').textContent = placementMessage;
     showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
   } else {
-    if(S.cpuRoster.length < 5){
+    if(S.cpuRoster.length < S.rosterSize){
       S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
     }
     document.getElementById('bidPrice').textContent = '$'+price;
@@ -1767,13 +1945,66 @@ function scheduleCpuDecision(){
   S.cpuDecisionTimeout = setTimeout(cpuAct, Math.min(delay, 4200));
 }
 
+// טווח הדירוגים בפועל במאגר הוא בערך 70-96 (לא 0-99!) - בלי נירמול נכון,
+// כל שחקן נחשב "טוב" והמחשב כמעט אף פעם לא מרגיש חוסר עניין.
+const RATING_FLOOR = 68, RATING_CEIL = 97;
+function playerQuality(player){
+  const q = (player.rating - RATING_FLOOR) / (RATING_CEIL - RATING_FLOOR);
+  return Math.min(1, Math.max(0, q));
+}
+
+function getCpuValuation(player){
+  const perSlotBudget = S.budget/5;
+  // עקומה מתונה בהרבה - לא מוחקת כמעט לגמרי שחקנים ממוצעים
+  const quality = Math.pow(playerQuality(player), 1.1);
+  const raw = quality * perSlotBudget * (1.5 + Math.random()*0.9);
+  return Math.max(1, raw); // תמיד מוכן לפחות לדולר הראשון
+}
+
+// פעם אחת לכל סבב, המחשב "מחליט" איזו גישה הוא נוקט מול השחקן הזה:
+// disinterested - לא מעניין אותו, ייתן לשחקן ללכת בקלות (בעיקר על שחקנים חלשים)
+// hungry        - נלחם חזק ומוכן למתוח את התקציב (בעיקר על שחקנים טובים)
+// normal        - ההתנהגות הסטנדרטית לפי הערכת שווי
+function rollCpuMood(player){
+  // מוסיפים קצת "רעש" אישי להערכה - לא תמיד מדויק לפי הדירוג הטהור, כדי שלא יהיה נוקשה מדי
+  const rawQuality = playerQuality(player); // 0..1, מנורמל לטווח האמיתי של הדירוגים
+  const quality = Math.min(1, Math.max(0, rawQuality + (Math.random()-0.5)*0.25));
+  const disinterestChance = Math.max(0, 0.32 - quality*0.5); // עד ~32% על החלשים ביותר, כמעט 0 מעל quality~0.64
+  const hungryChance = Math.max(0, (quality-0.55)*0.55); // מתחיל מ-quality~0.55, עד ~25% בשחקן עלית
+  const roll = Math.random();
+  if(roll < disinterestChance) return 'disinterested';
+  if(roll > 1-hungryChance) return 'hungry';
+  return 'normal';
+}
+
 function cpuAct(){
   if(!S.active || S.turn!=='cpu') return;
   const player = S.current;
-  const perSlotBudget = S.budget/5;
-  const valuation = (player.rating/99) * perSlotBudget * (1.1 + Math.random()*1.1);
+  if(S.cpuMood == null) S.cpuMood = rollCpuMood(player);
+  if(S.cpuValuation == null) S.cpuValuation = getCpuValuation(player);
+  const valuation = S.cpuValuation;
+  const quality = playerQuality(player); // 0..1
   const nextPrice = S.price + 1;
-  const willing = nextPrice <= valuation && nextPrice <= S.cpuBudget && Math.random() < 0.85;
+
+  if(S.cpuMood === 'disinterested'){
+    // לא מעוניין בשחקן הזה - מוותר מיד, גם אם ההצעה עוד זולה
+    handleForfeit('cpu', 'giveup');
+    return;
+  }
+
+  let ceiling, earlyFoldChance;
+  if(S.cpuMood === 'hungry'){
+    // נלחם חזק - מוכן למתוח משמעותית את התקציב וכמעט לא נכנע באקראי
+    ceiling = valuation * (1.6 + quality*0.4);
+    earlyFoldChance = 0.03;
+  } else {
+    // התנהגות רגילה - תלוית איכות אבל מתונה יותר
+    const stretch = valuation * (0.05 + quality*0.25);
+    ceiling = valuation + stretch;
+    earlyFoldChance = Math.max(0, 0.15 - quality*0.15);
+  }
+
+  const willing = nextPrice <= ceiling && nextPrice <= S.cpuBudget && Math.random() >= earlyFoldChance;
 
   if(willing){
     S.price = nextPrice; S.holder = 'cpu';
@@ -1812,14 +2043,14 @@ function resolveRoundTurn(winner, reason){
   let title, sub, icon, type;
 
   if(winner==='you'){
-    if(S.youRoster.length < 5){
+    if(S.youRoster.length < S.rosterSize){
       S.youBudget -= S.price; S.youRoster.push(player); if(S.draftType!=='free') S.youCount[roleKey]++;
     }
     icon='🏆'; type='win';
     title = `${S.teamName} זכתה ב-${player.name}`;
     sub = `${S.cpuTeamName} ויתרה על ${player.name}`;
   } else {
-    if(S.cpuRoster.length < 5){
+    if(S.cpuRoster.length < S.rosterSize){
       S.cpuBudget -= S.price; S.cpuRoster.push(player); if(S.draftType!=='free') S.cpuCount[roleKey]++;
     }
     icon='💻'; type='lose';
@@ -1836,34 +2067,130 @@ function resolveRoundTurn(winner, reason){
   setTimeout(()=>{ hideAnnounce(); nextRound(); }, ANNOUNCE_MS);
 }
 
-function normalizeRoster(roster){
+function normalizeRoster(roster, size=5){
   const seen = new Set();
   const clean = [];
   for(const p of roster){
     if(seen.has(p.name)) continue;
     seen.add(p.name);
     clean.push(p);
-    if(clean.length>=5) break;
+    if(clean.length>=size) break;
   }
   return clean;
 }
 
 function endDraft(){
   S.current = null;
-  S.youRoster = normalizeRoster(S.youRoster);
-  S.cpuRoster = normalizeRoster(S.cpuRoster);
+  S.youRoster = normalizeRoster(S.youRoster, S.rosterSize);
+  S.cpuRoster = normalizeRoster(S.cpuRoster, S.rosterSize);
   if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef) publishOnlineState();
+  if(S.rosterSize===10){
+    showLineupScreen();
+  } else {
+    S.youStarters = S.youRoster; S.youBench = [];
+    S.cpuStarters = autoPickStarters(S.cpuRoster); S.cpuBench = S.cpuRoster.filter(p=>!S.cpuStarters.includes(p));
+    showScreen('screen-inter');
+  }
+}
+
+// בוחר אוטומטית 5 שחקנים חזקים לחמישייה הראשונה של המחשב, שאר החמישייה השנייה הופכת לספסל
+function autoPickStarters(roster){
+  return [...roster].sort((a,b)=>b.rating-a.rating).slice(0,5);
+}
+
+let lineupPickState = []; // השחקנים (מתוך הרוסטר הרלוונטי - שלי או של האורח) שסומנו לחמישייה הראשונה
+
+function showLineupScreen(){
+  const isGuestView = onlineRole==='guest' && onlineRoomRef;
+  const roster = isGuestView ? S.cpuRoster : S.youRoster;
+  lineupPickState = [];
+  document.getElementById('lineupConfirmBtn').style.display = '';
+  document.getElementById('lineupConfirmBtn').disabled = true;
+  document.getElementById('lineupConfirmBtn').textContent = 'אישור החמישייה';
+  const grid = document.getElementById('lineupGrid');
+  grid.innerHTML = roster.map((p,i)=>`
+    <div class="lineup-card" data-idx="${i}" onclick="toggleLineupPick(${i})">
+      <div class="lc-name">${p.name}</div>
+      <div class="lc-role">${ROLE_MAP[p.role].label} · דירוג פנימי</div>
+      <div class="lc-badge" id="lcBadge${i}"></div>
+    </div>
+  `).join('');
+  updateLineupCounter();
+  showScreen('screen-lineup');
+}
+
+function toggleLineupPick(idx){
+  const isGuestView = onlineRole==='guest' && onlineRoomRef;
+  const roster = isGuestView ? S.cpuRoster : S.youRoster;
+  const player = roster[idx];
+  const already = lineupPickState.includes(player);
+  if(already){
+    lineupPickState = lineupPickState.filter(p=>p!==player);
+  } else {
+    if(lineupPickState.length>=5) return;
+    lineupPickState.push(player);
+  }
+  document.querySelector(`.lineup-card[data-idx="${idx}"]`).classList.toggle('selected', !already);
+  document.getElementById(`lcBadge${idx}`).textContent = !already ? 'חמישייה ראשונה' : '';
+  updateLineupCounter();
+}
+
+function updateLineupCounter(){
+  document.getElementById('lineupCounter').textContent = `נבחרו ${lineupPickState.length}/5`;
+  document.getElementById('lineupConfirmBtn').disabled = lineupPickState.length !== 5;
+}
+
+// משאיר את מסך הבחירה פתוח אבל מציג הודעת המתנה במקום הכפתור/הרשת, בזמן שממתינים לצד השני
+function showLineupWaitingState(message){
+  document.getElementById('lineupGrid').innerHTML = '';
+  document.getElementById('lineupCounter').textContent = message;
+  document.getElementById('lineupConfirmBtn').style.display = 'none';
+  showScreen('screen-lineup');
+}
+
+function confirmLineup(){
+  const isGuestView = onlineRole==='guest' && onlineRoomRef;
+  if(isGuestView){
+    sendOnlineAction('submitLineup', {starterNames: lineupPickState.map(p=>p.name)});
+    showLineupWaitingState('החמישייה נשלחה. ממתין לאישור מהמארח...');
+    return;
+  }
+  S.youStarters = lineupPickState;
+  S.youBench = S.youRoster.filter(p=>!S.youStarters.includes(p));
+  if(S.gameMode==='online'){
+    S.hostLineupReady = true;
+    publishOnlineState();
+    if(S.guestLineupReady){
+      showScreen('screen-inter');
+    } else {
+      showLineupWaitingState('ממתין לבחירת החמישייה של האורח...');
+    }
+    return;
+  }
+  S.cpuStarters = autoPickStarters(S.cpuRoster);
+  S.cpuBench = S.cpuRoster.filter(p=>!S.cpuStarters.includes(p));
   showScreen('screen-inter');
 }
 
 function teamPower(roster){
-  if(roster.length===0) return 0;
+  if(!roster || roster.length===0) return 0;
   return roster.reduce((a,p)=>a+p.rating,0)/roster.length;
 }
 
-function distributeScorers(roster, teamTotal){
+// כוח הקבוצה במצב "משחק מלא": חמישייה ראשונה שוקלת פי 2 מהספסל (2/3 מול 1/3)
+function computeTeamPower(starters, bench){
+  const startersPower = teamPower(starters);
+  if(!bench || bench.length===0) return startersPower;
+  const benchPower = teamPower(bench);
+  return startersPower*(2/3) + benchPower*(1/3);
+}
+
+function distributeScorers(roster, teamTotal, benchNameSet){
   if(!roster || roster.length===0) return;
-  const weights = roster.map(p => Math.max(1, (p.rating||75)) * (0.82 + Math.random()*0.36));
+  const weights = roster.map(p => {
+    const base = Math.max(1, (p.rating||75)) * (0.82 + Math.random()*0.36);
+    return (benchNameSet && benchNameSet.has(p.name)) ? base*0.5 : base; // המחליפים משחקים פחות דקות
+  });
   const totalWeight = weights.reduce((a,b)=>a+b,0) || 1;
   let pts = weights.map(w => Math.round(teamTotal * w / totalWeight));
   const diff = teamTotal - pts.reduce((a,b)=>a+b,0);
@@ -1996,20 +2323,25 @@ async function viewResultAsGuest(){
     if(existing.exists()){ showOnlineResult(existing.val()); return; }
   } catch(e){ /* fall through and try to compute our own */ }
 
-  S.youRoster = normalizeRoster(S.youRoster);
-  S.cpuRoster = normalizeRoster(S.cpuRoster);
-  const youPower = teamPower(S.youRoster);
-  const cpuPower = teamPower(S.cpuRoster);
+  S.youRoster = normalizeRoster(S.youRoster, S.rosterSize);
+  S.cpuRoster = normalizeRoster(S.cpuRoster, S.rosterSize);
+  const youStarters = (S.youStarters && S.youStarters.length) ? S.youStarters : S.youRoster;
+  const cpuStarters = (S.cpuStarters && S.cpuStarters.length) ? S.cpuStarters : S.cpuRoster;
+  const youBenchNames = new Set((S.youBench||[]).map(p=>p.name));
+  const cpuBenchNames = new Set((S.cpuBench||[]).map(p=>p.name));
+  const youPower = computeTeamPower(youStarters, S.youBench);
+  const cpuPower = computeTeamPower(cpuStarters, S.cpuBench);
   let hostScore = Math.round(40 + youPower*0.8 + (Math.random()*10-5));
   let guestScore = Math.round(40 + cpuPower*0.8 + (Math.random()*10-5));
   if(hostScore===guestScore){ if(youPower>=cpuPower) hostScore+=1; else guestScore+=1; }
-  distributeScorers(S.youRoster, hostScore);
-  distributeScorers(S.cpuRoster, guestScore);
+  distributeScorers(S.youRoster, hostScore, youBenchNames);
+  distributeScorers(S.cpuRoster, guestScore, cpuBenchNames);
   const result = {
     hostScore, cpuScore:guestScore,
     hostTeam:S.teamName, guestTeam:S.cpuTeamName,
     hostCoach:S.coachName, guestCoach:'אורח',
-    hostRoster:S.youRoster, guestRoster:S.cpuRoster
+    hostRoster:S.youRoster, guestRoster:S.cpuRoster,
+    hostBenchNames:[...youBenchNames], guestBenchNames:[...cpuBenchNames]
   };
   try {
     // Someone (the host) may have published a result in the moment between
@@ -2023,15 +2355,19 @@ async function viewResultAsGuest(){
 
 function showResult(){
   recordCompletedGame();
-  S.youRoster = normalizeRoster(S.youRoster);
-  S.cpuRoster = normalizeRoster(S.cpuRoster);
-  const youPower = teamPower(S.youRoster);
-  const cpuPower = teamPower(S.cpuRoster);
+  S.youRoster = normalizeRoster(S.youRoster, S.rosterSize);
+  S.cpuRoster = normalizeRoster(S.cpuRoster, S.rosterSize);
+  const youStarters = (S.youStarters && S.youStarters.length) ? S.youStarters : S.youRoster;
+  const cpuStarters = (S.cpuStarters && S.cpuStarters.length) ? S.cpuStarters : S.cpuRoster;
+  const youBenchNames = new Set((S.youBench||[]).map(p=>p.name));
+  const cpuBenchNames = new Set((S.cpuBench||[]).map(p=>p.name));
+  const youPower = computeTeamPower(youStarters, S.youBench);
+  const cpuPower = computeTeamPower(cpuStarters, S.cpuBench);
   let youScore = Math.round(40 + youPower*0.8 + (Math.random()*10-5));
   let cpuScore = Math.round(40 + cpuPower*0.8 + (Math.random()*10-5));
   if(youScore===cpuScore){ if(youPower>=cpuPower) youScore+=1; else cpuScore+=1; }
-  distributeScorers(S.youRoster, youScore);
-  distributeScorers(S.cpuRoster, cpuScore);
+  distributeScorers(S.youRoster, youScore, youBenchNames);
+  distributeScorers(S.cpuRoster, cpuScore, cpuBenchNames);
 
   if(S.gameMode==='online' && onlineRole==='host' && onlineRoomRef){
     onlineRoomRef.child('result').set({
@@ -2042,7 +2378,9 @@ function showResult(){
       hostCoach:S.coachName,
       guestCoach:'אורח',
       hostRoster:S.youRoster,
-      guestRoster:S.cpuRoster
+      guestRoster:S.cpuRoster,
+      hostBenchNames:[...youBenchNames],
+      guestBenchNames:[...cpuBenchNames]
     });
   }
 
@@ -2059,11 +2397,11 @@ function showResult(){
   document.getElementById('rcCpuTitle').textContent = S.cpuTeamName;
   document.getElementById('rcCpuCoach').textContent = 'מאמן יריב';
 
-  document.getElementById('rcYou').innerHTML = renderRosterRows(orderedRoster(S.youRoster), 'ptsYou');
-  document.getElementById('rcCpu').innerHTML = renderRosterRows(orderedRoster(S.cpuRoster), 'ptsCpu');
+  document.getElementById('rcYou').innerHTML = renderRosterRows(S.youRoster, 'ptsYou', youBenchNames);
+  document.getElementById('rcCpu').innerHTML = renderRosterRows(S.cpuRoster, 'ptsCpu', cpuBenchNames);
 
-  const youOrdered = orderedRoster(S.youRoster);
-  const cpuOrdered = orderedRoster(S.cpuRoster);
+  const youOrdered = resultOrder(S.youRoster, youBenchNames).all;
+  const cpuOrdered = resultOrder(S.cpuRoster, cpuBenchNames).all;
   const scoreAnimEntries = [
     {id:'fsYou', target:youScore},
     {id:'fsCpu', target:cpuScore},
@@ -2275,7 +2613,24 @@ function advanceTournament(){
   startGame(S.budget, true);
 }
 
+function goHome(){
+  S = null;
+  draftType = 'positions';
+  gameMode = 'classic';
+  rosterSize = 5;
+  modeChosen = false;
+  ROLES.forEach(r=>{ r.quota = BASE_ROLE_QUOTA[r.key]; });
+  tournamentOpponents = [];
+  tournamentRound = 0;
+  tournamentHistory = [];
+  tournamentBracket = [];
+  document.getElementById('namesBackBtn').style.display = 'none';
+  document.getElementById('setupBackBtn').style.display = 'none';
+  showScreen('screen-splash');
+}
+
 function resetGame(){
+  const wasFull = S && S.rosterSize===10;
   S = null;
   draftType = 'positions';
   gameMode = 'classic';
@@ -2283,12 +2638,49 @@ function resetGame(){
   tournamentRound = 0;
   tournamentHistory = [];
   tournamentBracket = [];
-  showScreen('screen-draft-type');
+  if(wasFull){
+    // משחק מלא נשאר במסלול קלאסי לפי עמדות - חוזרים ישר לבחירת שם/תקציב
+    rosterSize = 10;
+    ROLES.forEach(r=>{ r.quota = BASE_ROLE_QUOTA[r.key] * 2; });
+    document.getElementById('namesBackBtn').style.display = '';
+    showScreen('screen-names');
+  } else {
+    rosterSize = 5;
+    ROLES.forEach(r=>{ r.quota = BASE_ROLE_QUOTA[r.key]; });
+    showScreen('screen-draft-type');
+  }
+}
+
+function updateModeIndicator(screenId){
+  const badge = document.getElementById('modeIndicatorBadge');
+  if(!badge) return;
+  if(!modeChosen || screenId==='screen-game-size'){ badge.style.display = 'none'; return; }
+  let parts = [rosterSize===10 ? 'משחק מלא' : 'משחק מהיר'];
+  // במסך בחירת קלאסי/טורניר/אונליין עצמו עדיין לא נבחר תת-מוד, אז לא מציגים אותו כאן
+  if(screenId !== 'screen-mode'){
+    if(gameMode==='tournament') parts.push('טורניר');
+    else if(gameMode==='online') parts.push('אונליין');
+    else if(gameMode==='classic') parts.push('קלאסי');
+  }
+  badge.textContent = parts.join(' · ');
+  badge.style.display = '';
 }
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const screenEl = document.getElementById(id);
+  screenEl.classList.add('active');
+  const badge = document.getElementById('modeIndicatorBadge');
+  if(badge){
+    if(MENU_SCREENS.has(id)){
+      updateModeIndicator(id);
+      const card = screenEl.querySelector('.setup-card, .name-card');
+      const h2 = card ? card.querySelector('h2') : null;
+      if(h2) h2.insertAdjacentElement('afterend', badge);
+    } else {
+      badge.style.display = 'none';
+    }
+  }
 }
 
 function openStore(){ document.getElementById('storeModal').classList.add('active'); }
