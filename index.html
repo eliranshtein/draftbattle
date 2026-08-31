@@ -712,6 +712,12 @@ const CPU_TEAM_NAMES = [
 const TOURNAMENT_ROUNDS = ['שמינית הגמר','רבע הגמר','חצי הגמר','הגמר'];
 
 function startPrice(rating){
+  if(rating<=80) return 0;
+  if(rating<=90) return 1;
+  return 2;
+}
+
+function autoAwardPrice(rating){
   if(rating<=80) return 1;
   if(rating<=90) return 2;
   return 3;
@@ -743,8 +749,7 @@ const PLAYER_IMAGES = {
   'ברייס בראון':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/brown.jpg',
   'רומן סורקין':'https://basket.co.il/pics/2025-2026/sorkin.jpg',
   'עידן זלמנסון':'https://basket.co.il/pics/2016/2025/Media_days/Holon/20.jpg',
-  'נועם אביבי':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/avivi.jpg',
-  'סם איוריו':'https://basket.co.il/pics/2022/22si24.jpg', // להוסיף כאן קישור לתמונה
+  'נועם אביבי':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/avivi.jpg', // להוסיף כאן קישור לתמונה
   'איתי שגב':'https://basket.co.il/pics/2025-2026/segev.jpg',
   'דור ענבי':'https://basket.co.il/pics/2016/2025/Media_days/jan/dor%20anavi.jpg',
   'יונתן אטיאס':'https://basket.co.il/pics/2025-2026/atias.jpg', // להוסיף כאן קישור לתמונה
@@ -754,7 +759,7 @@ const PLAYER_IMAGES = {
   'שלו לוגשי':'https://basket.co.il/pics/2016/2025/Media_days/BH/15.jpg',
   'ספנסר וייס':'https://basket.co.il/pics/2016/2025/Media_days/BSheva/10.jpg',
   'נמרוד לוי':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJ7j2iRx8F9w98UGj9TDF8-izrHIJHCZUP3wuNR7XkZg&s=10',
-  'יותם חנוכי':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEpsvO_S9dMZk4J4Zhy3f-mFN1jp_fRZqZC3iGSWCBPStP2CmD4cKldZ3F&s=10',
+  'יותם חנוכי':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/yotam.jpg',
   'שון דאוסון':'https://basket.co.il/pics/2025-2026/seanprofile.jpg',
   'וויל ריימן':'https://basket.co.il/pics/2016/2025/Media_days/MaccabiTA/11.jpg',
   'ג\'יי ג\'יי קפלן':'https://basket.co.il/pics/2025-2026/kaplan.jpg', // https://basket.co.il/pics/2025-2026/kaplan.jpg
@@ -821,7 +826,7 @@ const ROSTER = [
   {name:'ואסיליה מיציץ\'', role:'G', rating:95},
   // סנטרים (C)
   {name:'רומן סורקין', role:'C', rating:93}, {name:'עידן זלמנסון', role:'C', rating:83},
-  {name:'סם איוריו', role:'C', rating:78}, {name:'נועם אביבי', role:'C', rating:73},
+  {name:'נועם אביבי', role:'C', rating:73},
   {name:'איתי שגב', role:'C', rating:82},
   {name:'דור ענבי', role:'C', rating:70}, {name:'יונתן אטיאס', role:'C', rating:70},
   {name:'אדאמה סאנוגו', role:'C', rating:92}, {name:'דן אוטורו', role:'C', rating:95},
@@ -834,7 +839,7 @@ const ROSTER = [
   {name:'ג\'וש פרוינד', role:'F', rating:78},
   {name:'וויל ריימן', role:'F', rating:76},
   {name:'ג\'יי ג\'יי קפלן', role:'F', rating:75}, {name:'בן קלהון גולד', role:'F', rating:74},
-  {name:'רפי מנקו', role:'F', rating:75}, {name:'ליאור קררה', role:'F', rating:75},
+  {name:'רפי מנקו', role:'F', rating:75}, {name:'ליאור קררה', role:'F', rating:79},
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
   {name:'לוקאס גולדנברג', role:'F', rating:74}, {name:'רועי נציה', role:'F', rating:73},
   {name:'לוטן אמסלם', role:'F', rating:73}, {name:'עוז בלייזר', role:'F', rating:78},
@@ -1811,7 +1816,7 @@ function skipPlayer(role, player){
 function autoAward(winner, role, player){
   if(!S.current) return; // already resolved this round
   S.current = null;
-  const price = startPrice(player.rating);
+  const price = autoAwardPrice(player.rating);
   const p = {...player, price};
   const filledSide = winner==='you' ? S.cpuTeamName : S.teamName;
   const placementMessage = role
@@ -2004,7 +2009,26 @@ function cpuAct(){
     earlyFoldChance = Math.max(0, 0.15 - quality*0.15);
   }
 
-  const willing = nextPrice <= ceiling && nextPrice <= S.cpuBudget && Math.random() >= earlyFoldChance;
+  // בלם תקציבי: כמה סלוטים עוד נשארו למחשב למלא אחרי השחקן הנוכחי, וכמה
+  // באמת "בטוח" להוציא על השחקן הזה בלי להישאר בלי אפשרות לקנות אף אחד
+  // מהשחקנים הבאים (לפחות $1 לכל סלוט שנשאר).
+  const slotsLeftAfterThis = Math.max(0, (S.rosterSize - S.cpuRoster.length) - 1);
+  const safeSpendable = Math.max(0, S.cpuBudget - slotsLeftAfterThis);
+
+  // שיקול דעת: ככל שההצעה הבאה "אוכלת" יותר מהתקציב הבטוח, המחשב נעשה זהיר
+  // יותר בהדרגה - גם כשהוא "רעב" לשחקן. זו לא עצירה במחיר קבוע אלא שיקלול
+  // הדרגתי בין התקציב שנותר לאיכות השחקן: על שחקן מעולה הוא סולח יותר על
+  // מתיחת התקציב, אבל גם לו יש גבול.
+  if(safeSpendable > 0){
+    const budgetStrain = nextPrice / safeSpendable; // 0..1+ - חלק מהתקציב הבטוח שההצעה תצרוך
+    if(budgetStrain > 0.5){
+      const strainPenalty = Math.min(1, (budgetStrain - 0.5) * 1.4);
+      const qualityRelief = quality * 0.5;
+      earlyFoldChance = Math.min(0.92, earlyFoldChance + strainPenalty * (1 - qualityRelief));
+    }
+  }
+
+  const willing = nextPrice <= ceiling && nextPrice <= safeSpendable && Math.random() >= earlyFoldChance;
 
   if(willing){
     S.price = nextPrice; S.holder = 'cpu';
