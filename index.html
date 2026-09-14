@@ -453,7 +453,7 @@
         </h2>
         <p class="splash-tagline">אתה מול קבוצה שלא נחה לרגע. תקציב מוגבל, שעון רץ, וכל שחקן שאתה מפספס — הוא שחקן שהיריב תופס. ברוכים הבאים לזירה.</p>
         <button class="cta-btn" onclick="showScreen('screen-game-size')">בוא נתחיל! 🏀</button>
-        <button class="splash-resume-btn" onclick="openLeagueResume()">🌟 הרגעים הגדולים שלי</button>
+        <button class="splash-resume-btn" onclick="openLeagueResume('screen-splash')">🌟 הרגעים הגדולים שלי</button>
       </div>
     </div>
   </section>
@@ -679,7 +679,7 @@
       <div style="font-weight:800; margin-bottom:8px;">טבלת הליגה</div>
       <div id="leagueStandingsTable"></div>
     </div>
-    <button class="ghost-btn" onclick="openLeagueResume()">📚 רזומה הקריירה</button>
+    <button class="ghost-btn" onclick="openLeagueResume('screen-league-season')">📚 רזומה הקריירה</button>
     <button class="ghost-btn" onclick="leagueConfirmQuit()">🏠 שמור וצא — תוכל להמשיך מאותה נקודה בפעם הבאה</button>
   </section>
 
@@ -745,7 +745,7 @@
       <h2 id="leagueCareerOverTitle">🚨 ירדת ליגה</h2>
       <p id="leagueCareerOverMsg"></p>
       <div id="leagueCareerOverStandings" style="text-align:right; margin:14px 0;"></div>
-      <button class="ghost-btn" onclick="openLeagueResume()">📚 צפייה ברזומה</button>
+      <button class="ghost-btn" onclick="openLeagueResume('screen-league-career-over')">📚 צפייה ברזומה</button>
       <button class="primary-btn" onclick="openLeagueMenu()">חזרה לתפריט הליגה</button>
       <button class="ghost-btn" onclick="goHome()">🏠 חזרה לדף הבית</button>
     </div>
@@ -1107,7 +1107,6 @@ const PLAYER_IMAGES = {
   'אור קורנליוס':'https://basket.co.il/pics/2025-2026/kornelios.jpg',
   'לוקאס גולדנברג':'https://basket.co.il/pics/2022/30lg24.jpg',
   'רועי נציה':'https://basket.co.il/pics/2016/2025/Media_days/Gilboa/14.jpg',
-  'לוטן אמסלם':'https://basket.co.il/pics/2022/2023-24/8la24.jpg',
   'עוז בלייזר':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7nlhcKL1kZEOUKLwF5jaQta149YqY2eGyIfHoSRg3vgQdvzqdkUyXs5mD&s=10',
   'ג\'וש פרוינד':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVFTz_pkIi0j8-8D3R1zqNglZ7oHY2fGurRxXb_dbva_dlO57qsIDcIlQ&s=10',
   'אדאמה סאנוגו':'https://basket.co.il/pics/2025-2026/%D7%A9%D7%95%D7%A0%D7%95%D7%AA/sanogo.png',
@@ -1145,9 +1144,17 @@ const PLAYER_IMAGES = {
 'אוגוסטין רוביט':' https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%9E%D7%9B%D7%91%D7%99%20%D7%90%D7%A9%D7%93%D7%95%D7%93/rubit.jpg', 
 'ברייס וושינגטון':'https://basket.co.il/pics/2016/2025/Media_days/jan/0B8A8493.jpg',
 'דניאל תייס':' https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaD5a38sW-dOsLcb-6uGY5xcatxh4bR4_1R6QRUzpmE-_X11H6v4S4VaLf&s=10',
-'דושאן מילטיץ׳':' https://scontent.ftlv19-2.fna.fbcdn.net/v/t39.30808-6/783573277_1730514012413843_1904502269588510697_n.jpg?stp=dst-jpg_tt6&cstp=mx1638x2048&ctp=s1638x2048&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=eTktG_XWV8IQ7kNvwEBzGeT&_nc_oc=AdqdSOZHyJttELGTyPzzLZzJstutBE-m1yFe7YQgbwTYm1OMLm4I7gmHvYiNVvjFkAxzNW7ccZo8LLulc1m3ovnJ&_nc_zt=23&_nc_ht=scontent.ftlv19-2.fna&_nc_gid=4HMDGa4VUj-ke61jAqdS3A&_nc_ss=7b2a8&oh=00_AQIYBlhKBLCiExqaE6z_ciJnte1C1ybZ02rg6LFbhhma0A&oe=6AA835FB',
+'דושאן מילטיץ׳':' https://www.proballers.com/media/cache/headshot_600/player/headshot/181043.png',
 'פרדי גילספי':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA0vzawipiduj-bCEPMZIL8u0X7tAf8joBc09SeHJr9A&s=10', 
 'סם איוריו':'https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%94%D7%A4%D7%95%D7%A2%D7%9C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F/iorio.jpg',
+'עמית עבו':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/abo.jpg',
+'טי ג׳יי ליף':'https://basket.co.il/pics/2025-2026/tj.jpg',
+'זאק לידיי':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1ZoNwtNlufpyPrxbsGAn9mFQ7EXT9VNe9MJ0xW7pVFQ&s=10',
+'תומר גינת':'https://basket.co.il/pics/2025-2026/ginat.jpg',
+'פרדריק בורדיון':'https://hapoelbc.com/wp-content/uploads/2026/08/WhatsApp-Image-2026-08-05-at-13.47.52.jpeg',
+'מקס היידיגר':'https://hapoelbc.com/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-04-at-13.17.01-1-1-675x1024.jpeg',
+'קני לופטון':'https://www.sport5.co.il/Sip_Storage/FILES/5/1752705.jpg',
+
 
 };
 
@@ -1185,7 +1192,7 @@ const ROSTER = [
   {name:'רפי מנקו', role:'F', rating:75}, {name:'ליאור קררה', role:'F', rating:79},
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
   {name:'לוקאס גולדנברג', role:'F', rating:74}, {name:'רועי נציה', role:'F', rating:73},
-  {name:'לוטן אמסלם', role:'F', rating:73}, {name:'עוז בלייזר', role:'F', rating:78},
+  {name:'עוז בלייזר', role:'F', rating:78},
   {name:'ג\'יילן הורד', role:'F', rating:92}, {name:'איש וויינרייט', role:'F', rating:87},
   {name:'אושיי בריסט', role:'F', rating:88},
   {name:'איפה לונדברג', role:'G', rating:90}, {name:'ג׳ימי קלארק', role:'G', rating:91},
@@ -1201,6 +1208,8 @@ const ROSTER = [
  { name:'רון ציפר', role: 'G', rating: 77 },
  { name:'נועם דוברת', role: 'G', rating: 78 }, {name:'אוגוסטין רוביט', role:'C', rating:88}, {name:'ברייס וושינגטון', role:'C', rating:83},
  {name:'דניאל תייס', role:'C', rating:90}, {name:'דושאן מילטיץ׳', role:'C', rating:85}, {name:'פרדי גילספי', role:'C', rating:86}, {name:'סם איוריו', role:'C', rating:77},
+ {name:'עמית עבו', role:'G', rating:80}, {name:'טי ג׳יי ליף', role:'C', rating:82}, {name:'זאק לידיי', role:'C', rating:92}, {name:'תומר גינת', role:'F', rating:88},
+ {name:'פרדריק בורדיון', role:'G', rating:78}, {name:'מקס היידיגר', role:'G', rating:83}, {name:'קני לופטון', role:'F', rating:94},
 ];
 
 function buildPool(){
@@ -3100,6 +3109,7 @@ const LEAGUE_TURN_SECONDS = 8;
 const LEAGUE_STORAGE_KEY = 'draftBattleLeagueCareer';
 const LEAGUE_HIGHLIGHTS_STORAGE_KEY = 'draftBattleLeagueHighlights';
 let LG = null;
+let leagueResumeReturnScreen = 'screen-splash';
 
 function leagueClearAllTimers(){
   if(!LG) return;
@@ -3159,12 +3169,13 @@ function saveLeagueHighlights(highlights){
 function leagueResumeEscape(value){
   return String(value).replace(/[&<>"']/g, character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 }
-function openLeagueResume(){
+function openLeagueResume(returnScreen='screen-splash'){
+  leagueResumeReturnScreen = returnScreen;
   renderLeagueResume();
   showScreen('screen-league-resume');
 }
 function leagueResumeBack(){
-  showScreen(!LG ? 'screen-splash' : LG.phase==='career-over' ? 'screen-league-career-over' : 'screen-league-season');
+  showScreen(leagueResumeReturnScreen);
 }
 function renderLeagueResume(){
   const historyEl = document.getElementById('leagueCareerHistory');
