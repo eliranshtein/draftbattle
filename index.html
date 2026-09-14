@@ -41,6 +41,9 @@
   .ad-slot b{color:#7A8792; font-weight:600;}
   .ad-slot.top{position:sticky; top:0; z-index:6;}
   .ad-slot.bottom{position:sticky; bottom:0; z-index:6;}
+  body.auction-active .social-bar, body.auction-active .socialbar,
+  body.auction-active [class*="social-bar"], body.auction-active [id*="social-bar"],
+  body.auction-active [class*="socialbar"], body.auction-active [id*="socialbar"]{display:none !important;}
 
   header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:8px;}
   .brand{display:flex; align-items:center; gap:9px;}
@@ -3075,6 +3078,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const screenEl = document.getElementById(id);
   screenEl.classList.add('active');
+  document.body.classList.toggle('auction-active', id==='screen-draft' || id==='screen-league-draft');
   const badge = document.getElementById('modeIndicatorBadge');
   if(badge){
     if(MENU_SCREENS.has(id)){
