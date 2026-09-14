@@ -33,7 +33,7 @@
     display:flex; flex-direction:column; align-items:center; padding:0 12px;
     position:relative; overflow-x:hidden;
   }
-  .court-bg{position:fixed; inset:0; width:100%; height:100%; opacity:0.09; filter:blur(2.5px); z-index:0; pointer-events:none;}
+  .court-bg{position:fixed; inset:0; width:100%; height:100%; opacity:0.13; filter:blur(2.5px); z-index:0; pointer-events:none;}
   .wrap{position:relative; z-index:1; width:100%; max-width:820px; display:flex; flex-direction:column; gap:10px;}
   @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001s !important; transition-duration:0.001s !important;} }
 
@@ -78,10 +78,16 @@
   .splash-svg{position:absolute; inset:0; width:100%; height:100%;}
   .splash-overlay{position:relative; z-index:1; text-align:center; padding:22px; display:flex; flex-direction:column; align-items:center; gap:12px; max-width:480px;}
   .splash-eyebrow{font-family:'Rubik'; font-weight:700; font-size:12px; color:var(--gold); letter-spacing:.08em;}
-  .splash-title{font-family:'Rubik'; font-weight:900; font-size:42px; margin:0; line-height:1; direction:ltr;}
+  .splash-title{font-family:'Rubik'; font-weight:900; font-size:42px; margin:0; line-height:1; direction:ltr; display:flex; align-items:center; justify-content:center; gap:10px;}
+  .splash-brand-mark{width:42px; height:42px; flex-shrink:0; filter:drop-shadow(0 4px 10px rgba(232,89,12,.24));}
   .splash-tagline{font-size:14px; color:var(--ink-dim); line-height:1.7; margin:0;}
-  .cta-btn{background:var(--orange); color:#1A0D04; border:none; border-radius:50px; font-family:'Rubik'; font-weight:900; font-size:19px; padding:18px 46px; cursor:pointer; margin-top:10px; box-shadow:0 8px 30px rgba(232,89,12,.35); transition:.15s;}
-  .cta-btn:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 10px 36px rgba(232,89,12,.45);}
+  .cta-btn{background:var(--orange); color:#1A0D04; border:none; border-radius:50px; font-family:'Rubik'; font-weight:900; font-size:20px; padding:20px 52px; cursor:pointer; margin-top:10px; box-shadow:0 8px 30px rgba(232,89,12,.35); transition:.15s;}
+  .cta-btn:hover{color:#fff; transform:translateY(-2px) scale(1.02); box-shadow:0 10px 36px rgba(232,89,12,.45);}
+  .splash-resume-btn{display:flex; align-items:center; justify-content:center; gap:9px; width:min(100%,310px); margin-top:2px; padding:13px 20px; border:1.5px solid var(--gold); border-radius:12px; background:rgba(244,185,62,.12); color:var(--gold); font-family:'Rubik'; font-weight:900; font-size:15px; cursor:pointer; box-shadow:0 5px 20px rgba(244,185,62,.12); transition:.15s;}
+  .splash-resume-btn:hover{background:rgba(244,185,62,.22); color:#fff; transform:translateY(-2px); box-shadow:0 8px 26px rgba(244,185,62,.22);}
+  #screen-draft-type,
+  #screen-mode,
+  #screen-setup{background-image:linear-gradient(180deg, rgba(8,12,18,0.12), rgba(8,12,18,0.28));}
 
   /* ---- Names ---- */
   .name-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:26px; text-align:center;}
@@ -103,6 +109,7 @@
   .setup-card h2{font-family:'Rubik'; font-size:19px; margin:0 0 6px;}
   .setup-card p{color:var(--ink-dim); font-size:12.5px; margin:0 0 20px; line-height:1.6;}
   .budget-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  #screen-league-budget .budget-grid{grid-template-columns:repeat(2,1fr);}
   .budget-opt{background:var(--surface-2); border:2px solid var(--line); border-radius:14px; padding:18px 8px; cursor:pointer; transition:.15s;}
   .budget-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
   .budget-opt .lg{font-family:'Rubik',sans-serif; font-weight:900; font-size:34px; color:var(--gold); line-height:1; letter-spacing:-.01em;}
@@ -115,6 +122,51 @@
   .share-result-btn:hover{background:#ffd36a;}
   .mode-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
   #screen-mode .mode-grid{grid-template-columns:repeat(3,1fr);}
+  #screen-game-size .mode-grid{grid-template-columns:repeat(3,1fr);}
+  .league-board{display:grid; grid-template-rows:repeat(2,1fr); grid-auto-flow:column; grid-auto-columns:98px; gap:6px 6px; overflow-x:auto; padding:2px 2px 10px; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;}
+  .league-team-col{scroll-snap-align:start; background:var(--surface); border:1.5px solid var(--line); border-radius:11px; padding:7px 5px; font-size:10.5px; transition:.15s;}
+  .league-team-col.active-turn{border-color:var(--orange); box-shadow:0 0 0 2px rgba(232,89,12,.35);}
+  .league-team-col.is-user{border-color:var(--gold);}
+  .league-team-col.is-user.active-turn{border-color:var(--gold); box-shadow:0 0 0 2px rgba(244,185,62,.4);}
+  .league-team-rank{font-size:9px; color:var(--ink-dim); margin-bottom:1px;}
+  .league-team-name{font-weight:700; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;}
+  .league-team-budget{color:var(--gold); font-weight:700; font-size:10.5px; margin-bottom:6px;}
+  .league-slot{background:var(--surface-2); border-radius:6px; padding:3px 5px; margin-bottom:3px; min-height:15px; display:flex; align-items:center; justify-content:space-between; gap:3px; overflow:hidden;}
+  .league-slot .role-tag{color:var(--ink-dim); font-size:8.5px; flex-shrink:0;}
+  .league-slot .slot-name{overflow:hidden; white-space:normal; font-size:9.5px; line-height:1.25;}
+  .league-slot .slot-name .rating-line{font-size:8px; margin-top:0;}
+  .league-slot.empty .slot-name{opacity:.35;}
+  .league-board-toolbar{display:flex; gap:8px; margin-bottom:6px;}
+  .league-board-toolbar .ghost-btn{flex:1; padding:8px 6px; font-size:12px;}
+  .league-draft-roster{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:14px 0; text-align:right;}
+  .league-standing-row{display:flex; justify-content:space-between; padding:5px 4px; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .league-standing-row.playoff-zone{background:rgba(62,207,110,.08);}
+  .league-standing-row.playoff-boundary{border-bottom:2px solid var(--green);}
+  .league-standing-row.relegation-zone{background:rgba(255,59,48,.09);}
+  .league-standing-row.relegation-boundary{border-top:2px solid var(--red);}
+  .league-standing-row.is-user{font-weight:800; color:var(--gold);}
+  .league-resume-list{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+  .league-resume-entry{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:var(--surface-2); border:1px solid var(--line); border-radius:9px; text-align:right;}
+  .league-resume-entry.highlight{border-color:rgba(244,185,62,.45); background:rgba(244,185,62,.08);}
+  .league-resume-entry .resume-main{min-width:0; flex:1;}
+  .league-resume-entry .resume-title{font-weight:800; font-size:13px;}
+  .league-resume-entry .resume-detail{color:var(--ink-dim); font-size:11px; margin-top:2px;}
+  .league-resume-entry .resume-badge{font-size:20px; flex-shrink:0;}
+  .confetti-piece{position:fixed; top:-12px; width:8px; height:14px; opacity:.95; z-index:9999; pointer-events:none; animation:leagueConfettiFall linear forwards;}
+  .confetti-piece.confetti-big{width:13px; height:22px;}
+  @keyframes leagueConfettiFall{ to{ transform:translateY(112vh) rotate(720deg); opacity:0; } }
+  .playoff-round-label{font-size:11px; color:var(--ink-dim); text-align:center; margin:10px 0 6px; text-transform:uppercase; letter-spacing:.05em;}
+  .playoff-matchup{background:var(--surface); border:1.5px solid var(--line); border-radius:12px; padding:9px 11px;}
+  .playoff-matchup.is-final{border-color:var(--gold); box-shadow:0 0 0 2px rgba(244,185,62,.25);}
+  .playoff-semis-row{display:flex; gap:9px;}
+  .playoff-semis-row .playoff-matchup{flex:1; min-width:0;}
+  .playoff-team-row{display:flex; justify-content:space-between; align-items:center; padding:5px 2px; font-size:13px; gap:6px;}
+  .playoff-team-row span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .playoff-team-row.winner{font-weight:800; color:var(--gold);}
+  .playoff-team-row.loser{opacity:.5; text-decoration:line-through;}
+  .playoff-vs-sep{height:1px; background:var(--line); margin:2px 0;}
+  .playoff-champion-banner{text-align:center; padding:14px; background:linear-gradient(160deg, rgba(244,185,62,.18), transparent); border-radius:12px; border:1.5px solid var(--gold); font-weight:900; font-size:15px; margin-top:10px;}
+  .league-draft-roster .league-slot{background:var(--surface-2); border-radius:8px; padding:8px 10px;}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .mode-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
   .mode-opt .mode-icon{font-size:32px; line-height:1;}
@@ -139,7 +191,15 @@
   .quota-row span b{color:var(--gold);}
 
   .player-row{display:flex; align-items:stretch; gap:7px;}
-  .mini-roster{width:70px; flex-shrink:0; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:7px 5px; display:flex; flex-direction:column; gap:3px; justify-content:center;}
+  .league-user-status{width:152px; flex-shrink:0; background:var(--surface); border:1.5px solid var(--gold); border-radius:14px; padding:10px 8px; text-align:right; box-shadow:0 0 0 2px rgba(244,185,62,.12);}
+  .league-user-status-title{font-family:'Rubik'; font-weight:900; font-size:12px; color:var(--gold); margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .league-user-status-budget{font-family:'Rubik'; font-weight:900; font-size:17px; color:var(--gold); margin-bottom:7px;}
+  .league-user-status-progress{font-size:9.5px; color:var(--ink-dim); margin-bottom:6px;}
+  .league-user-status .league-slot{font-size:9px; padding:3px 4px; margin-bottom:3px; min-height:15px;}
+  .league-user-status .league-slot .role-tag{font-size:8px;}
+  .league-user-status .league-slot .slot-name{font-size:8.5px;}
+  @media (max-width:560px){ .league-user-status{width:118px; padding:8px 6px;} .league-user-status-title{font-size:10px;} .league-user-status-budget{font-size:15px;} }
+  .mini-roster{width:82px; flex-shrink:0; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:7px 5px; display:flex; flex-direction:column; gap:3px; justify-content:center;}
   .player-entry-toast{position:fixed; top:50%; left:50%; z-index:80; width:min(78vw,420px); min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:22px; border:2px solid var(--gold); border-radius:22px; background:rgba(11,15,20,.94); color:var(--gold); font-family:'Rubik'; font-size:20px; text-align:center; box-shadow:0 18px 60px rgba(0,0,0,.58), 0 0 35px rgba(244,185,62,.18); opacity:0; visibility:hidden; transform:translate(-50%,-50%);}
   .player-entry-toast .toast-avatar{width:96px; height:96px; flex-shrink:0; border-radius:50%; object-fit:cover; object-position:center 35%; border:2px solid var(--gold); background:var(--surface-2);}
   .player-entry-toast .toast-initials{width:96px; height:96px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid var(--gold); background:var(--surface-2); color:var(--ink-dim); font-size:27px;}
@@ -154,14 +214,16 @@
   .mr-title{font-family:'Rubik'; font-weight:700; font-size:8.5px; color:var(--ink-dim); text-align:center; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .mr-row{display:flex; justify-content:space-between; font-size:9px; gap:2px;}
   .mr-role{color:var(--ink-dim); flex-shrink:0;}
-  .mr-name{font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:40px;}
+  .mr-name{font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:58px;}
+  .mr-rating{font-size:7.5px; font-weight:600; color:var(--ink-dim);}
   .mr-name.filled{color:var(--gold);}
   .mr-name.empty{color:#4A5763; font-style:italic; font-weight:400;}
 
   .player-card{flex:1; min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 10px; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center;}
   .pos-badge{font-family:'Rubik'; font-weight:700; font-size:10px; letter-spacing:.06em; background:var(--orange); color:#1A0D04; padding:3px 11px; border-radius:20px;}
-  .avatar-ph{width:96px;height:96px;border-radius:50%; background:linear-gradient(160deg,var(--surface-2),#0d1319); border:2px solid var(--line); display:flex;align-items:center;justify-content:center; font-family:'Rubik'; font-weight:900; font-size:19px; color:var(--ink-dim); overflow:hidden;}
-  .p-name{font-family:'Rubik'; font-weight:700; font-size:16px;}
+  .avatar-ph{width:104px;height:104px;border-radius:50%; background:linear-gradient(160deg,var(--surface-2),#0d1319); border:2px solid var(--line); display:flex;align-items:center;justify-content:center; font-family:'Rubik'; font-weight:900; font-size:20px; color:var(--ink-dim); overflow:hidden;}
+  .p-name{font-family:'Rubik'; font-weight:700; font-size:17px;}
+  .rating-line{display:block; font-family:'Heebo'; font-weight:600; font-size:12px; color:var(--ink-dim); margin-top:1px;}
 
   .turn-label{font-family:'Rubik'; font-weight:700; font-size:12px; text-align:center; color:var(--ink-dim);}
   .turn-label.you{color:var(--green);}
@@ -173,8 +235,10 @@
   .ring-bg{fill:none; stroke:var(--surface-2); stroke-width:8;}
   .ring-fg{fill:none; stroke:var(--green); stroke-width:8; stroke-linecap:round; stroke-dasharray:276.46; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear, stroke .25s;}
   .ring-fg.cpu-turn{stroke:var(--orange);}
-  .ring-fg.warn{stroke:var(--red);}
+  .ring-fg.warn{stroke:var(--red); animation:timerPulse .65s ease-in-out infinite alternate;}
   .ring-digit{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Rubik'; font-weight:900; font-size:26px; color:var(--ink);}
+  .ring-digit.warn{color:var(--red); animation:timerPulse .65s ease-in-out infinite alternate;}
+  @keyframes timerPulse{from{opacity:.48; filter:drop-shadow(0 0 0 rgba(255,59,48,0));}to{opacity:1; filter:drop-shadow(0 0 8px rgba(255,59,48,.8));}}
   .bid-price{font-family:'Rubik',sans-serif; font-weight:900; font-size:34px; color:var(--gold); line-height:1; text-align:center;}
   .bid-holder{font-size:11px; color:var(--ink-dim); margin-top:2px; text-align:center;}
   .bid-actions-row{display:flex; gap:10px; width:100%; max-width:360px;}
@@ -194,9 +258,11 @@
   .fs-num.you{color:var(--green);}
   .fs-num.cpu{color:var(--red);}
   .fs-vs{color:var(--ink-dim); font-size:13px; font-weight:700;}
-  .winner-banner{font-family:'Rubik'; font-weight:900; font-size:22px; margin-bottom:4px; min-height:26px;}
+  .winner-banner{font-family:'Rubik'; font-weight:900; font-size:30px; margin-bottom:2px; min-height:34px; transition:.15s;}
   .winner-banner.win{color:var(--green);}
   .winner-banner.lose{color:var(--red);}
+  .winner-banner.big-win{font-size:36px; text-shadow:0 0 20px rgba(76,175,80,.6);}
+  .winner-subtext{font-family:'Heebo'; font-weight:600; font-size:14px; color:var(--ink-dim); margin-bottom:8px; min-height:18px;}
   .rosters-compare{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; text-align:right;}
   .rc-col h4{font-family:'Rubik'; font-size:14px; margin:0 0 2px; color:var(--ink);}
   .rc-col .rc-coach{font-size:11px; color:var(--ink-dim); margin:0 0 8px;}
@@ -222,15 +288,17 @@
   .modal-bg{position:fixed; inset:0; background:rgba(5,7,10,.75); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; padding:16px; z-index:50;}
   .modal-bg.active{display:flex;}
   .modal-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px; max-width:520px; width:100%; text-align:center; max-height:calc(100vh - 32px); overflow-y:auto;}
+  .league-announcement-card{max-width:570px; padding:32px 28px; border-color:rgba(244,185,62,.55); box-shadow:0 16px 50px rgba(0,0,0,.45), 0 0 28px rgba(244,185,62,.12);}
+  .league-announcement-card h3{font-size:24px;}
   .modal-card h3{font-family:'Rubik'; margin:0 0 8px;}
   .modal-card p{font-size:13px; color:var(--ink-dim); line-height:1.6; margin:0 0 16px;}
-  .trophy-grid{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; text-align:center; margin:14px 0 4px;}
-  .trophy-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:100px; padding:8px 5px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2);}
+  .trophy-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; max-height:min(78vh,720px); overflow-y:auto; padding:2px 4px 4px; margin:14px 0 4px;}
+  .trophy-item{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-height:100px; padding:8px 5px; border:1px solid var(--line); border-radius:9px; background:var(--surface-2); text-align:center;}
   .trophy-item.locked{opacity:.42; filter:grayscale(1);}
   .trophy-icon{font-size:24px; width:30px; text-align:center; flex-shrink:0;}
   .trophy-name{font-weight:700; font-size:10px; line-height:1.2;}
   .trophy-desc{color:var(--ink-dim); font-size:9px; margin-top:2px; line-height:1.25;}
-  @media (max-width:560px){ .trophy-grid{grid-template-columns:repeat(5,minmax(48px,1fr)); gap:4px;} .trophy-item{min-height:82px; padding:5px 2px;} .trophy-icon{font-size:18px;} .trophy-name{font-size:8px;} .trophy-desc{font-size:7px;} }
+  @media (max-width:560px){ .trophy-grid{grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; max-height:78vh;} .trophy-item{min-height:82px; padding:5px 2px;} .trophy-icon{font-size:18px;} .trophy-name{font-size:8px;} .trophy-desc{font-size:7px;} }
 
   .announce-bg{position:fixed; inset:0; background:rgba(5,7,10,0.85); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; z-index:70; padding:20px; opacity:0; pointer-events:none; transition:opacity .22s;}
   .announce-bg.active{opacity:1; pointer-events:auto;}
@@ -354,9 +422,35 @@
     <div class="splash-hero">
       <div class="splash-overlay">
         <div class="splash-eyebrow">🏀 קרב המכרזים המהיר בעיר</div>
-        <h2 class="splash-title">Draft Battle</h2>
+        <h2 class="splash-title">
+          <span>Draft</span>
+          <svg class="splash-brand-mark" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-label="Draft Battle logo" role="img">
+            <defs>
+              <radialGradient id="splashBrandBall" cx="32%" cy="28%" r="72%">
+                <stop offset="0%" stop-color="#ffb06a"/>
+                <stop offset="38%" stop-color="#f5862d"/>
+                <stop offset="72%" stop-color="#db5d0a"/>
+                <stop offset="100%" stop-color="#b84908"/>
+              </radialGradient>
+            </defs>
+            <path d="M15 16c10-11 40-11 50 0l0 20c0 19-9 29-25 32-16-3-25-13-25-32L15 16Z" fill="rgba(8,12,16,0.84)" stroke="#d4a64a" stroke-width="3.4"/>
+            <path d="M22 19c7-7 29-7 36 0l0 16c0 13-6 20-18 22-12-2-18-9-18-22V19Z" fill="none" stroke="#d4a64a" stroke-width="2.2" opacity="0.9"/>
+            <circle cx="40" cy="39" r="16" fill="url(#splashBrandBall)" stroke="#0b0f14" stroke-width="2.2"/>
+            <g stroke="#0b0f14" stroke-width="2.2" fill="none" opacity="0.8">
+              <path d="M24 39h32M40 23v32M28 26c4 7 10 11 12 13 2-2 8-6 12-13M28 52c4-7 10-11 12-13 2 2 8 6 12 13"/>
+            </g>
+            <g stroke="#f2f2f2" stroke-width="4.8" stroke-linecap="round" opacity="0.96">
+              <path d="M18 17 L46 45"/><path d="M62 17 L34 45"/>
+            </g>
+            <g fill="none" stroke="#d9d9d9" stroke-width="4" stroke-linecap="round" opacity="0.95">
+              <path d="M13 57 L33 40"/><path d="M67 57 L47 40"/>
+            </g>
+          </svg>
+          <span>Battle</span>
+        </h2>
         <p class="splash-tagline">אתה מול קבוצה שלא נחה לרגע. תקציב מוגבל, שעון רץ, וכל שחקן שאתה מפספס — הוא שחקן שהיריב תופס. ברוכים הבאים לזירה.</p>
         <button class="cta-btn" onclick="showScreen('screen-game-size')">בוא נתחיל! 🏀</button>
+        <button class="splash-resume-btn" onclick="openLeagueResume()">🌟 הרגעים הגדולים שלי</button>
       </div>
     </div>
   </section>
@@ -376,6 +470,11 @@
           <div class="mode-icon">🏟️</div>
           <div class="nm">משחק מלא</div>
           <div class="sub">קבוצה שלמה, מאבק גדול</div>
+        </div>
+        <div class="mode-opt" onclick="openLeagueMenu()">
+          <div class="mode-icon">📅</div>
+          <div class="nm">ליגה</div>
+          <div class="sub">נהל קריירה בת 5 שנים</div>
         </div>
       </div>
       <button class="ghost-btn" onclick="showScreen('screen-splash')">← הקודם</button>
@@ -468,6 +567,187 @@
     </div>
   </section>
 
+  <!-- LEAGUE MENU -->
+  <section id="screen-league-menu" class="screen">
+    <div class="setup-card">
+      <h2>📅 מוד ליגה</h2>
+      <p>קריירה של עד 5 עונות מול 13 קבוצות מחשב. מכרז ענק אחד בתחילת כל עונה בונה את כל הליגה (70 שחקנים, 14 קבוצות). תיאבק על אליפות או תנסה לשרוד בליגה אבל שים לב! אם סיימת ב-2 המקומות האחרונים בסיום העונה אז למעשה ירדת ליגה, תפוטר ותיאלץ להתחיל מחדש.</p>
+      <div id="leagueMenuActions" style="display:flex; flex-direction:column; gap:10px;"></div>
+      <button class="ghost-btn" onclick="showScreen('screen-game-size')">← הקודם</button>
+    </div>
+  </section>
+
+  <!-- LEAGUE NAMES -->
+  <section id="screen-league-names" class="screen">
+    <div class="name-card">
+      <h2>מי מנהל את הקבוצה בקריירה?</h2>
+      <p>שם הקבוצה והמאמן ילוו אותך לאורך כל הקריירה (עד 5 עונות).</p>
+      <div class="field-group">
+        <label for="leagueTeamNameInput">שם הקבוצה</label>
+        <input type="text" id="leagueTeamNameInput" placeholder="לדוגמה: הנשרים הכתומים" maxlength="24">
+      </div>
+      <div class="field-group">
+        <label for="leagueCoachNameInput">שם המאמן</label>
+        <input type="text" id="leagueCoachNameInput" placeholder="לדוגמה: קוץ׳ אלירן" maxlength="24">
+      </div>
+      <button class="primary-btn" onclick="goToLeagueBudget()">המשך לבחירת תקציב</button>
+      <button class="ghost-btn" onclick="showScreen('screen-league-menu')">← הקודם</button>
+    </div>
+  </section>
+
+  <!-- LEAGUE BUDGET -->
+  <section id="screen-league-budget" class="screen">
+    <div class="setup-card">
+      <h2>בחר תקציב לקריירה</h2>
+      <p>התקציב נבחר פעם אחת ונשאר קבוע לאורך כל 5 העונות של הקריירה.</p>
+      <div class="budget-grid">
+        <div class="budget-opt" onclick="startLeagueCareer(25)">
+          <div class="lg">$25M</div>
+          <div class="nm">איזון קלאסי</div>
+          <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
+        </div>
+        <div class="budget-opt" onclick="startLeagueCareer(40)">
+          <div class="lg">$40M</div>
+          <div class="nm">תקציב עתק</div>
+          <div class="sub">הגיע בעלים רעב לקבוצה</div>
+        </div>
+      </div>
+      <button class="ghost-btn" onclick="showScreen('screen-league-names')">← הקודם</button>
+    </div>
+  </section>
+
+  <!-- LEAGUE DRAFT -->
+  <section id="screen-league-draft" class="screen">
+    <div class="setup-card" style="text-align:center; padding:14px 16px;">
+      <h2 id="leagueDraftTitle" style="font-size:16px;">ערב דראפט הליגה — עונה 1</h2>
+      <p class="tag" id="leagueDraftProgress" style="margin:0;">שחקן 1 מתוך 70</p>
+    </div>
+    <div class="league-board-toolbar">
+      <button class="ghost-btn" onclick="leagueScrollToUser()">📍 לקבוצה שלי</button>
+    </div>
+    <div class="league-board" id="leagueBoard"></div>
+    <div style="text-align:center;">
+      <button class="primary-btn" id="leagueSkipBtn" style="display:none; max-width:320px; width:100%;" onclick="leagueFastForwardDraft()">⏭️ דלג לסיום הדראפט</button>
+    </div>
+    <div class="player-row" style="margin-top:2px;">
+      <div class="league-user-status" id="leagueUserStatus"></div>
+      <div class="player-card" id="leaguePlayerCard">
+        <div class="pos-badge" id="leaguePosBadge">גארד</div>
+        <div class="avatar-ph" id="leagueAvatarPh"><span id="leagueAvatarInitials">?</span><img id="leagueAvatarImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover;object-position:center 35%;border-radius:50%;"></div>
+        <div class="p-name" id="leaguePName">—</div>
+      </div>
+    </div>
+    <div class="turn-label" id="leagueTurnLabel">&nbsp;</div>
+    <div class="auction-panel">
+      <div class="turn-timer">
+        <svg viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="44"/>
+          <circle class="ring-fg" id="leagueRingFg" cx="50" cy="50" r="44"/>
+        </svg>
+        <div class="ring-digit" id="leagueRingDigit">8</div>
+      </div>
+      <div>
+        <div class="bid-price" id="leagueBidPrice">$0M</div>
+        <div class="bid-holder" id="leagueBidHolder">אין הצעות עדיין</div>
+      </div>
+      <div class="bid-actions-row" id="leagueBidActionsRow">
+        <button class="bid-btn-lg" id="leagueBidBtn" onclick="leagueUserBid()">הצע +$1</button>
+        <button class="give-up-btn-lg" id="leagueGiveUpBtn" onclick="leagueUserPass()">מוותר עליו</button>
+      </div>
+    </div>
+    <button class="ghost-btn" onclick="leagueConfirmQuit()">🏠 שמור וצא — תוכל להמשיך מאותה נקודה בפעם הבאה</button>
+  </section>
+
+  <!-- LEAGUE SEASON HUB -->
+  <section id="screen-league-season" class="screen">
+    <div class="setup-card" style="text-align:center; padding:14px 16px;">
+      <h2 id="leagueSeasonTitle" style="font-size:16px;">עונה 1 · סבב 1 מתוך 13</h2>
+      <p class="tag" id="leagueSeasonRecord" style="margin:0;"></p>
+    </div>
+    <div class="setup-card" style="text-align:center;">
+      <div style="font-size:13px; color:var(--ink-dim); margin-bottom:6px;">המשחק הבא שלך</div>
+      <div style="font-weight:800; font-size:17px;" id="leagueNextOpponent">מול —</div>
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;">
+        <button class="bid-btn-lg" onclick="leaguePlayMyGame()">🏀 התחל משחק</button>
+        <button class="ghost-btn" onclick="leagueSkipToRegularSeasonEnd()">⏭️ דלג לסיום העונה הסדירה</button>
+      </div>
+    </div>
+    <div class="setup-card">
+      <div style="font-weight:800; margin-bottom:8px;">טבלת הליגה</div>
+      <div id="leagueStandingsTable"></div>
+    </div>
+    <button class="ghost-btn" onclick="openLeagueResume()">📚 רזומה הקריירה</button>
+    <button class="ghost-btn" onclick="leagueConfirmQuit()">🏠 שמור וצא — תוכל להמשיך מאותה נקודה בפעם הבאה</button>
+  </section>
+
+  <!-- LEAGUE CAREER RESUME -->
+  <section id="screen-league-resume" class="screen">
+    <div class="setup-card">
+      <h2 style="text-align:center;">📚 רזומה הקריירה</h2>
+      <div style="font-weight:800; margin-top:16px;">העונות בקריירה הנוכחית</div>
+      <div id="leagueCareerHistory" class="league-resume-list"></div>
+      <div style="font-weight:800; margin-top:20px;">רגעים גדולים מכל הקריירות</div>
+      <div id="leagueCareerHighlights" class="league-resume-list"></div>
+    </div>
+    <button class="ghost-btn" onclick="leagueResumeBack()">← חזרה</button>
+  </section>
+
+  <!-- LEAGUE SINGLE GAME REVEAL (season + playoffs) -->
+  <section id="screen-league-game" class="screen">
+    <div class="setup-card" style="text-align:center;">
+      <h2 id="leagueGameTitle" style="font-size:16px;">משחק</h2>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin:16px 0;">
+        <div style="text-align:center; flex:1;">
+          <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="leagueGameAName">קבוצה א</div>
+          <div style="font-size:42px; font-weight:900; color:var(--gold);" id="leagueGameAScore">0</div>
+        </div>
+        <div style="font-size:20px; color:var(--ink-dim); padding:0 8px;">:</div>
+        <div style="text-align:center; flex:1;">
+          <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="leagueGameBName">קבוצה ב</div>
+          <div style="font-size:42px; font-weight:900; color:var(--gold);" id="leagueGameBScore">0</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; text-align:right;">
+        <div style="flex:1;" id="leagueGameARoster"></div>
+        <div style="flex:1;" id="leagueGameBRoster"></div>
+      </div>
+      <div id="leagueGameResultLabel" class="winner-banner" style="margin:10px 0 2px;"></div>
+      <div id="leagueGameResultSubtext" class="winner-subtext"></div>
+      <button class="primary-btn" id="leagueGameContinueBtn" style="display:none;" onclick="leagueGameContinue()">המשך</button>
+    </div>
+  </section>
+
+  <!-- LEAGUE PLAYOFFS -->
+  <section id="screen-league-playoffs" class="screen">
+    <div class="setup-card" style="text-align:center;">
+      <h2>🏆 פיינל פור</h2>
+      <div id="leaguePlayoffBracket" style="margin:14px 0; text-align:right;"></div>
+      <button class="primary-btn" id="leaguePlayoffNextBtn" onclick="leaguePlayNextPlayoffGame()">שחק את המשחק הבא</button>
+    </div>
+    <button class="ghost-btn" onclick="leagueConfirmQuit()">🏠 שמור וצא</button>
+  </section>
+
+  <!-- LEAGUE SEASON END SUMMARY -->
+  <section id="screen-league-season-end" class="screen">
+    <div class="setup-card" style="text-align:center;">
+      <h2 id="leagueSeasonEndTitle">העונה הסתיימה</h2>
+      <div id="leagueSeasonEndStandings" style="text-align:right; margin:14px 0;"></div>
+      <button class="primary-btn" id="leagueSeasonEndContinueBtn" onclick="leagueSeasonEndContinue()">המשך לעונה הבאה</button>
+    </div>
+  </section>
+
+  <!-- LEAGUE CAREER OVER -->
+  <section id="screen-league-career-over" class="screen">
+    <div class="setup-card" style="text-align:center;">
+      <h2 id="leagueCareerOverTitle">🚨 ירדת ליגה</h2>
+      <p id="leagueCareerOverMsg"></p>
+      <div id="leagueCareerOverStandings" style="text-align:right; margin:14px 0;"></div>
+      <button class="ghost-btn" onclick="openLeagueResume()">📚 צפייה ברזומה</button>
+      <button class="primary-btn" onclick="openLeagueMenu()">חזרה לתפריט הליגה</button>
+      <button class="ghost-btn" onclick="goHome()">🏠 חזרה לדף הבית</button>
+    </div>
+  </section>
+
   <!-- NAMES -->
   <section id="screen-names" class="screen">
     <div class="name-card">
@@ -500,17 +780,17 @@
       <p id="setupBudgetDesc">המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה חמישייה: 2 גארדים, 2 פורוורדים וסנטר.</p>
       <div class="budget-grid" id="budgetGrid">
         <div class="budget-opt" onclick="startGame(15)">
-          <div class="lg">$15</div>
+          <div class="lg">$15M</div>
           <div class="nm">תקציב מצומצם</div>
           <div class="sub">קבוצה צנועה, מאתגר</div>
         </div>
         <div class="budget-opt" onclick="startGame(21)">
-          <div class="lg">$21</div>
+          <div class="lg">$21M</div>
           <div class="nm">איזון קלאסי</div>
           <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
         </div>
         <div class="budget-opt" onclick="startGame(50)">
-          <div class="lg">$50</div>
+          <div class="lg">$50M</div>
           <div class="nm">תקציב עתק</div>
           <div class="sub">הגיע בעלים רעב לקבוצה</div>
         </div>
@@ -528,12 +808,12 @@
     <div class="scoreboard">
       <div class="team-mini you">
         <div class="label" id="youLabel">הקבוצה שלך</div>
-        <div class="budget" id="youBudget">$0</div>
+        <div class="budget" id="youBudget">$0M</div>
       </div>
       <div class="round-pill" id="roundPill">סבב 1 / 10</div>
       <div class="team-mini cpu">
         <div class="label" id="cpuLabel">מחשב</div>
-        <div class="budget" id="cpuBudget">$0</div>
+        <div class="budget" id="cpuBudget">$0M</div>
       </div>
     </div>
 
@@ -562,7 +842,7 @@
         <div class="ring-digit" id="ringDigit">5</div>
       </div>
       <div>
-        <div class="bid-price" id="bidPrice">$0</div>
+        <div class="bid-price" id="bidPrice">$0M</div>
         <div class="bid-holder" id="bidHolder">אין הצעות עדיין</div>
       </div>
       <div class="bid-actions-row">
@@ -608,6 +888,7 @@
   <section id="screen-result" class="screen">
     <div class="result-card">
       <div class="winner-banner" id="winnerBanner">&nbsp;</div>
+      <div class="winner-subtext" id="winnerSubtext"></div>
       <div class="final-score">
         <div class="fs-num you" id="fsYou">0</div>
         <div class="fs-vs">נגד</div>
@@ -667,6 +948,26 @@
     <h3>🛒 חנות</h3>
     <p>בקרוב: ערכות שחקנים מיוחדות, הסרת פרסומות, ותגי קבוצה בתשלום. תודה שאתם משחקים!</p>
     <button class="ghost-btn" onclick="closeStore()">סגור</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="leagueConfirmModal">
+  <div class="modal-card">
+    <h3>אישור</h3>
+    <p id="leagueConfirmMsg"></p>
+    <div style="display:flex; gap:10px;">
+      <button class="ghost-btn" style="flex:1;" onclick="leagueConfirmModalAnswer(false)">ביטול</button>
+      <button class="primary-btn" style="flex:1;" onclick="leagueConfirmModalAnswer(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="leagueAnnounceModal">
+  <div class="modal-card league-announcement-card" style="text-align:center;">
+    <div style="font-size:42px; margin-bottom:4px;" id="leagueAnnounceIcon">📋</div>
+    <h3 id="leagueAnnounceTitle">הודעה</h3>
+    <p id="leagueAnnounceMsg"></p>
+    <button class="primary-btn" id="leagueAnnounceConfirmBtn" style="width:100%;" onclick="leagueAnnounceModalDismiss()">הבנתי</button>
   </div>
 </div>
 
@@ -737,9 +1038,9 @@ let onlineGuestTimeoutSent = false;
 let onlineRematchListener = null;
 
 const CPU_TEAM_NAMES = [
-  'עירוני נ״צ','הפועל חולון','הפועל ת״א',' הפועל י-ם','מכבי ת״א',
-  'קרית אתא','גליל עליון',' בני הרצליה','הפועל אילת','מכבי אשדוד',
-  'מכבי ר״ג','מכבי ראשון לציון','הפועל ב״ש',' הפועל העמק',
+  'עירוני נ״צ','הפועל חולון','הפועל ת״א','הפועל י-ם','מכבי ת״א',
+  'קרית אתא','גליל עליון','בני הרצליה','הפועל אילת','מכבי אשדוד',
+  'מכבי ר״ג','מכבי ראשון לציון','הפועל ב״ש','הפועל העמק',
   'מכבי רעננה','אליצור נתניה'
 ];
 const TOURNAMENT_ROUNDS = ['שמינית הגמר','רבע הגמר','חצי הגמר','הגמר'];
@@ -821,8 +1122,8 @@ const PLAYER_IMAGES = {
   'אלייז׳ה בראיינט':'https://basket.co.il/pics/2025-2026/bryantr.jpg',
   'בונזי קולסון':'https://basket.co.il/pics/2022/50bc24.jpg',
   'שחר שלמון':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxn2p2xUH2hZUlRpJnbMK_O251C6HNGpzfsErduK_xbQ&s=10',
-'עומר בן דוד':'https://basket.co.il/pics/2016/2025/Media_days/BH/18.jpg', 
-'זיו וייסמן':'https://basket.co.il/pics/2025-2026/zivnew.jpg',
+'עומר בן דוד':'https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%9E%D7%9B%D7%91%D7%99%20%D7%90%D7%A9%D7%93%D7%95%D7%93/ben%20david.jpg', 
+'זיו וייסמן':'https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%9E%D7%9B%D7%91%D7%99%20%D7%90%D7%A9%D7%93%D7%95%D7%93/vaisman.jpg',
 'אליעד טל':'https://basket.co.il/pics/2016/2025/Media_days/Holon/23.jpg',
 'בן רוינה':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/ruina.png',
 'צוף בן משה':'https://basket.co.il/pics/2016/2025/Media_days/NessZiona/8.jpg',
@@ -837,7 +1138,13 @@ const PLAYER_IMAGES = {
 'קווה גרנט':'https://basket.co.il/pics/2025-2026/grant.jpg',
 'מייקל בריסקר':'https://basket.co.il/pics/2022/5mb23.jpg',
 'רון ציפר':'https://basket.co.il/pics/2016/2025/Media_days/BSheva/16.jpg',
-'נועם דוברת':'https://basket.co.il/pics/2016/2025/Media_days/HapJer/8.jpg',
+'נועם דוברת':'https://basket.co.il/pics/2016/2025/Media_days/HapJer/8.jpg', 
+'אוגוסטין רוביט':' https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%9E%D7%9B%D7%91%D7%99%20%D7%90%D7%A9%D7%93%D7%95%D7%93/rubit.jpg', 
+'ברייס וושינגטון':'https://basket.co.il/pics/2016/2025/Media_days/jan/0B8A8493.jpg',
+'דניאל תייס':' https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaD5a38sW-dOsLcb-6uGY5xcatxh4bR4_1R6QRUzpmE-_X11H6v4S4VaLf&s=10',
+'דושאן מילטיץ׳':' https://scontent.ftlv19-2.fna.fbcdn.net/v/t39.30808-6/783573277_1730514012413843_1904502269588510697_n.jpg?stp=dst-jpg_tt6&cstp=mx1638x2048&ctp=s1638x2048&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=eTktG_XWV8IQ7kNvwEBzGeT&_nc_oc=AdqdSOZHyJttELGTyPzzLZzJstutBE-m1yFe7YQgbwTYm1OMLm4I7gmHvYiNVvjFkAxzNW7ccZo8LLulc1m3ovnJ&_nc_zt=23&_nc_ht=scontent.ftlv19-2.fna&_nc_gid=4HMDGa4VUj-ke61jAqdS3A&_nc_ss=7b2a8&oh=00_AQIYBlhKBLCiExqaE6z_ciJnte1C1ybZ02rg6LFbhhma0A&oe=6AA835FB',
+'פרדי גילספי':'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA0vzawipiduj-bCEPMZIL8u0X7tAf8joBc09SeHJr9A&s=10', 
+'סם איוריו':'https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%94%D7%A4%D7%95%D7%A2%D7%9C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F/iorio.jpg',
 
 };
 
@@ -852,7 +1159,7 @@ const ROSTER = [
   {name:'איתי מושקוביץ\'', role:'G', rating:76}, {name:'יאיר קרביץ', role:'G', rating:83},
   {name:'איתן בורג', role:'G', rating:82}, {name:'גיל בני', role:'G', rating:74},
   {name:'יפתח זיו', role:'G', rating:75}, {name:'גולן גוט', role:'G', rating:74},
-  {name:'רועי הובר', role:'G', rating:79},
+  {name:'רועי הובר', role:'G', rating:80},
   {name:'גיא פלטין', role:'G', rating:79}, {name:'שחר דורון', role:'G', rating:72},
   {name:'גיל נויוביץ\'', role:'G', rating:72}, {name:'רועי פריצקי', role:'G', rating:77},
   {name:'ברייס בראון', role:'G', rating:86}, {name:'ג\'ארד הארפר', role:'G', rating:96},
@@ -876,7 +1183,7 @@ const ROSTER = [
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
   {name:'לוקאס גולדנברג', role:'F', rating:74}, {name:'רועי נציה', role:'F', rating:73},
   {name:'לוטן אמסלם', role:'F', rating:73}, {name:'עוז בלייזר', role:'F', rating:78},
-  {name:'ג\'יילן הורד', role:'F', rating:92}, {name:'איש וויינרייט', role:'F', rating:88},
+  {name:'ג\'יילן הורד', role:'F', rating:92}, {name:'איש וויינרייט', role:'F', rating:87},
   {name:'אושיי בריסט', role:'F', rating:88},
   {name:'איפה לונדברג', role:'G', rating:90}, {name:'ג׳ימי קלארק', role:'G', rating:91},
   {name:'אנטוניו בלייקני', role:'G', rating:94}, {name:'אלייז׳ה בראיינט', role:'G', rating:96},
@@ -884,12 +1191,13 @@ const ROSTER = [
   {name:'זיו וייסמן', role:'G', rating:71}, {name:'אליעד טל', role:'F', rating:74}, 
   {name:'בן רוינה', role:'C', rating:72}, {name:'צוף בן משה', role:'F', rating:76}, {name:'דניאל רוזנבאום', role:'F', rating:75},
   {name:'די ג׳יי ברנס', role:'C', rating:82}, {name:'נואה קרטר', role:'F', rating:84}, {name:'דשון פרנסיס', role:'G', rating:81},
- { name:'בניה סרור', role: 'C', rating: 74 }, {name:'סי ג׳יי אלבי', role: 'F', rating: 88 },
+ { name:'בניה סרור', role: 'C', rating: 74 }, {name:'סי ג׳יי אלבי', role: 'F', rating: 86 },
  { name:'יובל לוין', role: 'F', rating: 76 },
  { name:'ג׳קסון רואו', role: 'F', rating: 83 }, { name: 'קווה גרנט', role: 'G', rating: 83 },
  { name:'מייקל בריסקר', role: 'G', rating: 80 },
  { name:'רון ציפר', role: 'G', rating: 77 },
- { name:'נועם דוברת', role: 'G', rating: 78 },
+ { name:'נועם דוברת', role: 'G', rating: 78 }, {name:'אוגוסטין רוביט', role:'C', rating:88}, {name:'ברייס וושינגטון', role:'C', rating:83},
+ {name:'דניאל תייס', role:'C', rating:90}, {name:'דושאן מילטיץ׳', role:'C', rating:85}, {name:'פרדי גילספי', role:'C', rating:86}, {name:'סם איוריו', role:'C', rating:77},
 ];
 
 function buildPool(){
@@ -936,18 +1244,33 @@ const ACHIEVEMENTS = [
   {id:'onlineWin10', icon:'🎗️', name:'עשיריית ניצחונות', desc:'לנצח 10 משחקי אונליין'},
   {id:'onlineBigWin', icon:'💥', name:'מחיקה אונליין', desc:'לנצח משחק אונליין בהפרש של יותר מ־20 נקודות'},
   {id:'onlineWin50', icon:'👑', name:'מלך האונליין', desc:'לנצח 50 משחקי אונליין'},
-  {id:'lowBudgetWin', icon:'🪙', name:'Small Market', desc:'לנצח משחק קלאסי עם תקציב $15 · קל'},
+  {id:'lowBudgetWin', icon:'🪙', name:'Small Market', desc:'לנצח משחק קלאסי עם תקציב $15M · קל'},
   {id:'underdog', icon:'🐕', name:'Underdog', desc:'לנצח קבוצה עם ממוצע רייטינג גבוה יותר · בינוני'},
   {id:'centuryClub', icon:'💯', name:'Century Club', desc:'להגיע ל־100 נקודות במשחק קלאסי · בינוני'},
-  {id:'valueHunter', icon:'🎯', name:'Value Hunter', desc:'לנצח אחרי שבנית חמישייה ב־$10 או פחות · קשה'},
+  {id:'valueHunter', icon:'🎯', name:'Value Hunter', desc:'לנצח אחרי שבנית חמישייה ב־$10M או פחות · קשה'},
   {id:'defensiveWall', icon:'🧱', name:'Defensive Wall', desc:'לנצח כשהיריב קלע 85 נקודות או פחות · קשה'},
   {id:'clutchWin', icon:'⏱️', name:'Clutch Win', desc:'לנצח בהפרש של 3 נקודות או פחות · קל'},
   {id:'twentyPointWin', icon:'🚀', name:'Runaway Win', desc:'לנצח משחק קלאסי בהפרש של יותר מ־20 נקודות · בינוני'},
-  {id:'bigSpender', icon:'💸', name:'Big Spender', desc:'להוציא בדיוק $50 על החמישייה · בינוני'},
+  {id:'bigSpender', icon:'💸', name:'Big Spender', desc:'להוציא בדיוק $50M על החמישייה · בינוני'},
   {id:'games10', icon:'🔟', name:'First Milestone', desc:'לשחק 10 משחקים בסך הכול'},
   {id:'games25', icon:'🎖️', name:'Season Regular', desc:'לשחק 25 משחקים בסך הכול'},
   {id:'games50', icon:'🏅', name:'Veteran', desc:'לשחק 50 משחקים בסך הכול'},
-  {id:'games100', icon:'💯', name:'Century Player', desc:'לשחק 100 משחקים בסך הכול'}
+  {id:'games100', icon:'💯', name:'Century Player', desc:'לשחק 100 משחקים בסך הכול'},
+  {id:'leagueWin1', icon:'🏀', name:'ניצחון בכורה בליגה', desc:'לנצח משחק ליגה ראשון'},
+  {id:'leagueWinningRecord', icon:'📈', name:'עונה מנצחת', desc:'לסיים עונה עם 8 ניצחונות או יותר'},
+  {id:'leagueTopSeed', icon:'🥇', name:'ראש הבית', desc:'לסיים במקום הראשון בעונה הסדירה'},
+  {id:'leagueSurvivor', icon:'🛡️', name:'נשארים בליגה', desc:'לשרוד ברגע האחרון (סיום במקומות 11-12)'},
+  {id:'leaguePlayoffs', icon:'🔥', name:'פיינל פור', desc:'להעפיל לפיינל פור של הליגה'},
+  {id:'leagueFinal', icon:'🌟', name:'על הבמה הגדולה', desc:'להגיע לגמר הליגה'},
+  {id:'leagueChampion', icon:'🏆', name:'אלוף הליגה', desc:'לזכות באליפות הליגה'},
+  {id:'leagueBudgetRun', icon:'💰', name:'כסף על הפרקט', desc:'להעפיל לפיינל פור עם תקציב $40M'},
+  {id:'leaguePerfectSeason', icon:'💎', name:'עונה מושלמת', desc:'לנצח את כל משחקי העונה הסדירה'},
+  {id:'leagueCareerComplete', icon:'👑', name:'אגדת הליגה', desc:'להשלים קריירה של 5 עונות'},
+  {id:'leagueTitles2', icon:'🏆', name:'דאבל בקריירה', desc:'לזכות בשתי אליפויות באותה קריירה'},
+  {id:'leagueTitles3', icon:'🏆', name:'שושלת', desc:'לזכות בשלוש אליפויות באותה קריירה'},
+  {id:'leaguePlayoffsStreak2', icon:'🔗', name:'רצף פיינל פור', desc:'להעפיל לפיינל פור במשך שתי עונות רצופות'},
+  {id:'leaguePlayoffsStreak3', icon:'⛓️', name:'רצף של גדולים', desc:'להעפיל לפיינל פור במשך שלוש עונות רצופות'},
+  {id:'leaguePlayoffsFive', icon:'🌟', name:'חמש מחמש', desc:'להעפיל לפיינל פור בכל חמש עונות הקריירה'}
 ];
 
 function getAchievements(){
@@ -1104,7 +1427,7 @@ function makeRoomCode(){
 }
 
 function onlineRoomReady(){
-  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget} · גודל סגל: ${rosterSize===10?'10 (משחק מלא)':'5 (משחק מהיר)'}.`);
+  setOnlineStatus(`החדר ${onlineRoomCode} מוכן. המוד: ${draftType==='free'?'ללא עמדות':'לפי עמדות'} · תקציב: $${pendingOnlineBudget}M · גודל סגל: ${rosterSize===10?'10 (משחק מלא)':'5 (משחק מהיר)'}.`);
 }
 
 function onlineStateSnapshot(){
@@ -1135,8 +1458,8 @@ function setOnlineTurnMessage(message){
 }
 
 function updateOnlineGuestBudgets(){
-  document.getElementById('youBudget').textContent = '$'+(S.cpuBudget - (S.holder==='cpu' ? S.price : 0));
-  document.getElementById('cpuBudget').textContent = '$'+(S.youBudget - (S.holder==='you' ? S.price : 0));
+  document.getElementById('youBudget').textContent = '$'+(S.cpuBudget - (S.holder==='cpu' ? S.price : 0))+'M';
+  document.getElementById('cpuBudget').textContent = '$'+(S.youBudget - (S.holder==='you' ? S.price : 0))+'M';
 }
 
 function canGuestActOnline(){
@@ -1208,7 +1531,7 @@ function listenForOnlineState(){
     }
     document.getElementById('youLabel').textContent = S.cpuTeamName;
     document.getElementById('cpuLabel').textContent = S.teamName;
-    document.getElementById('bidPrice').textContent = S.price ? '$'+S.price : '$0';
+    document.getElementById('bidPrice').textContent = (S.price ? '$'+S.price : '$0')+'M';
     document.getElementById('bidHolder').textContent = S.holder==='cpu'
       ? `ההצעה המובילה: ${S.cpuTeamName}`
       : S.holder==='you' ? `ההצעה המובילה: ${S.teamName}` : 'מחיר פתיחה — אין הצעות עדיין';
@@ -1278,7 +1601,7 @@ function renderRosterGroup(roster, idPrefix, offset){
       : `<span class="rc-avatar-ph">${initials}</span>`;
     const ptsIdAttr = idPrefix ? ` id="${idPrefix}${idx}"` : '';
     const ptsValue = idPrefix ? 0 : (p.gamePoints ?? 0);
-    return `<div class="rc-row"><span class="rc-player">${avatar}<span class="rc-pname">${p.roleLabel} · ${p.name}</span></span><span class="rc-pts"${ptsIdAttr}>${ptsValue}</span></div>`;
+    return `<div class="rc-row"><span class="rc-player">${avatar}<span class="rc-pname">${p.roleLabel} · ${p.name}<span class="rating-line">רייטינג: ${p.rating}</span></span></span><span class="rc-pts"${ptsIdAttr}>${ptsValue}</span></div>`;
   }).join('');
 }
 
@@ -1318,9 +1641,23 @@ function showOnlineResult(result){
   configureResultButtons();
   document.getElementById('fsYou').textContent = result.cpuScore;
   document.getElementById('fsCpu').textContent = result.hostScore;
-  document.getElementById('winnerBanner').textContent = result.hostScore===result.cpuScore
-    ? 'תוצאת המשחק'
-    : (result.hostScore>result.cpuScore ? `${result.hostTeam} ניצחה!` : `${result.guestTeam} ניצחה!`);
+  const banner = document.getElementById('winnerBanner');
+  const subtext = document.getElementById('winnerSubtext');
+  subtext.textContent = '';
+  if(result.hostScore===result.cpuScore){
+    banner.textContent = 'תוצאת המשחק';
+    banner.className = 'winner-banner';
+  } else if(result.cpuScore>result.hostScore){
+    banner.textContent = `🎉 ${result.guestTeam} ניצחה!`;
+    banner.className = 'winner-banner win won-flash';
+    fireConfetti(false);
+  } else {
+    const diff = result.hostScore - result.cpuScore;
+    const {base, follow} = buildLossMessage(diff);
+    banner.textContent = base;
+    banner.className = 'winner-banner lose';
+    subtext.textContent = follow;
+  }
   document.getElementById('rcYouTitle').textContent = result.guestTeam;
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+result.guestCoach;
   document.getElementById('rcCpuTitle').textContent = result.hostTeam;
@@ -1339,7 +1676,7 @@ function renderOnlineCurrentPlayer(){
   const player = S.current;
   document.getElementById('roundPill').textContent = `אונליין · סבב ${S.round+1} / ${S.roundOrder.length}`;
   document.getElementById('posBadge').textContent = player.roleLabel || 'ללא עמדה';
-  document.getElementById('pName').textContent = player.name;
+  document.getElementById('pName').innerHTML = `${player.name}<span class="rating-line">רייטינג: ${player.rating}</span>`;
   const avatarImg=document.getElementById('avatarImg');
   const avatarInitials=document.getElementById('avatarInitials');
   avatarInitials.textContent=player.name.split(' ').map(w=>w[0]).join('');
@@ -1348,8 +1685,8 @@ function renderOnlineCurrentPlayer(){
   const toast = document.getElementById('playerEntryToast');
   const initials = player.name.split(' ').map(word=>word[0]).join('');
   toast.innerHTML = player.image
-    ? `<img class="toast-avatar" src="${player.image}" alt="${player.name}"><span>שחקן חדש נכנס למכרז: ${player.name}</span>`
-    : `<span class="toast-initials">${initials}</span><span>שחקן חדש נכנס למכרז: ${player.name}</span>`;
+    ? `<img class="toast-avatar" src="${player.image}" alt="${player.name}"><span>שחקן חדש נכנס למכרז: ${player.name}<span class="rating-line">רייטינג: ${player.rating}</span></span>`
+    : `<span class="toast-initials">${initials}</span><span>שחקן חדש נכנס למכרז: ${player.name}<span class="rating-line">רייטינג: ${player.rating}</span></span>`;
   toast.classList.add('show');
 }
 
@@ -1384,7 +1721,7 @@ function handleOnlineGuestBid(){
   if(nextPrice > S.cpuBudget) return;
   S.price = nextPrice;
   S.holder = 'cpu';
-  document.getElementById('bidPrice').textContent = '$'+S.price;
+  document.getElementById('bidPrice').textContent = '$'+S.price+'M';
   document.getElementById('bidHolder').textContent = `ההצעה המובילה: ${S.cpuTeamName}`;
   updateBudgets();
   startTurn('you');
@@ -1575,17 +1912,17 @@ function renderBudgetOptions(){
     desc.textContent = 'המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה סגל של 10 שחקנים: 4 גארדים, 4 פורוורדים ו-2 סנטרים.';
     grid.innerHTML = `
       <div class="budget-opt" onclick="startGame(30)">
-        <div class="lg">$30</div>
+        <div class="lg">$30M</div>
         <div class="nm">תקציב מצומצם</div>
         <div class="sub">קבוצה צנועה, מאתגר</div>
       </div>
       <div class="budget-opt" onclick="startGame(42)">
-        <div class="lg">$42</div>
+        <div class="lg">$42M</div>
         <div class="nm">איזון קלאסי</div>
         <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
       </div>
       <div class="budget-opt" onclick="startGame(100)">
-        <div class="lg">$100</div>
+        <div class="lg">$100M</div>
         <div class="nm">תקציב עתק</div>
         <div class="sub">הגיע בעלים רעב לקבוצה</div>
       </div>`;
@@ -1593,17 +1930,17 @@ function renderBudgetOptions(){
     desc.textContent = 'המכרז מתנהל בתורות של 8 שניות. כל קבוצה בונה חמישייה: 2 גארדים, 2 פורוורדים וסנטר.';
     grid.innerHTML = `
       <div class="budget-opt" onclick="startGame(15)">
-        <div class="lg">$15</div>
+        <div class="lg">$15M</div>
         <div class="nm">תקציב מצומצם</div>
         <div class="sub">קבוצה צנועה, מאתגר</div>
       </div>
       <div class="budget-opt" onclick="startGame(21)">
-        <div class="lg">$21</div>
+        <div class="lg">$21M</div>
         <div class="nm">איזון קלאסי</div>
         <div class="sub">לא מאריות הליגה אבל יש עם מה לעבוד</div>
       </div>
       <div class="budget-opt" onclick="startGame(50)">
-        <div class="lg">$50</div>
+        <div class="lg">$50M</div>
         <div class="nm">תקציב עתק</div>
         <div class="sub">הגיע בעלים רעב לקבוצה</div>
       </div>`;
@@ -1664,8 +2001,8 @@ function startGame(budget, continueTournament=false){
   };
   document.getElementById('youLabel').textContent = S.teamName;
   document.getElementById('cpuLabel').textContent = S.cpuTeamName;
-  document.getElementById('youBudget').textContent = '$'+budget;
-  document.getElementById('cpuBudget').textContent = '$'+budget;
+  document.getElementById('youBudget').textContent = '$'+budget+'M';
+  document.getElementById('cpuBudget').textContent = '$'+budget+'M';
   showScreen('screen-draft');
   updateQuotaRow();
   renderMiniRosters();
@@ -1716,7 +2053,7 @@ function slotListFor(roster){
 function renderMiniRoster(elId, teamName, roster){
   const slots = slotListFor(roster);
   const rows = slots.map(s=>
-    `<div class="mr-row"><span class="mr-role">${s.role ? s.role.short : (s.index+1)}</span><span class="mr-name ${s.player?'filled':'empty'}">${s.player ? lastName(s.player.name) : 'פנוי'}</span></div>`
+    `<div class="mr-row"><span class="mr-role">${s.role ? s.role.short : (s.index+1)}</span><span class="mr-name ${s.player?'filled':'empty'}">${s.player ? `${lastName(s.player.name)} <span class="mr-rating">(${s.player.rating})</span>` : 'פנוי'}</span></div>`
   ).join('');
   document.getElementById(elId).innerHTML = `<div class="mr-title">${teamName}</div>${rows}`;
 }
@@ -1744,7 +2081,8 @@ function resetRingDisplay(digitText){
   const digit=document.getElementById('ringDigit');
   digit.textContent = digitText;
   ring.style.strokeDashoffset = 0;
-  ring.classList.remove('warn');
+  ring.classList.toggle('warn', S.tLeft<=3);
+  digit.classList.toggle('warn', S.tLeft<=3);
 }
 
 function showAnnounce(title, sub, icon, type, broadcast=true){
@@ -1785,7 +2123,7 @@ function nextRound(){
     : `סבב ${S.round+1} / ${S.roundOrder.length}`;
   document.getElementById('posBadge').textContent = role ? role.label : 'ללא עמדה';
   const avatarImg=document.getElementById('avatarImg'); const avatarInitials=document.getElementById('avatarInitials'); avatarInitials.textContent=player.name.split(' ').map(w=>w[0]).join(''); if(player.image){ avatarImg.src=player.image; avatarImg.style.display='block'; avatarInitials.style.display='none'; } else { avatarImg.removeAttribute('src'); avatarImg.style.display='none'; avatarInitials.style.display='block'; }
-  document.getElementById('pName').textContent = player.name;
+  document.getElementById('pName').innerHTML = `${player.name}<span class="rating-line">רייטינג: ${player.rating}</span>`;
   const playerCard = document.getElementById('playerCard');
   const playerEntryToast = document.getElementById('playerEntryToast');
   playerCard.classList.remove('player-enter');
@@ -1796,7 +2134,7 @@ function nextRound(){
   const toastAvatar = player.image
     ? `<img class="toast-avatar" src="${player.image}" alt="${player.name}">`
     : `<span class="toast-initials">${playerInitials}</span>`;
-  playerEntryToast.innerHTML = `${toastAvatar}<span>שחקן חדש נכנס למכרז: ${player.name}</span>`;
+  playerEntryToast.innerHTML = `${toastAvatar}<span>שחקן חדש נכנס למכרז: ${player.name}<span class="rating-line">רייטינג: ${player.rating}</span></span>`;
   playerCard.classList.add('player-enter');
   playerEntryToast.classList.add('show');
 
@@ -1859,16 +2197,16 @@ function autoAward(winner, role, player){
     if(S.youRoster.length < S.rosterSize){
       S.youBudget-=price; S.youRoster.push(p); if(role) S.youCount[role.key]++;
     }
-    document.getElementById('bidPrice').textContent = '$'+price;
+    document.getElementById('bidPrice').textContent = '$'+price+'M';
     document.getElementById('bidHolder').textContent = placementMessage;
-    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral');
   } else {
     if(S.cpuRoster.length < S.rosterSize){
       S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
     }
-    document.getElementById('bidPrice').textContent = '$'+price;
+    document.getElementById('bidPrice').textContent = '$'+price+'M';
     document.getElementById('bidHolder').textContent = placementMessage;
-    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}`, '🎯', 'neutral');
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral');
   }
   updateQuotaRow(); updateBudgets(); renderMiniRosters();
   S.round += 1;
@@ -1878,7 +2216,7 @@ function autoAward(winner, role, player){
 function runBiddingRound(role){
   S.price = startPrice(S.current.rating);
   S.holder = null; S.firstForfeit = null; S.active = true;
-  document.getElementById('bidPrice').textContent = '$'+S.price;
+  document.getElementById('bidPrice').textContent = '$'+S.price+'M';
   document.getElementById('bidHolder').textContent = 'מחיר פתיחה — אין הצעות עדיין';
   updateBudgets();
   const startSide = S.gameMode==='online'
@@ -1908,7 +2246,8 @@ function updateTurnUI(){
   const giveUpBtn=document.getElementById('giveUpBtn');
   digit.textContent = S.tLeft;
   ring.style.strokeDashoffset = 0;
-  ring.classList.remove('warn');
+  ring.classList.toggle('warn', S.tLeft<=3);
+  digit.classList.toggle('warn', S.tLeft<=3);
   const localTurn = onlineRole==='guest' && onlineRoomRef ? canGuestActOnline() : S.turn==='you';
   if(localTurn){
     label.textContent='התור שלך — הצע או וותר';
@@ -1933,7 +2272,8 @@ function updateRingUI(){
   const digit=document.getElementById('ringDigit');
   digit.textContent = S.tLeft;
   ring.style.strokeDashoffset = RING_C*(1-S.tLeft/TURN_SECONDS);
-  ring.classList.toggle('warn', S.tLeft<=1);
+  ring.classList.toggle('warn', S.tLeft<=3);
+  digit.classList.toggle('warn', S.tLeft<=3);
 }
 
 function turnTick(){
@@ -1949,8 +2289,8 @@ function turnTick(){
 }
 
 function updateBudgets(){
-  document.getElementById('youBudget').textContent = '$'+(S.youBudget - (S.holder==='you'? S.price:0));
-  document.getElementById('cpuBudget').textContent = '$'+(S.cpuBudget - (S.holder==='cpu'? S.price:0));
+  document.getElementById('youBudget').textContent = '$'+(S.youBudget - (S.holder==='you'? S.price:0))+'M';
+  document.getElementById('cpuBudget').textContent = '$'+(S.cpuBudget - (S.holder==='cpu'? S.price:0))+'M';
 }
 
 function placeBid(){
@@ -1962,7 +2302,7 @@ function placeBid(){
   const nextPrice = S.price + 1;
   if(nextPrice > S.youBudget) return;
   S.price = nextPrice; S.holder = 'you';
-  document.getElementById('bidPrice').textContent = '$'+S.price;
+  document.getElementById('bidPrice').textContent = '$'+S.price+'M';
   document.getElementById('bidHolder').textContent = 'ההצעה המובילה: אתה';
   updateBudgets();
   startTurn('cpu');
@@ -2065,7 +2405,7 @@ function cpuAct(){
 
   if(willing){
     S.price = nextPrice; S.holder = 'cpu';
-    document.getElementById('bidPrice').textContent = '$'+S.price;
+    document.getElementById('bidPrice').textContent = '$'+S.price+'M';
     document.getElementById('bidHolder').textContent = `ההצעה המובילה: ${S.cpuTeamName}`;
     updateBudgets();
     startTurn('you');
@@ -2168,7 +2508,7 @@ function showLineupScreen(){
   grid.innerHTML = roster.map((p,i)=>`
     <div class="lineup-card" data-idx="${i}" onclick="toggleLineupPick(${i})">
       <div class="lc-name">${p.name}</div>
-      <div class="lc-role">${ROLE_MAP[p.role].label} · דירוג פנימי</div>
+      <div class="lc-role">${ROLE_MAP[p.role].label} · דירוג ${p.rating}</div>
       <div class="lc-badge" id="lcBadge${i}"></div>
     </div>
   `).join('');
@@ -2448,6 +2788,7 @@ function showResult(){
   const banner = document.getElementById('winnerBanner');
   banner.textContent = '\u00A0';
   banner.className = 'winner-banner';
+  document.getElementById('winnerSubtext').textContent = '';
 
   document.getElementById('rcYouTitle').textContent = S.teamName;
   document.getElementById('rcYouCoach').textContent = 'מאמן: '+S.coachName;
@@ -2507,8 +2848,11 @@ function showResult(){
       resolveTournamentStage(S.tournamentRound, userWon);
     }
     const resultAction = document.getElementById('resultActionBtn');
+    const subtext = document.getElementById('winnerSubtext');
+    subtext.textContent = '';
     if(youScore>cpuScore){
-      if(S.gameMode==='tournament' && S.tournamentRound===TOURNAMENT_ROUNDS.length-1){
+      const isCupWin = S.gameMode==='tournament' && S.tournamentRound===TOURNAMENT_ROUNDS.length-1;
+      if(isCupWin){
         banner.textContent = `🏆 ${S.teamName} זכתה בגביע!`;
         resultAction.textContent = 'הצג את עץ הפלייאוף';
         resultAction.onclick = showTournamentBracket;
@@ -2517,14 +2861,16 @@ function showResult(){
         resultAction.textContent = 'הצג את עץ הפלייאוף';
         resultAction.onclick = showTournamentBracket;
       } else {
-        banner.textContent = `🏆 ${S.teamName} ניצחה!`;
+        banner.textContent = `🎉 ${S.teamName} ניצחה!`;
       }
-      banner.className = 'winner-banner win won-flash';
+      banner.className = 'winner-banner win won-flash' + (isCupWin ? ' big-win' : '');
+      fireConfetti(isCupWin);
     } else {
-      banner.textContent = S.gameMode==='tournament'
-        ? `${S.teamName} הודחה מהטורניר`
-        : `${S.cpuTeamName} ניצחה הפעם`;
+      const diff = cpuScore - youScore;
+      const {base, follow} = buildLossMessage(diff);
+      banner.textContent = S.gameMode==='tournament' ? `${base} — הודחת מהטורניר` : base;
       banner.className = 'winner-banner lose';
+      subtext.textContent = follow;
       if(S.gameMode==='tournament'){
         resultAction.textContent = 'הצג את עץ הפלייאוף';
         resultAction.onclick = showTournamentBracket;
@@ -2681,6 +3027,8 @@ function goHome(){
   tournamentRound = 0;
   tournamentHistory = [];
   tournamentBracket = [];
+  leagueClearAllTimers();
+  hideAnnounce(false);
   document.getElementById('namesBackBtn').style.display = 'none';
   document.getElementById('setupBackBtn').style.display = 'none';
   showScreen('screen-splash');
@@ -2739,6 +3087,1098 @@ function showScreen(id){
     }
   }
 }
+
+/* ===================== LEAGUE MODE — STAGE 1: THE BIG SEASON DRAFT ===================== */
+const LEAGUE_TEAM_COUNT = 14;
+const LEAGUE_CORE_TEAM_NAMES = ['מכבי ת״א','הפועל י-ם','הפועל ת״א','הפועל חולון'];
+const LEAGUE_TOTAL_SEASONS = 5;
+const LEAGUE_TURN_SECONDS = 8;
+const LEAGUE_STORAGE_KEY = 'draftBattleLeagueCareer';
+const LEAGUE_HIGHLIGHTS_STORAGE_KEY = 'draftBattleLeagueHighlights';
+let LG = null;
+
+function leagueClearAllTimers(){
+  if(!LG) return;
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  clearTimeout(LG.pendingTimeoutHandle);
+}
+
+function fireConfetti(big){
+  const colors = ['#F4B93E','#E8590C','#4CAF50','#4A90D9','#E85C5C'];
+  const count = big ? 110 : 44;
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece' + (big ? ' confetti-big' : '');
+    el.style.left = (Math.random()*100)+'vw';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (big ? (2.6+Math.random()*1.6) : (2+Math.random()*1.2))+'s';
+    el.style.animationDelay = (Math.random()*(big?0.5:0.3))+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), big?5200:4000);
+  }
+}
+
+function buildLossMessage(diff){
+  const base = `😱 הפסדת ב-${diff} הפרש`;
+  const follow = diff<=7 ? 'זה היה קרוב, ננסה שוב?' : 'הקבוצה היריבה הראתה עליונות, מוכן לנקמה?';
+  return {base, follow};
+}
+function buildLeagueLossMessage(diff){
+  const base = `😱 הפסדת ב-${diff} הפרש`;
+  const follow = diff<=7 ? 'זה היה קרוב' : 'לא נורא, צריך להתאושש מהר למחזור הבא.';
+  return {base, follow};
+}
+let pendingLeagueTeamName = '';
+let pendingLeagueCoachName = '';
+
+function leagueShuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function saveLeagueCareer(){
+  try{ localStorage.setItem(LEAGUE_STORAGE_KEY, JSON.stringify(LG)); }catch(error){}
+}
+function loadLeagueCareer(){
+  try{ const raw = localStorage.getItem(LEAGUE_STORAGE_KEY); return raw ? JSON.parse(raw) : null; }catch(error){ return null; }
+}
+function clearLeagueCareer(){ try{ localStorage.removeItem(LEAGUE_STORAGE_KEY); }catch(error){} }
+function loadLeagueHighlights(){
+  try{ return JSON.parse(localStorage.getItem(LEAGUE_HIGHLIGHTS_STORAGE_KEY) || '[]'); }
+  catch(error){ return []; }
+}
+function saveLeagueHighlights(highlights){
+  try{ localStorage.setItem(LEAGUE_HIGHLIGHTS_STORAGE_KEY, JSON.stringify(highlights)); }catch(error){}
+}
+function leagueResumeEscape(value){
+  return String(value).replace(/[&<>"']/g, character=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+}
+function openLeagueResume(){
+  renderLeagueResume();
+  showScreen('screen-league-resume');
+}
+function leagueResumeBack(){
+  showScreen(!LG ? 'screen-splash' : LG.phase==='career-over' ? 'screen-league-career-over' : 'screen-league-season');
+}
+function renderLeagueResume(){
+  const historyEl = document.getElementById('leagueCareerHistory');
+  const highlightsEl = document.getElementById('leagueCareerHighlights');
+  const history = LG && Array.isArray(LG.seasonHistory) ? [...LG.seasonHistory].reverse() : [];
+  historyEl.innerHTML = history.length ? history.map(summary=>{
+    const result = summary.champion ? '🏆 אליפות הליגה' : summary.playoff ? '🔥 פיינל פור' : 'עונה סדירה';
+    return `<div class="league-resume-entry${summary.champion?' highlight':''}"><span class="resume-badge">${summary.champion?'🏆':summary.playoff?'🔥':'📊'}</span><div class="resume-main"><div class="resume-title">עונה ${summary.season} · מקום ${summary.rank} · ${result}</div><div class="resume-detail">${summary.wins}-${summary.losses} · הפרש ${summary.pointDiff>=0?'+':''}${summary.pointDiff}</div></div></div>`;
+  }).join('') : '<div class="tag">עדיין אין עונות שהסתיימו בקריירה הזאת.</div>';
+  const highlights = loadLeagueHighlights().slice().reverse();
+  highlightsEl.innerHTML = highlights.length ? highlights.map(item=>{
+    const result = item.champion ? 'אליפות הליגה' : item.rank <= 4 ? 'העפלה לפיינל פור' : 'עונה מנצחת';
+    return `<div class="league-resume-entry${item.champion?' highlight':''}"><span class="resume-badge">${item.champion?'🏆':item.rank<=4?'🔥':'⭐'}</span><div class="resume-main"><div class="resume-title">${leagueResumeEscape(item.teamName)} · עונה ${item.season}</div><div class="resume-detail">${result} · מקום ${item.rank} · ${item.wins}-${item.losses}</div></div></div>`;
+  }).join('') : '<div class="tag">עוד לא נרשמו רגעים גדולים בקריירות.</div>';
+}
+function leagueCommitSeasonHistory(champion){
+  if(!LG.currentSeasonSummary || LG.currentSeasonSummary.committed) return;
+  const summary = {...LG.currentSeasonSummary, champion:!!champion, committed:true};
+  LG.seasonHistory = Array.isArray(LG.seasonHistory) ? LG.seasonHistory : [];
+  LG.seasonHistory.push(summary);
+  if(summary.champion || summary.rank<=4 || summary.wins>=8){
+    const highlights = loadLeagueHighlights();
+    highlights.push({teamName:LG.teamName, season:summary.season, rank:summary.rank, wins:summary.wins, losses:summary.losses, champion:summary.champion});
+    saveLeagueHighlights(highlights.slice(-100));
+  }
+  LG.currentSeasonSummary = summary;
+  saveLeagueCareer();
+}
+
+let leagueConfirmCallback = null;
+function leagueAsk(message, onYes){
+  document.getElementById('leagueConfirmMsg').textContent = message;
+  leagueConfirmCallback = onYes;
+  document.getElementById('leagueConfirmModal').classList.add('active');
+}
+function leagueConfirmModalAnswer(result){
+  document.getElementById('leagueConfirmModal').classList.remove('active');
+  const cb = leagueConfirmCallback;
+  leagueConfirmCallback = null;
+  if(result && cb) cb();
+}
+
+let leagueAnnounceCallback = null;
+function leagueShowFormalAnnouncement(icon, title, message, onDismiss, buttonLabel){
+  document.getElementById('leagueAnnounceIcon').textContent = icon;
+  document.getElementById('leagueAnnounceTitle').textContent = title;
+  document.getElementById('leagueAnnounceMsg').textContent = message;
+  document.getElementById('leagueAnnounceConfirmBtn').textContent = buttonLabel || (title === 'עלית לפיינל פור!' ? 'קדימה לאליפות!' : title === 'פוטרת!' ? 'ננסה שוב?' : 'הבנתי');
+  leagueAnnounceCallback = onDismiss;
+  document.getElementById('leagueAnnounceModal').classList.add('active');
+}
+function leagueAnnounceModalDismiss(){
+  document.getElementById('leagueAnnounceModal').classList.remove('active');
+  const cb = leagueAnnounceCallback;
+  leagueAnnounceCallback = null;
+  if(cb) cb();
+}
+
+function openLeagueMenu(){
+  const saved = loadLeagueCareer();
+  const wrap = document.getElementById('leagueMenuActions');
+  wrap.innerHTML = '';
+  const canResume = saved && saved.phase && saved.phase !== 'career-over';
+  if(canResume){
+    const resumeBtn = document.createElement('button');
+    resumeBtn.className = 'primary-btn';
+    resumeBtn.textContent = `▶️ המשך קריירה — עונה ${saved.season} · ${saved.teamName}`;
+    resumeBtn.onclick = ()=>resumeLeagueCareer(saved);
+    wrap.appendChild(resumeBtn);
+  }
+  const newBtn = document.createElement('button');
+  newBtn.className = canResume ? 'ghost-btn' : 'primary-btn';
+  newBtn.textContent = saved ? '🆕 קריירה חדשה (הקודמת תימחק)' : '🆕 התחל קריירה חדשה';
+  newBtn.onclick = ()=>{
+    const proceed = ()=>{ clearLeagueCareer(); showScreen('screen-league-names'); };
+    if(saved){ leagueAsk('להתחיל קריירה חדשה? הקריירה הנוכחית תימחק (התארים בארון הגביעים נשמרים).', proceed); }
+    else proceed();
+  };
+  wrap.appendChild(newBtn);
+  showScreen('screen-league-menu');
+}
+
+function goToLeagueBudget(){
+  pendingLeagueTeamName = (document.getElementById('leagueTeamNameInput').value || '').trim() || 'הקבוצה שלי';
+  pendingLeagueCoachName = (document.getElementById('leagueCoachNameInput').value || '').trim() || 'המאמן';
+  showScreen('screen-league-budget');
+}
+
+function leagueInitialCpuNames(){
+  const otherNames = CPU_TEAM_NAMES.filter(name=>!LEAGUE_CORE_TEAM_NAMES.includes(name));
+  return [...LEAGUE_CORE_TEAM_NAMES, ...leagueShuffle(otherNames).slice(0, LEAGUE_TEAM_COUNT-1-LEAGUE_CORE_TEAM_NAMES.length)];
+}
+
+function leagueNextSeasonCpuNames(standings){
+  const currentCpuNames = standings.filter(team=>!team.isUser).map(team=>team.name);
+  const survivingCpuNames = standings.slice(0, -2).filter(team=>!team.isUser).map(team=>team.name);
+  const availableNames = CPU_TEAM_NAMES.filter(name=>!currentCpuNames.includes(name));
+  const promotedNames = leagueShuffle(availableNames).slice(0, 2);
+  return [...survivingCpuNames, ...promotedNames];
+}
+
+function createLeagueCareer(budget, teamName, coachName, season, selectedCpuNames, careerStats, seasonHistory){
+  const ranks = leagueShuffle(Array.from({length:LEAGUE_TEAM_COUNT}, (_,i)=>i+1));
+  const cpuNames = selectedCpuNames || leagueInitialCpuNames();
+  const stats = careerStats || {playoffSeasons:0, playoffStreak:0, championships:0};
+  const userSlot = Math.floor(Math.random()*LEAGUE_TEAM_COUNT);
+  let cpuIdx = 0;
+  const teams = [];
+  for(let i=0;i<LEAGUE_TEAM_COUNT;i++){
+    const isUser = i===userSlot;
+    teams.push({
+      id:i,
+      name: isUser ? teamName : (cpuNames[cpuIdx++] || `קבוצה ${i+1}`),
+      isUser,
+      coachName: isUser ? coachName : '',
+      draftRank: ranks[i],
+      budgetTotal: budget,
+      budgetLeft: budget,
+      roster: [],
+      roleCount: {G:0, F:0, C:0}
+    });
+  }
+  return {
+    season, budget, teamName, coachName,
+    leaguePlayoffSeasons: stats.playoffSeasons || 0,
+    leaguePlayoffStreak: stats.playoffStreak || 0,
+    leagueChampionships: stats.championships || 0,
+    seasonHistory: Array.isArray(seasonHistory) ? seasonHistory : [],
+    currentSeasonSummary: null,
+    teams,
+    pool: leagueShuffle(buildPool()),
+    totalPlayers: LEAGUE_TEAM_COUNT*5,
+    draftedCount: 0,
+    current: null,
+    eligibleIds: [],
+    direction: 1,
+    order: [],
+    turnQueue: [],
+    turnPointer: 0,
+    price: 0,
+    holderTeamId: null,
+    passedTeamIds: [],
+    timeLeft: LEAGUE_TURN_SECONDS,
+    phase: 'draft'
+  };
+}
+
+function startLeagueCareer(budget){
+  LG = createLeagueCareer(budget, pendingLeagueTeamName, pendingLeagueCoachName, 1);
+  saveLeagueCareer();
+  startLeagueSeasonDraft();
+}
+
+function startLeagueSeasonDraft(){
+  LG.phase = 'draft';
+  showScreen('screen-league-draft');
+  document.getElementById('leagueDraftTitle').textContent = `ערב דראפט הליגה — עונה ${LG.season}`;
+  leagueNextPlayer();
+}
+
+function resumeLeagueCareer(saved){
+  LG = saved;
+  if(LG.phase === 'draft'){
+    showScreen('screen-league-draft');
+    document.getElementById('leagueDraftTitle').textContent = `ערב דראפט הליגה — עונה ${LG.season}`;
+    if(LG.current){
+      renderLeagueBoard();
+      renderLeagueAuction();
+      leagueScheduleNextTurn();
+    } else {
+      leagueNextPlayer();
+    }
+  } else if(LG.phase === 'season'){
+    showLeagueSeasonScreen();
+  } else if(LG.phase === 'season-end'){
+    const standings = leagueComputeStandings();
+    if(LG.playoff && LG.playoff.games.every(g=>g.done)){
+      leagueShowSeasonEndSummary(standings);
+    } else {
+      const rank = standings.findIndex(t=>t.isUser)+1;
+      leagueShowRegularSeasonFinalStandings(standings, rank, LG.seasonEndAction || 'nextSeason');
+    }
+  } else if(LG.phase === 'playoffs'){
+    showScreen('screen-league-playoffs');
+    renderPlayoffBracket();
+  } else if(LG.phase === 'career-over'){
+    leagueShowCareerOver(LG.endReason);
+  } else {
+    showLeagueSeasonScreen();
+  }
+}
+
+function leagueEligibleTeamIds(roleKey){
+  return LG.teams.filter(t=>t.roleCount[roleKey] < BASE_ROLE_QUOTA[roleKey]).map(t=>t.id);
+}
+
+function leagueSortedTeamIdsByRank(direction){
+  return [...LG.teams].sort((a,b)=> direction>0 ? a.draftRank-b.draftRank : b.draftRank-a.draftRank).map(t=>t.id);
+}
+
+function leagueActiveIds(){
+  return LG.turnQueue.filter(id=>!LG.passedTeamIds.includes(id));
+}
+
+function leaguePlayerQuality(player){
+  const q = (player.rating - RATING_FLOOR) / (RATING_CEIL - RATING_FLOOR);
+  return Math.min(1, Math.max(0, q));
+}
+
+function leagueRollCpuMood(rawQuality){
+  const quality = Math.min(1, Math.max(0, rawQuality + (Math.random()-0.5)*0.25));
+  const disinterestChance = Math.max(0, 0.32 - quality*0.5);
+  const hungryChance = Math.max(0, (quality-0.55)*0.55);
+  const roll = Math.random();
+  if(roll < disinterestChance) return 'disinterested';
+  if(roll > 1-hungryChance) return 'hungry';
+  return 'normal';
+}
+
+function leagueGetCpuValuation(team, player){
+  const perSlotBudget = team.budgetTotal/5;
+  const quality = Math.pow(leaguePlayerQuality(player), 1.1);
+  const raw = quality * perSlotBudget * (1.5 + Math.random()*0.9);
+  return Math.max(1, raw);
+}
+
+// זהה ברוחו למנוע ההחלטה של המחשב במכרז הרגיל (מצב-רוח חד-פעמי לכל שחקן + שווי + "כרית ביטחון"
+// לתפקידים שנשארו למלא) - מותאם לכך שב-14 קבוצות כל קבוצה צריכה גלגול מצב-רוח משלה, וששלב 0 היא
+// תמיד "בטוחה" (לא נכנסת לשיקול התקציב הזהיר, כי היא לעולם לא תזיק לתקציב).
+function leagueTeamWillingToAct(team, player, cost, moodState){
+  if(!moodState[team.id]){
+    const quality0 = leaguePlayerQuality(player);
+    moodState[team.id] = { mood: leagueRollCpuMood(quality0), valuation: leagueGetCpuValuation(team, player) };
+  }
+  const { mood, valuation } = moodState[team.id];
+  if(mood === 'disinterested') return false;
+
+  const quality = leaguePlayerQuality(player);
+  let ceiling, earlyFoldChance;
+  if(mood === 'hungry'){
+    ceiling = valuation * (1.6 + quality*0.4);
+    earlyFoldChance = 0.03;
+  } else {
+    const stretch = valuation * (0.05 + quality*0.25);
+    ceiling = valuation + stretch;
+    earlyFoldChance = Math.max(0, 0.15 - quality*0.15);
+  }
+
+  const slotsLeftAfterThis = Math.max(0, (5 - team.roster.length) - 1);
+  const safeSpendable = Math.max(0, team.budgetLeft - slotsLeftAfterThis);
+  if(cost > 0 && safeSpendable > 0){
+    const budgetStrain = cost / safeSpendable;
+    if(budgetStrain > 0.5){
+      const strainPenalty = Math.min(1, (budgetStrain-0.5)*1.4);
+      const qualityRelief = quality*0.5;
+      earlyFoldChance = Math.min(0.92, earlyFoldChance + strainPenalty*(1-qualityRelief));
+    }
+  }
+
+  const affordable = cost===0 ? true : (cost <= safeSpendable);
+  return affordable && cost <= ceiling && Math.random() >= earlyFoldChance;
+}
+
+function leagueSimulatePlayerAuction(player, eligible){
+  const queue = leagueSortedTeamIdsByRank(LG.direction).filter(id=>eligible.includes(id));
+  const moodState = {};
+  let passed = [], holder = null, price = 0, pointer = 0, iterations = 0;
+  while(iterations < 500){
+    iterations++;
+    const active = queue.filter(id=>!passed.includes(id));
+    if(active.length <= 1){
+      const winner = active[0]!==undefined ? active[0] : eligible[Math.floor(Math.random()*eligible.length)];
+      const finalPrice = holder===winner ? price : 0;
+      return {winnerId: winner, price: finalPrice};
+    }
+    let guard = 0;
+    while((passed.includes(queue[pointer]) || queue[pointer]===holder) && guard < queue.length+2){
+      pointer = (pointer+1) % queue.length;
+      guard++;
+    }
+    const actorId = queue[pointer];
+    const team = LG.teams.find(t=>t.id===actorId);
+    const cost = holder===null ? 0 : price+1;
+    const willing = team.budgetLeft >= cost && leagueTeamWillingToAct(team, player, cost, moodState);
+    if(willing){ price = cost; holder = actorId; }
+    else if(!passed.includes(actorId)){ passed.push(actorId); }
+    pointer = (pointer+1) % queue.length;
+  }
+  return {winnerId: eligible[0], price: 0};
+}
+
+function leagueNextPlayer(){
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  if(LG.draftedCount >= LG.totalPlayers){
+    finishLeagueDraft();
+    return;
+  }
+  const idx = LG.pool.findIndex(p=>leagueEligibleTeamIds(p.role).length>0);
+  if(idx === -1){
+    finishLeagueDraft();
+    return;
+  }
+  const player = LG.pool.splice(idx,1)[0];
+  LG.direction *= -1;
+  const eligible = leagueEligibleTeamIds(player.role);
+  LG.current = {player};
+  LG.eligibleIds = eligible;
+
+  const userTeam = LG.teams.find(t=>t.isUser);
+  if(!eligible.includes(userTeam.id)){
+    // אתה כבר מילאת את התפקיד הזה - פותרים את המכרז על השחקן הזה מיד בלי לחכות לתורות
+    LG.turnQueue = [];
+    LG.turnPointer = 0;
+    const {winnerId, price} = leagueSimulatePlayerAuction(player, eligible);
+    leagueAssignPlayer(winnerId, price);
+    return;
+  }
+
+  LG.order = leagueSortedTeamIdsByRank(LG.direction);
+  LG.turnQueue = LG.order.filter(id=>eligible.includes(id));
+  LG.turnPointer = 0;
+  LG.price = 0;
+  LG.holderTeamId = null;
+  LG.passedTeamIds = [];
+  LG.moodState = {};
+  document.getElementById('leagueTurnLabel').textContent = '\u00a0';
+  renderLeagueBoard();
+  renderLeagueAuction();
+  saveLeagueCareer();
+  leagueScheduleNextTurn();
+}
+
+function leagueScheduleNextTurn(){
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  const active = leagueActiveIds();
+  if(active.length <= 1){
+    leagueResolveCurrentPlayer(active[0]);
+    return;
+  }
+  let guard = 0;
+  while((LG.passedTeamIds.includes(LG.turnQueue[LG.turnPointer]) || LG.turnQueue[LG.turnPointer]===LG.holderTeamId) && guard < LG.turnQueue.length+2){
+    LG.turnPointer = (LG.turnPointer+1) % LG.turnQueue.length;
+    guard++;
+  }
+  renderLeagueAuction();
+  const actorId = LG.turnQueue[LG.turnPointer];
+  const actorTeam = LG.teams.find(t=>t.id===actorId);
+  if(actorTeam && actorTeam.isUser){
+    leagueStartUserTimer();
+  } else {
+    LG.cpuTimeoutHandle = setTimeout(()=>leagueCpuAct(actorId), 90+Math.random()*130);
+  }
+}
+
+function leagueResolveCurrentPlayer(winnerId){
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  if(winnerId===undefined || winnerId===null){
+    winnerId = LG.eligibleIds[Math.floor(Math.random()*LG.eligibleIds.length)];
+    leagueAssignPlayer(winnerId, 0);
+    return;
+  }
+  const finalPrice = LG.holderTeamId===winnerId ? LG.price : 0;
+  leagueAssignPlayer(winnerId, finalPrice);
+}
+
+function leagueAssignPlayer(teamId, price){
+  const team = LG.teams.find(t=>t.id===teamId);
+  const player = LG.current.player;
+  team.roster.push({name:player.name, role:player.role, image:player.image, rating:player.rating, price});
+  team.roleCount[player.role] += 1;
+  team.budgetLeft -= price;
+  LG.draftedCount += 1;
+  renderLeagueBoard();
+  const icon = team.isUser ? '🏆' : '📋';
+  const type = team.isUser ? 'win' : 'neutral';
+  const title = `${team.isUser?'⭐ ':''}${team.name} זכתה ב${player.name}`;
+  const sub = price>0 ? `תמורת $${price}M` : 'תמורת $0M (אף אחד לא התחרה)';
+  showAnnounce(title, sub, icon, type, false);
+  saveLeagueCareer();
+  const justCompletedByUser = team.isUser && leagueUserRosterFull();
+  LG.pendingTimeoutHandle = setTimeout(()=>{
+    hideAnnounce(false);
+    if(justCompletedByUser){ leagueFastForwardDraft(); }
+    else { leagueNextPlayer(); }
+  }, ANNOUNCE_MS);
+}
+
+function leagueTeamAct(teamId, action){
+  clearInterval(LG.timerHandle);
+  clearTimeout(LG.cpuTimeoutHandle);
+  if(action==='bid'){
+    LG.price = LG.holderTeamId===null ? 0 : LG.price+1;
+    LG.holderTeamId = teamId;
+  } else if(!LG.passedTeamIds.includes(teamId)){
+    LG.passedTeamIds.push(teamId);
+  }
+  LG.turnPointer = (LG.turnPointer+1) % LG.turnQueue.length;
+  saveLeagueCareer();
+  leagueScheduleNextTurn();
+}
+
+function leagueBidCost(){
+  return LG.holderTeamId===null ? 0 : LG.price+1;
+}
+
+function leagueUserBid(){
+  const actorId = LG.turnQueue[LG.turnPointer];
+  const team = LG.teams.find(t=>t.id===actorId);
+  if(!team || !team.isUser || team.budgetLeft < leagueBidCost()) return;
+  leagueTeamAct(actorId, 'bid');
+}
+function leagueUserPass(){
+  const actorId = LG.turnQueue[LG.turnPointer];
+  const team = LG.teams.find(t=>t.id===actorId);
+  if(!team || !team.isUser) return;
+  leagueTeamAct(actorId, 'pass');
+}
+
+function leagueCpuAct(teamId){
+  const team = LG.teams.find(t=>t.id===teamId);
+  if(!team) return;
+  const cost = leagueBidCost();
+  if(team.budgetLeft < cost){ leagueTeamAct(teamId,'pass'); return; }
+  if(!LG.moodState) LG.moodState = {};
+  leagueTeamAct(teamId, leagueTeamWillingToAct(team, LG.current.player, cost, LG.moodState) ? 'bid' : 'pass');
+}
+// שים לב: אין החמרה של רמת הקושי בין עונות - הנוסחה קבועה לאורך כל הקריירה
+
+function leagueUserRosterFull(){
+  const userTeam = LG.teams.find(t=>t.isUser);
+  return !!userTeam && userTeam.roster.length >= 5;
+}
+
+function leagueFastForwardDraft(){
+  if(!leagueUserRosterFull()) return;
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  let safety = 0;
+  while(LG.draftedCount < LG.totalPlayers && safety < 5000){
+    safety++;
+    const idx = LG.pool.findIndex(p=>leagueEligibleTeamIds(p.role).length>0);
+    if(idx === -1) break;
+    const player = LG.pool.splice(idx,1)[0];
+    LG.direction *= -1;
+    const eligible = leagueEligibleTeamIds(player.role);
+    const {winnerId, price} = leagueSimulatePlayerAuction(player, eligible);
+    const team = LG.teams.find(t=>t.id===winnerId);
+    team.roster.push({name:player.name, role:player.role, image:player.image, rating:player.rating, price});
+    team.roleCount[player.role] += 1;
+    team.budgetLeft -= price;
+    LG.draftedCount += 1;
+  }
+  LG.current = null;
+  leagueStartSeasonPlay();
+}
+
+function leagueScrollToUser(){
+  const board = document.getElementById('leagueBoard');
+  const userCol = board && board.querySelector('.league-team-col.is-user');
+  if(userCol) userCol.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function leagueStartUserTimer(){
+  LG.timeLeft = LEAGUE_TURN_SECONDS;
+  const ring = document.getElementById('leagueRingFg');
+  const digit = document.getElementById('leagueRingDigit');
+  if(ring){ ring.style.strokeDashoffset = 0; ring.classList.remove('warn','cpu-turn'); }
+  if(digit) digit.classList.remove('warn');
+  if(digit) digit.textContent = LG.timeLeft;
+  clearInterval(LG.timerHandle);
+  LG.timerHandle = setInterval(()=>{
+    LG.timeLeft -= 1;
+    if(digit) digit.textContent = Math.max(0, LG.timeLeft);
+    if(ring){
+      ring.style.strokeDashoffset = RING_C*(1-LG.timeLeft/LEAGUE_TURN_SECONDS);
+      ring.classList.toggle('warn', LG.timeLeft<=3);
+      if(digit) digit.classList.toggle('warn', LG.timeLeft<=3);
+    }
+    if(LG.timeLeft<=0){
+      clearInterval(LG.timerHandle);
+      leagueUserPass();
+    }
+  }, 1000);
+}
+
+function renderLeagueBoard(){
+  const board = document.getElementById('leagueBoard');
+  if(!board || !LG) return;
+  const actorId = (LG.turnQueue && LG.turnQueue.length) ? LG.turnQueue[LG.turnPointer] : null;
+  const sorted = [...LG.teams].sort((a,b)=>a.draftRank-b.draftRank);
+  board.innerHTML = sorted.map(t=>{
+    const byRole = {G:[], F:[], C:[]};
+    t.roster.forEach(p=>byRole[p.role].push(p));
+    const rowsHtml = [];
+    ['G','F','C'].forEach(roleKey=>{
+      for(let i=0;i<BASE_ROLE_QUOTA[roleKey];i++){
+        const p = byRole[roleKey][i];
+        rowsHtml.push(`<div class="league-slot ${p?'':'empty'}"><span class="role-tag">${ROLE_MAP[roleKey].short}</span><span class="slot-name">${p?`${p.name}<span class=\"rating-line\">רייטינג: ${p.rating}</span>`:'—'}</span></div>`);
+      }
+    });
+    const cls = ['league-team-col'];
+    if(t.isUser) cls.push('is-user');
+    if(actorId===t.id) cls.push('active-turn');
+    return `<div class="${cls.join(' ')}"><div class="league-team-rank">בחירה #${t.draftRank}</div><div class="league-team-name">${t.isUser?'⭐ ':''}${t.name}</div><div class="league-team-budget">$${t.budgetLeft}M</div>${rowsHtml.join('')}</div>`;
+  }).join('');
+  renderLeagueUserStatus();
+  const progress = document.getElementById('leagueDraftProgress');
+  if(progress) progress.textContent = `שחקן ${Math.min(LG.draftedCount+1,LG.totalPlayers)} מתוך ${LG.totalPlayers}`;
+  const skipBtn = document.getElementById('leagueSkipBtn');
+  if(skipBtn) skipBtn.style.display = leagueUserRosterFull() ? 'block' : 'none';
+}
+
+function renderLeagueUserStatus(){
+  const status = document.getElementById('leagueUserStatus');
+  const userTeam = LG && LG.teams ? LG.teams.find(t=>t.isUser) : null;
+  if(!status || !userTeam) return;
+  const roster = userTeam.roster || [];
+  const slots = [];
+  ['G','F','C'].forEach(roleKey=>{
+    for(let i=0;i<BASE_ROLE_QUOTA[roleKey];i++){
+      const player = roster.filter(item=>item.role===roleKey)[i];
+      slots.push(`<div class="league-slot ${player?'':'empty'}"><span class="role-tag">${ROLE_MAP[roleKey].short}</span><span class="slot-name">${player ? player.name : '—'}</span></div>`);
+    }
+  });
+  status.innerHTML = `<div class="league-user-status-title">⭐ ${userTeam.name}</div><div class="league-user-status-budget">$${userTeam.budgetLeft}M</div><div class="league-user-status-progress">הסגל שלך · ${roster.length}/5</div>${slots.join('')}`;
+}
+
+function renderLeagueAuction(){
+  if(!LG || !LG.current) return;
+  const player = LG.current.player;
+  document.getElementById('leaguePosBadge').textContent = ROLE_MAP[player.role].label;
+  document.getElementById('leaguePName').innerHTML = `${player.name}<span class="rating-line">רייטינג: ${player.rating}</span>`;
+  const initials = document.getElementById('leagueAvatarInitials');
+  const img = document.getElementById('leagueAvatarImg');
+  if(player.image){ img.src = player.image; img.style.display='block'; initials.style.display='none'; }
+  else { img.style.display='none'; initials.style.display=''; initials.textContent = player.name.split(' ').map(w=>w[0]).slice(0,2).join(''); }
+  document.getElementById('leagueBidPrice').textContent = `$${LG.price}M`;
+  const holderTeam = LG.holderTeamId!=null ? LG.teams.find(t=>t.id===LG.holderTeamId) : null;
+  document.getElementById('leagueBidHolder').textContent = holderTeam ? `ההצעה המובילה: ${holderTeam.name}` : 'אין הצעות עדיין';
+  const actorId = LG.turnQueue[LG.turnPointer];
+  const actorTeam = LG.teams.find(t=>t.id===actorId);
+  const label = document.getElementById('leagueTurnLabel');
+  const actionsRow = document.getElementById('leagueBidActionsRow');
+  const ring = document.getElementById('leagueRingFg');
+  const digit = document.getElementById('leagueRingDigit');
+  if(actorTeam && actorTeam.isUser){
+    label.textContent = 'התור שלך!';
+    actionsRow.style.display = 'flex';
+    if(ring) ring.classList.remove('cpu-turn');
+    const bidBtn = document.getElementById('leagueBidBtn');
+    const cost = leagueBidCost();
+    bidBtn.textContent = cost===0 ? 'תפוס בחינם ($0M)' : `הצע ($${cost}M)`;
+    bidBtn.disabled = actorTeam.budgetLeft < cost;
+  } else {
+    label.textContent = actorTeam ? `תור ${actorTeam.name}...` : '';
+    actionsRow.style.display = 'none';
+    if(ring){ ring.style.strokeDashoffset = 0; ring.classList.add('cpu-turn'); ring.classList.remove('warn'); }
+    if(digit) digit.textContent = LEAGUE_TURN_SECONDS;
+  }
+}
+
+function finishLeagueDraft(){
+  clearTimeout(LG.cpuTimeoutHandle);
+  clearInterval(LG.timerHandle);
+  LG.current = null;
+  leagueStartSeasonPlay();
+}
+
+function leagueConfirmQuit(){
+  leagueAsk('לצאת ולשמור? ההתקדמות נשמרת ותוכל להמשיך משם בפעם הבאה.', ()=>{
+    saveLeagueCareer();
+    goHome();
+  });
+}
+/* ===================== END LEAGUE MODE — STAGE 1 ===================== */
+
+/* ===================== LEAGUE MODE — STAGE 2: SEASON, STANDINGS & PLAYOFFS ===================== */
+function leagueGenerateSchedule(n){
+  const teams = Array.from({length:n}, (_,i)=>i);
+  if(n%2) teams.push(null);
+  const rounds = [];
+  for(let r=0;r<teams.length-1;r++){
+    const round = [];
+    for(let i=0;i<teams.length/2;i++){
+      const opponent = teams[teams.length-1-i];
+      if(teams[i]!==null && opponent!==null) round.push([teams[i], opponent]);
+    }
+    rounds.push(round);
+    const fixed = teams[0];
+    const rest = teams.slice(1);
+    rest.unshift(rest.pop());
+    teams.splice(0, teams.length, fixed, ...rest);
+  }
+  return rounds;
+}
+
+function leagueStartSeasonPlay(){
+  LG.teams.forEach(t=>{ t.wins=0; t.losses=0; t.pf=0; t.pa=0; });
+  LG.schedule = leagueGenerateSchedule(LEAGUE_TEAM_COUNT);
+  LG.round = 1;
+  LG.phase = 'season';
+  LG.playoff = null;
+  saveLeagueCareer();
+  showLeagueSeasonScreen();
+}
+
+function showLeagueSeasonScreen(){
+  showScreen('screen-league-season');
+  renderLeagueSeasonScreen();
+}
+
+function renderLeagueSeasonScreen(){
+  const userTeam = LG.teams.find(t=>t.isUser);
+  document.getElementById('leagueSeasonTitle').textContent = `עונה ${LG.season} · סבב ${LG.round} מתוך ${LG.schedule.length}`;
+  document.getElementById('leagueSeasonRecord').textContent = `השיא שלך: ${userTeam.wins}-${userTeam.losses}`;
+  const pairs = LG.schedule[LG.round-1];
+  const myPair = pairs.find(p=>p.includes(userTeam.id));
+  const oppId = myPair[0]===userTeam.id ? myPair[1] : myPair[0];
+  const opp = LG.teams.find(t=>t.id===oppId);
+  document.getElementById('leagueNextOpponent').textContent = `מול ${opp.name}`;
+  renderLeagueStandingsTable();
+}
+
+function leagueComputeStandings(){
+  return [...LG.teams].sort((a,b)=>{
+    if(b.wins!==a.wins) return b.wins-a.wins;
+    const diffA=a.pf-a.pa, diffB=b.pf-b.pa;
+    if(diffB!==diffA) return diffB-diffA;
+    return b.pf-a.pf;
+  });
+}
+
+function leagueStandingRowsHtml(standings){
+  return standings.map((t,i)=>{
+    const diff = t.pf-t.pa;
+    const isPlayoffZone = i < 4;
+    const isPlayoffBoundary = i === 3;
+    const isRelegationZone = i >= standings.length - 2;
+    const isRelegationBoundary = i === standings.length - 2;
+    const rowClasses = [
+      'league-standing-row',
+      t.isUser ? 'is-user' : '',
+      isPlayoffZone ? 'playoff-zone' : '',
+      isPlayoffBoundary ? 'playoff-boundary' : '',
+      isRelegationZone ? 'relegation-zone' : '',
+      isRelegationBoundary ? 'relegation-boundary' : ''
+    ].filter(Boolean).join(' ');
+    return `<div class="${rowClasses}"><span>${i+1}. ${t.isUser?'⭐ ':''}${t.name}</span><span>${t.wins}-${t.losses} (${diff>=0?'+':''}${diff})</span></div>`;
+  }).join('');
+}
+
+function renderLeagueStandingsTable(){
+  const el = document.getElementById('leagueStandingsTable');
+  if(el) el.innerHTML = leagueStandingRowsHtml(leagueComputeStandings());
+}
+
+function leagueSimulateGame(aId, bId){
+  const teamA = LG.teams.find(t=>t.id===aId), teamB = LG.teams.find(t=>t.id===bId);
+  const aPower = teamPower(teamA.roster), bPower = teamPower(teamB.roster);
+  let aScore = Math.round(40 + aPower*0.8 + (Math.random()*10-5));
+  let bScore = Math.round(40 + bPower*0.8 + (Math.random()*10-5));
+  if(aScore===bScore){ if(aPower>=bPower) aScore+=1; else bScore+=1; }
+  return {aScore, bScore};
+}
+
+function leagueApplyResult(aId, bId, aScore, bScore){
+  const teamA = LG.teams.find(t=>t.id===aId), teamB = LG.teams.find(t=>t.id===bId);
+  teamA.pf += aScore; teamA.pa += bScore;
+  teamB.pf += bScore; teamB.pa += aScore;
+  if(aScore>bScore){ teamA.wins++; teamB.losses++; } else { teamB.wins++; teamA.losses++; }
+}
+
+function leaguePlayMyGame(){
+  const userTeam = LG.teams.find(t=>t.isUser);
+  const pairs = LG.schedule[LG.round-1];
+  const myPair = pairs.find(p=>p.includes(userTeam.id));
+  const [a,b] = myPair;
+  const {aScore, bScore} = leagueSimulateGame(a,b);
+  const userWon = (a===userTeam.id && aScore>bScore) || (b===userTeam.id && bScore>aScore);
+  if(userWon) unlockAchievement('leagueWin1');
+  pairs.forEach(p=>{
+    if(p===myPair){ leagueApplyResult(a,b,aScore,bScore); return; }
+    const r = leagueSimulateGame(p[0], p[1]);
+    leagueApplyResult(p[0], p[1], r.aScore, r.bScore);
+  });
+  LG.round += 1;
+  LG.pendingAfterGame = 'season';
+  saveLeagueCareer();
+  leagueShowGameReveal(a, b, aScore, bScore);
+}
+
+function leagueSkipToRegularSeasonEnd(){
+  while(LG.round <= LG.schedule.length){
+    const pairs = LG.schedule[LG.round-1];
+    pairs.forEach(p=>{ const r=leagueSimulateGame(p[0],p[1]); leagueApplyResult(p[0],p[1],r.aScore,r.bScore); });
+    LG.round += 1;
+  }
+  saveLeagueCareer();
+  leagueEndRegularSeason();
+}
+
+function leagueRosterScorerHtml(orderedList, idPrefix){
+  return orderedList.map((p,i)=>{
+    const initials = p.name.split(' ').map(w=>w[0]).join('');
+    const avatar = p.image
+      ? `<img class="rc-avatar" src="${p.image}" alt="${p.name}">`
+      : `<span class="rc-avatar-ph">${initials}</span>`;
+    return `<div class="league-slot"><span style="display:flex; align-items:center; gap:5px; overflow:hidden;">${avatar}<span class="slot-name">${p.name}<span class="rating-line">רייטינג: ${p.rating}</span></span></span><span id="${idPrefix}${i}" style="font-weight:800; flex-shrink:0;">0</span></div>`;
+  }).join('');
+}
+
+function leagueShowGameReveal(aId, bId, aScore, bScore, isChampionshipGame){
+  const teamA = LG.teams.find(t=>t.id===aId), teamB = LG.teams.find(t=>t.id===bId);
+  distributeScorers(teamA.roster, aScore, null);
+  distributeScorers(teamB.roster, bScore, null);
+  const orderedA = orderedRoster(teamA.roster);
+  const orderedB = orderedRoster(teamB.roster);
+  showScreen('screen-league-game');
+  document.getElementById('leagueGameTitle').textContent = `${teamA.name} נגד ${teamB.name}`;
+  document.getElementById('leagueGameAName').textContent = teamA.name;
+  document.getElementById('leagueGameBName').textContent = teamB.name;
+  document.getElementById('leagueGameAScore').textContent = '0';
+  document.getElementById('leagueGameBScore').textContent = '0';
+  document.getElementById('leagueGameARoster').innerHTML = leagueRosterScorerHtml(orderedA, 'lgaPts');
+  document.getElementById('leagueGameBRoster').innerHTML = leagueRosterScorerHtml(orderedB, 'lgbPts');
+  const label = document.getElementById('leagueGameResultLabel');
+  const subtext = document.getElementById('leagueGameResultSubtext');
+  label.textContent = '';
+  label.className = 'winner-banner';
+  subtext.textContent = '';
+  document.getElementById('leagueGameContinueBtn').style.display = 'none';
+  Promise.all([
+    animateScore('leagueGameAScore', aScore, 1300),
+    animateScore('leagueGameBScore', bScore, 1300),
+    animateNumbers(orderedA.map((p,i)=>({id:`lgaPts${i}`, target:p.gamePoints||0})), 1300),
+    animateNumbers(orderedB.map((p,i)=>({id:`lgbPts${i}`, target:p.gamePoints||0})), 1300)
+  ]).then(()=>{
+    if(aScore===bScore){ label.textContent=''; }
+    else {
+      const winner = aScore>bScore ? teamA : teamB;
+      if(teamA.isUser || teamB.isUser){
+        if(winner.isUser){
+          label.textContent = isChampionshipGame ? '🏆 אתה אלוף הליגה!' : '🎉 ניצחת!';
+          label.className = 'winner-banner win won-flash' + (isChampionshipGame ? ' big-win' : '');
+          fireConfetti(isChampionshipGame);
+        } else {
+          const diff = Math.abs(aScore-bScore);
+          const {base, follow} = buildLeagueLossMessage(diff);
+          label.textContent = base;
+          label.className = 'winner-banner lose';
+          subtext.textContent = follow;
+        }
+      }
+      else { label.textContent = `${winner.name} ניצחה`; }
+    }
+    document.getElementById('leagueGameContinueBtn').style.display = 'inline-block';
+  });
+}
+
+function leagueGameContinue(){
+  if(LG.pendingAfterGame === 'playoff'){
+    leagueContinueAfterPlayoffGame();
+    return;
+  }
+  if(LG.round > LG.schedule.length){ leagueEndRegularSeason(); }
+  else { showLeagueSeasonScreen(); }
+}
+
+function leagueEndRegularSeason(){
+  const standings = leagueComputeStandings();
+  const userTeam = standings.find(t=>t.isUser);
+  const userRank = standings.findIndex(t=>t.isUser)+1;
+  const madePlayoffs = userRank <= 4;
+  if(userTeam.wins >= 8) unlockAchievement('leagueWinningRecord');
+  if(userRank === 1) unlockAchievement('leagueTopSeed');
+  if(userRank === 11 || userRank === 12) unlockAchievement('leagueSurvivor');
+  if(userTeam.wins === LG.schedule.length) unlockAchievement('leaguePerfectSeason');
+  if(madePlayoffs){
+    LG.leaguePlayoffSeasons = (LG.leaguePlayoffSeasons || 0) + 1;
+    LG.leaguePlayoffStreak = (LG.leaguePlayoffStreak || 0) + 1;
+    if(LG.leaguePlayoffStreak >= 2) unlockAchievement('leaguePlayoffsStreak2');
+    if(LG.leaguePlayoffStreak >= 3) unlockAchievement('leaguePlayoffsStreak3');
+    if(LG.season === LEAGUE_TOTAL_SEASONS && LG.leaguePlayoffSeasons === LEAGUE_TOTAL_SEASONS){
+      unlockAchievement('leaguePlayoffsFive');
+    }
+  } else {
+    LG.leaguePlayoffStreak = 0;
+  }
+  LG.currentSeasonSummary = {
+    season:LG.season,
+    rank:userRank,
+    wins:userTeam.wins,
+    losses:userTeam.losses,
+    pointDiff:userTeam.pf-userTeam.pa,
+    playoff:madePlayoffs,
+    champion:false,
+    committed:false
+  };
+  LG.phase = 'season-end';
+  saveLeagueCareer();
+  if(userRank >= LEAGUE_TEAM_COUNT-1){
+    leagueCommitSeasonHistory(false);
+    leagueShowFormalAnnouncement(
+      '🚨',
+      'פוטרת!',
+      `סיימת במקום ה-${userRank} מתוך ${LEAGUE_TEAM_COUNT} בעונה ${LG.season} - ירדת ליגה. הקריירה שלך עם ${LG.teamName} הגיעה לסיומה.`,
+      ()=>leagueShowCareerOver('relegated')
+    );
+  } else if(userRank <= 4){
+    unlockAchievement('leaguePlayoffs');
+    if(LG.budget === 40) unlockAchievement('leagueBudgetRun');
+    leagueShowFormalAnnouncement(
+      '🎉',
+      'עלית לפיינל פור!',
+      `סיימת במקום ה-${userRank} בעונה הסדירה - ${LG.teamName} מעפילה לשלב הפיינל פור!`,
+      ()=>leagueShowRegularSeasonFinalStandings(standings, userRank, 'playoffs')
+    );
+  } else {
+    leagueShowFormalAnnouncement(
+      '📊',
+      `סיימת במקום ה-${userRank}`,
+      `העונה הסדירה הסתיימה. זו הייתה עונה טובה, ובעונה הבאה יש לך הזדמנות לטפס גבוה יותר בטבלה.`,
+      ()=>leagueShowRegularSeasonFinalStandings(standings, userRank, 'nextSeason'),
+      'המשך לעונה הבאה'
+    );
+  }
+}
+
+function leagueShowRegularSeasonFinalStandings(standings, rank, nextAction){
+  LG.seasonEndAction = nextAction;
+  saveLeagueCareer();
+  showScreen('screen-league-season-end');
+  document.getElementById('leagueSeasonEndTitle').textContent = nextAction==='playoffs'
+    ? `העונה הסדירה הסתיימה — סיימת במקום ה-${rank}! 🎉 עולה לפיינל פור`
+    : `העונה הסדירה הסתיימה — סיימת במקום ה-${rank} 👏`;
+  document.getElementById('leagueSeasonEndStandings').innerHTML = leagueStandingRowsHtml(standings);
+  const btn = document.getElementById('leagueSeasonEndContinueBtn');
+  btn.textContent = nextAction==='playoffs' ? 'המשך לפיינל פור' : 'המשך לעונה הבאה';
+}
+
+function leagueSeasonEndContinue(){
+  if(LG.seasonEndAction === 'playoffs'){
+    leagueStartPlayoffs(leagueComputeStandings());
+  } else {
+    leagueAdvanceToNextSeason();
+  }
+}
+
+function leagueShowSeasonEndSummary(standings){
+  LG.phase = 'season-end';
+  LG.seasonEndAction = 'nextSeason';
+  saveLeagueCareer();
+  showScreen('screen-league-season-end');
+  const rank = standings.findIndex(t=>t.isUser)+1;
+  let title = `סיימת במקום ה-${rank} 👏`;
+  if(LG.playoff && LG.playoff.games.every(g=>g.done)){
+    const championTeam = LG.teams.find(t=>t.id===LG.playoff.games[2].winner);
+    title = championTeam.isUser ? '🏆 אתה אלוף הליגה!' : `${championTeam.name} אלופת הליגה — ${title}`;
+  }
+  document.getElementById('leagueSeasonEndTitle').textContent = title;
+  document.getElementById('leagueSeasonEndStandings').innerHTML = leagueStandingRowsHtml(standings);
+  document.getElementById('leagueSeasonEndContinueBtn').textContent = 'המשך לעונה הבאה';
+}
+
+function leagueAdvanceToNextSeason(){
+  leagueCommitSeasonHistory(false);
+  if(LG.season >= LEAGUE_TOTAL_SEASONS){
+    unlockAchievement('leagueCareerComplete');
+    leagueShowCareerOver('completed');
+    return;
+  }
+  const budget = LG.budget, teamName = LG.teamName, coachName = LG.coachName, nextSeason = LG.season+1;
+  const nextCpuNames = leagueNextSeasonCpuNames(leagueComputeStandings());
+  const careerStats = {
+    playoffSeasons: LG.leaguePlayoffSeasons || 0,
+    playoffStreak: LG.leaguePlayoffStreak || 0,
+    championships: LG.leagueChampionships || 0
+  };
+  LG = createLeagueCareer(budget, teamName, coachName, nextSeason, nextCpuNames, careerStats, LG.seasonHistory);
+  saveLeagueCareer();
+  startLeagueSeasonDraft();
+}
+
+function leagueShowCareerOver(reason){
+  LG.phase = 'career-over';
+  LG.endReason = reason;
+  saveLeagueCareer();
+  showScreen('screen-league-career-over');
+  const title = document.getElementById('leagueCareerOverTitle');
+  const msg = document.getElementById('leagueCareerOverMsg');
+  if(reason === 'relegated'){
+    title.textContent = '🚨 ירדת ליגה';
+    msg.textContent = 'סיימת בשתי המקומות האחרונים בטבלה — פוטרת. תצטרך להתחיל קריירה חדשה.';
+  } else {
+    title.textContent = '🏆 סיימת קריירה מלאה!';
+    msg.textContent = `ניהלת את ${LG.teamName} לאורך 5 עונות שלמות. כל הכבוד!`;
+  }
+  document.getElementById('leagueCareerOverStandings').innerHTML = leagueStandingRowsHtml(leagueComputeStandings());
+}
+
+function leagueStartPlayoffs(standings){
+  const top4 = standings.slice(0,4);
+  LG.phase = 'playoffs';
+  LG.playoff = {
+    games: [
+      {label:'חצי גמר 1', a:top4[0].id, b:top4[3].id, done:false, winner:null},
+      {label:'חצי גמר 2', a:top4[1].id, b:top4[2].id, done:false, winner:null},
+      {label:'הגמר', a:null, b:null, done:false, winner:null}
+    ]
+  };
+  leagueAutoResolveNonUserPlayoffGames();
+  saveLeagueCareer();
+  showScreen('screen-league-playoffs');
+  renderPlayoffBracket();
+}
+
+// פותר אוטומטית כל משחק פלייאוף שהיריבות בו כבר ידועות ושלא כולל אותך - כדי שהוא ירוץ "תוך כדי" ברקע, בדיוק כמו שאר משחקי הסבב בעונה הסדירה.
+// התוצאה מחושבת מיד, אבל מסומנת כ"ממתינה לפרסום" (revealPending) כדי שלא תוצג לך לפני שסיימת לשחק את המשחק שלך.
+function leagueAutoResolveNonUserPlayoffGames(){
+  const userTeam = LG.teams.find(t=>t.isUser);
+  let changed = true;
+  while(changed){
+    changed = false;
+    LG.playoff.games.forEach(g=>{
+      if(!g.done && g.a!=null && g.b!=null && g.a!==userTeam.id && g.b!==userTeam.id){
+        const r = leagueSimulateGame(g.a, g.b);
+        g.done = true; g.aScore = r.aScore; g.bScore = r.bScore;
+        g.winner = r.aScore>r.bScore ? g.a : g.b;
+        g.revealPending = true;
+        changed = true;
+      }
+    });
+    if(LG.playoff.games[0].done && LG.playoff.games[1].done && LG.playoff.games[2].a==null){
+      LG.playoff.games[2].a = LG.playoff.games[0].winner;
+      LG.playoff.games[2].b = LG.playoff.games[1].winner;
+      changed = true;
+    }
+  }
+}
+
+function renderPlayoffBracket(){
+  const games = LG.playoff.games;
+  const teamOf = id => id!=null ? LG.teams.find(t=>t.id===id) : null;
+  function matchupHtml(game, extraClass){
+    const shown = game.done && !game.revealPending;
+    const teamA = teamOf(game.a), teamB = teamOf(game.b);
+    const aWon = shown && game.winner===game.a;
+    const bWon = shown && game.winner===game.b;
+    const rowHtml = (team, score, won) => team
+      ? `<div class="playoff-team-row ${shown ? (won?'winner':'loser') : ''}"><span>${team.isUser?'⭐ ':''}${team.name}</span><span>${shown?score:''}</span></div>`
+      : `<div class="playoff-team-row" style="opacity:.4;"><span>טרם נקבע</span><span></span></div>`;
+    return `<div class="playoff-matchup ${extraClass||''}">${rowHtml(teamA, game.aScore, aWon)}<div class="playoff-vs-sep"></div>${rowHtml(teamB, game.bScore, bWon)}</div>`;
+  }
+  let html = '<div class="playoff-round-label">חצי גמר</div>';
+  html += `<div class="playoff-semis-row">${matchupHtml(games[0])}${matchupHtml(games[1])}</div>`;
+  html += '<div class="playoff-round-label">הגמר</div>';
+  html += matchupHtml(games[2], 'is-final');
+  if(games[2].done && !games[2].revealPending){
+    const championTeam = teamOf(games[2].winner);
+    html += `<div class="playoff-champion-banner">🏆 ${championTeam.isUser?'⭐ ':''}${championTeam.name} — אלופת הליגה!</div>`;
+  }
+  document.getElementById('leaguePlayoffBracket').innerHTML = html;
+
+  const nextGame = games.find(g=>!g.done && g.a!=null && g.b!=null);
+  const nextBtn = document.getElementById('leaguePlayoffNextBtn');
+  if(nextGame){
+    nextBtn.style.display = 'inline-block';
+    nextBtn.textContent = nextGame.label==='הגמר' ? '🏀 שחק את הגמר!' : '🏀 שחק את חצי הגמר שלך';
+  } else {
+    nextBtn.style.display = 'none';
+  }
+}
+
+function leaguePlayNextPlayoffGame(){
+  const userTeam = LG.teams.find(t=>t.isUser);
+  const game = LG.playoff.games.find(g=>!g.done && g.a!=null && g.b!=null && (g.a===userTeam.id || g.b===userTeam.id));
+  if(!game) return;
+  if(game.label==='הגמר') unlockAchievement('leagueFinal');
+  const {aScore, bScore} = leagueSimulateGame(game.a, game.b);
+  game.done = true;
+  game.aScore = aScore; game.bScore = bScore;
+  game.winner = aScore>bScore ? game.a : game.b;
+  leagueAutoResolveNonUserPlayoffGames();
+  LG.pendingAfterGame = 'playoff';
+  saveLeagueCareer();
+  leagueShowGameReveal(game.a, game.b, aScore, bScore, game.label==='הגמר');
+}
+
+function leagueContinueAfterPlayoffGame(){
+  LG.playoff.games.forEach(g=>{ g.revealPending = false; });
+  renderPlayoffBracket();
+  showScreen('screen-league-playoffs');
+  saveLeagueCareer();
+  const allDone = LG.playoff.games.every(g=>g.done);
+  if(allDone){
+    LG.pendingTimeoutHandle = setTimeout(()=>{
+      const champion = LG.teams.find(team=>team.id===LG.playoff.games[2].winner);
+      if(champion && champion.isUser && !LG.playoff.championRecorded){
+        LG.playoff.championRecorded = true;
+        LG.leagueChampionships = (LG.leagueChampionships || 0) + 1;
+        unlockAchievement('leagueChampion');
+        if(LG.leagueChampionships >= 2) unlockAchievement('leagueTitles2');
+        if(LG.leagueChampionships >= 3) unlockAchievement('leagueTitles3');
+        saveLeagueCareer();
+      }
+      leagueCommitSeasonHistory(champion && champion.isUser);
+      if(LG.season >= LEAGUE_TOTAL_SEASONS){
+        unlockAchievement('leagueCareerComplete');
+        leagueShowCareerOver('completed');
+      }
+      else { leagueShowSeasonEndSummary(leagueComputeStandings()); }
+    }, 650);
+  }
+}
+/* ===================== END LEAGUE MODE — STAGE 2 ===================== */
 
 function openStore(){ document.getElementById('storeModal').classList.add('active'); }
 function closeStore(){ document.getElementById('storeModal').classList.remove('active'); }
