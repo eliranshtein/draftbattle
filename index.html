@@ -158,17 +158,42 @@
   .confetti-piece{position:fixed; top:-12px; width:8px; height:14px; opacity:.95; z-index:9999; pointer-events:none; animation:leagueConfettiFall linear forwards;}
   .confetti-piece.confetti-big{width:13px; height:22px;}
   @keyframes leagueConfettiFall{ to{ transform:translateY(112vh) rotate(720deg); opacity:0; } }
+  .championship-plate{position:fixed; left:50%; top:48%; z-index:10000; display:flex; flex-direction:column; align-items:center; gap:4px; transform:translate(-50%,-50%) scale(.2) rotate(-8deg); opacity:0; pointer-events:none; animation:championshipPlateReveal 3.4s cubic-bezier(.2,1.35,.35,1) forwards; filter:drop-shadow(0 16px 18px rgba(0,0,0,.5));}
+  .championship-plate-dish{position:relative; width:190px; height:72px; border:5px solid #ffe18a; border-radius:50%; background:radial-gradient(ellipse at 50% 35%, #fff4bd 0 10%, #f4b93e 34%, #b86a0b 72%, #713506 100%); box-shadow:inset 0 7px 0 rgba(255,255,255,.42), inset 0 -10px 12px rgba(91,37,0,.35), 0 0 28px rgba(244,185,62,.65);}
+  .championship-plate-dish::before,.championship-plate-dish::after{content:""; position:absolute; top:17px; width:22px; height:28px; border:5px solid #f4b93e; background:#b86a0b;}
+  .championship-plate-dish::before{left:-25px; border-right:0; border-radius:15px 0 0 15px;}
+  .championship-plate-dish::after{right:-25px; border-left:0; border-radius:0 15px 15px 0;}
+  .championship-plate-stem{width:30px; height:28px; background:linear-gradient(90deg,#9a5208,#ffe18a 45%,#c47a10); border:3px solid #ffe18a; border-top:0;}
+  .championship-plate-base{width:94px; height:17px; border:3px solid #ffe18a; border-radius:50%; background:linear-gradient(180deg,#f4b93e,#9a5208); box-shadow:0 5px 0 #713506;}
+  .championship-plate-label{font-family:'Rubik',sans-serif; font-weight:900; font-size:17px; color:#ffe18a; text-shadow:0 2px 3px #542600; margin-top:2px; white-space:nowrap;}
+  @keyframes championshipPlateReveal{0%{opacity:0; transform:translate(-50%,-50%) scale(.2) rotate(-8deg);} 18%{opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(3deg);} 32%{transform:translate(-50%,-50%) scale(.96) rotate(-2deg);} 46%,78%{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg);} 100%{opacity:0; transform:translate(-50%,-50%) scale(.9) translateY(-28px);}}
   .playoff-round-label{font-size:11px; color:var(--ink-dim); text-align:center; margin:10px 0 6px; text-transform:uppercase; letter-spacing:.05em;}
   .playoff-matchup{background:var(--surface); border:1.5px solid var(--line); border-radius:12px; padding:9px 11px;}
+  .playoff-bracket-tree{display:grid; grid-template-columns:minmax(130px,1fr) 22px minmax(130px,1fr) minmax(150px,1.15fr) minmax(130px,1fr) 22px minmax(130px,1fr); align-items:center; gap:8px; min-width:800px; direction:ltr;}
+  .playoff-tree-column{display:flex; flex-direction:column; justify-content:space-around; gap:28px; min-height:230px; position:relative;}
+  .playoff-tree-column .playoff-matchup{width:100%;}
+  .playoff-tree-quarter{grid-column:1;}
+  .playoff-tree-semifinal-left{grid-column:3;}
+  .playoff-tree-final{grid-column:4;}
+  .playoff-tree-semifinal-right{grid-column:5;}
+  .playoff-tree-quarter-right{grid-column:7;}
+  .playoff-tree-arrow{font-size:24px; color:var(--orange); text-align:center; text-shadow:0 0 12px rgba(232,89,12,.35);}
+  .playoff-tree-arrow-left{grid-column:2;}
+  .playoff-tree-arrow-right{grid-column:6; transform:scaleX(-1);}
+  .playoff-tree-final .playoff-matchup{border-width:2px;}
+  .playoff-round-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px;}
+  .playoff-quarters-grid .playoff-matchup{min-width:0;}
   .playoff-matchup.is-final{border-color:var(--gold); box-shadow:0 0 0 2px rgba(244,185,62,.25);}
   .playoff-semis-row{display:flex; gap:9px;}
   .playoff-semis-row .playoff-matchup{flex:1; min-width:0;}
+  .playoff-semis-row .playoff-matchup{border-color:rgba(232,89,12,.45);}
   .playoff-team-row{display:flex; justify-content:space-between; align-items:center; padding:5px 2px; font-size:13px; gap:6px;}
   .playoff-team-row span:first-child{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .playoff-team-row.winner{font-weight:800; color:var(--gold);}
   .playoff-team-row.loser{opacity:.5; text-decoration:line-through;}
   .playoff-vs-sep{height:1px; background:var(--line); margin:2px 0;}
   .playoff-champion-banner{text-align:center; padding:14px; background:linear-gradient(160deg, rgba(244,185,62,.18), transparent); border-radius:12px; border:1.5px solid var(--gold); font-weight:900; font-size:15px; margin-top:10px;}
+  @media (max-width:560px){ .playoff-round-grid{grid-template-columns:repeat(2,minmax(0,1fr));} .playoff-semis-row{display:grid; grid-template-columns:repeat(2,minmax(0,1fr));} .playoff-team-row{font-size:11px; padding-inline:0;} .playoff-bracket-tree{min-width:720px; grid-template-columns:minmax(112px,1fr) 18px minmax(112px,1fr) minmax(132px,1.1fr) minmax(112px,1fr) 18px minmax(112px,1fr); gap:5px;} .playoff-tree-column{gap:18px;} }
   .league-draft-roster .league-slot{background:var(--surface-2); border-radius:8px; padding:8px 10px;}
   .mode-opt{background:rgba(24,36,48,0.72); border:2px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px 10px; cursor:pointer; transition:.15s; text-align:center; backdrop-filter:blur(3px); box-shadow:0 10px 24px rgba(0,0,0,0.22);}
   .mode-opt:hover{border-color:var(--gold); transform:translateY(-3px);}
@@ -723,7 +748,7 @@
   <!-- LEAGUE PLAYOFFS -->
   <section id="screen-league-playoffs" class="screen">
     <div class="setup-card" style="text-align:center;">
-      <h2>🏆 פיינל פור</h2>
+      <h2>🏆 פלייאוף הליגה · 8 הגדולות</h2>
       <div id="leaguePlayoffBracket" style="margin:14px 0; text-align:right;"></div>
       <button class="primary-btn" id="leaguePlayoffNextBtn" onclick="leaguePlayNextPlayoffGame()">שחק את המשחק הבא</button>
     </div>
@@ -1187,7 +1212,7 @@ const ROSTER = [
   {name:'ספנסר וייס', role:'F', rating:81}, {name:'נמרוד לוי', role:'F', rating:84},
   {name:'יותם חנוכי', role:'F', rating:83}, {name:'שון דאוסון', role:'F', rating:79},
   {name:'ג\'וש פרוינד', role:'F', rating:78},
-  {name:'וויל ריימן', role:'F', rating:76},
+  {name:'וויל ריימן', role:'F', rating:79},
   {name:'ג\'יי ג\'יי קפלן', role:'F', rating:75}, {name:'בן קלהון גולד', role:'F', rating:74},
   {name:'רפי מנקו', role:'F', rating:75}, {name:'ליאור קררה', role:'F', rating:79},
   {name:'יהל מלמד', role:'F', rating:75}, {name:'אור קורנליוס', role:'F', rating:75},
@@ -2877,6 +2902,7 @@ function showResult(){
       }
       banner.className = 'winner-banner win won-flash' + (isCupWin ? ' big-win' : '');
       fireConfetti(isCupWin);
+      if(isCupWin) showChampionshipPlate('אלופי הטורניר!');
     } else {
       const diff = cpuScore - youScore;
       const {base, follow} = buildLossMessage(diff);
@@ -3133,6 +3159,14 @@ function fireConfetti(big){
   }
 }
 
+function showChampionshipPlate(label='אלופי הליגה!'){
+  const plate = document.createElement('div');
+  plate.className = 'championship-plate';
+  plate.innerHTML = `<div class="championship-plate-dish"></div><div class="championship-plate-stem"></div><div class="championship-plate-base"></div><div class="championship-plate-label">${label}</div>`;
+  document.body.appendChild(plate);
+  setTimeout(()=>plate.remove(), 3600);
+}
+
 function buildLossMessage(diff){
   const base = `😱 הפסדת ב-${diff} הפרש`;
   const follow = diff<=7 ? 'זה היה קרוב, ננסה שוב?' : 'הקבוצה היריבה הראתה עליונות, מוכן לנקמה?';
@@ -3187,8 +3221,8 @@ function renderLeagueResume(){
   }).join('') : '<div class="tag">עדיין אין עונות שהסתיימו בקריירה הזאת.</div>';
   const highlights = loadLeagueHighlights().slice().reverse();
   highlightsEl.innerHTML = highlights.length ? highlights.map(item=>{
-    const result = item.champion ? 'אליפות הליגה' : item.rank <= 4 ? 'העפלה לפיינל פור' : 'עונה מנצחת';
-    return `<div class="league-resume-entry${item.champion?' highlight':''}"><span class="resume-badge">${item.champion?'🏆':item.rank<=4?'🔥':'⭐'}</span><div class="resume-main"><div class="resume-title">${leagueResumeEscape(item.teamName)} · עונה ${item.season}</div><div class="resume-detail">${result} · מקום ${item.rank} · ${item.wins}-${item.losses}</div></div></div>`;
+    const result = item.champion ? 'אליפות הליגה' : item.rank <= 8 ? 'העפלה לפלייאוף' : 'עונה מנצחת';
+    return `<div class="league-resume-entry${item.champion?' highlight':''}"><span class="resume-badge">${item.champion?'🏆':item.rank<=8?'🔥':'⭐'}</span><div class="resume-main"><div class="resume-title">${leagueResumeEscape(item.teamName)} · עונה ${item.season}</div><div class="resume-detail">${result} · מקום ${item.rank} · ${item.wins}-${item.losses}</div></div></div>`;
   }).join('') : '<div class="tag">עוד לא נרשמו רגעים גדולים בקריירות.</div>';
 }
 function leagueCommitSeasonHistory(champion){
@@ -3196,7 +3230,7 @@ function leagueCommitSeasonHistory(champion){
   const summary = {...LG.currentSeasonSummary, champion:!!champion, committed:true};
   LG.seasonHistory = Array.isArray(LG.seasonHistory) ? LG.seasonHistory : [];
   LG.seasonHistory.push(summary);
-  if(summary.champion || summary.rank<=4 || summary.wins>=8){
+  if(summary.champion || summary.rank<=8 || summary.wins>=8){
     const highlights = loadLeagueHighlights();
     highlights.push({teamName:LG.teamName, season:summary.season, rank:summary.rank, wins:summary.wins, losses:summary.losses, champion:summary.champion});
     saveLeagueHighlights(highlights.slice(-100));
@@ -3223,7 +3257,7 @@ function leagueShowFormalAnnouncement(icon, title, message, onDismiss, buttonLab
   document.getElementById('leagueAnnounceIcon').textContent = icon;
   document.getElementById('leagueAnnounceTitle').textContent = title;
   document.getElementById('leagueAnnounceMsg').textContent = message;
-  document.getElementById('leagueAnnounceConfirmBtn').textContent = buttonLabel || (title === 'עלית לפיינל פור!' ? 'קדימה לאליפות!' : title === 'פוטרת!' ? 'ננסה שוב?' : 'הבנתי');
+  document.getElementById('leagueAnnounceConfirmBtn').textContent = buttonLabel || (title === 'עלית לפלייאוף!' ? 'קדימה לרבע הגמר!' : title === 'פוטרת!' ? 'ננסה שוב?' : 'הבנתי');
   leagueAnnounceCallback = onDismiss;
   document.getElementById('leagueAnnounceModal').classList.add('active');
 }
@@ -3814,8 +3848,8 @@ function leagueComputeStandings(){
 function leagueStandingRowsHtml(standings){
   return standings.map((t,i)=>{
     const diff = t.pf-t.pa;
-    const isPlayoffZone = i < 4;
-    const isPlayoffBoundary = i === 3;
+    const isPlayoffZone = i < 8;
+    const isPlayoffBoundary = i === 7;
     const isRelegationZone = i >= standings.length - 2;
     const isRelegationBoundary = i === standings.length - 2;
     const rowClasses = [
@@ -3890,7 +3924,7 @@ function leagueRosterScorerHtml(orderedList, idPrefix){
   }).join('');
 }
 
-function leagueShowGameReveal(aId, bId, aScore, bScore, isChampionshipGame){
+function leagueShowGameReveal(aId, bId, aScore, bScore, isChampionshipGame, isPlayoffGame=false){
   const teamA = LG.teams.find(t=>t.id===aId), teamB = LG.teams.find(t=>t.id===bId);
   distributeScorers(teamA.roster, aScore, null);
   distributeScorers(teamB.roster, bScore, null);
@@ -3924,6 +3958,11 @@ function leagueShowGameReveal(aId, bId, aScore, bScore, isChampionshipGame){
           label.textContent = isChampionshipGame ? '🏆 אתה אלוף הליגה!' : '🎉 ניצחת!';
           label.className = 'winner-banner win won-flash' + (isChampionshipGame ? ' big-win' : '');
           fireConfetti(isChampionshipGame);
+          if(isChampionshipGame) showChampionshipPlate();
+        } else if(isPlayoffGame){
+          label.textContent = 'זה היה קרוב אבל אין צלחת השנה, ננסה שוב בעונה הבאה.';
+          label.className = 'winner-banner lose';
+          subtext.textContent = '';
         } else {
           const diff = Math.abs(aScore-bScore);
           const {base, follow} = buildLeagueLossMessage(diff);
@@ -3951,7 +3990,7 @@ function leagueEndRegularSeason(){
   const standings = leagueComputeStandings();
   const userTeam = standings.find(t=>t.isUser);
   const userRank = standings.findIndex(t=>t.isUser)+1;
-  const madePlayoffs = userRank <= 4;
+  const madePlayoffs = userRank <= 8;
   if(userTeam.wins >= 8) unlockAchievement('leagueWinningRecord');
   if(userRank === 1) unlockAchievement('leagueTopSeed');
   if(userRank === 11 || userRank === 12) unlockAchievement('leagueSurvivor');
@@ -3987,13 +4026,13 @@ function leagueEndRegularSeason(){
       `סיימת במקום ה-${userRank} מתוך ${LEAGUE_TEAM_COUNT} בעונה ${LG.season} - ירדת ליגה. הקריירה שלך עם ${LG.teamName} הגיעה לסיומה.`,
       ()=>leagueShowCareerOver('relegated')
     );
-  } else if(userRank <= 4){
+  } else if(userRank <= 8){
     unlockAchievement('leaguePlayoffs');
     if(LG.budget === 40) unlockAchievement('leagueBudgetRun');
     leagueShowFormalAnnouncement(
       '🎉',
-      'עלית לפיינל פור!',
-      `סיימת במקום ה-${userRank} בעונה הסדירה - ${LG.teamName} מעפילה לשלב הפיינל פור!`,
+      'עלית לפלייאוף!',
+      `סיימת במקום ה-${userRank} בעונה הסדירה - ${LG.teamName} נכנסת לפלייאוף מהמקום ה-${userRank}. מחכה לך רבע גמר במשחק נוקאאוט!`,
       ()=>leagueShowRegularSeasonFinalStandings(standings, userRank, 'playoffs')
     );
   } else {
@@ -4012,11 +4051,11 @@ function leagueShowRegularSeasonFinalStandings(standings, rank, nextAction){
   saveLeagueCareer();
   showScreen('screen-league-season-end');
   document.getElementById('leagueSeasonEndTitle').textContent = nextAction==='playoffs'
-    ? `העונה הסדירה הסתיימה — סיימת במקום ה-${rank}! 🎉 עולה לפיינל פור`
+    ? `העונה הסדירה הסתיימה — סיימת במקום ה-${rank}! 🎉 עולה לפלייאוף`
     : `העונה הסדירה הסתיימה — סיימת במקום ה-${rank} 👏`;
   document.getElementById('leagueSeasonEndStandings').innerHTML = leagueStandingRowsHtml(standings);
   const btn = document.getElementById('leagueSeasonEndContinueBtn');
-  btn.textContent = nextAction==='playoffs' ? 'המשך לפיינל פור' : 'המשך לעונה הבאה';
+  btn.textContent = nextAction==='playoffs' ? 'המשך לרבע הגמר' : 'המשך לעונה הבאה';
 }
 
 function leagueSeasonEndContinue(){
@@ -4035,7 +4074,7 @@ function leagueShowSeasonEndSummary(standings){
   const rank = standings.findIndex(t=>t.isUser)+1;
   let title = `סיימת במקום ה-${rank} 👏`;
   if(LG.playoff && LG.playoff.games.every(g=>g.done)){
-    const championTeam = LG.teams.find(t=>t.id===LG.playoff.games[2].winner);
+    const championTeam = LG.teams.find(t=>t.id===LG.playoff.games[6].winner);
     title = championTeam.isUser ? '🏆 אתה אלוף הליגה!' : `${championTeam.name} אלופת הליגה — ${title}`;
   }
   document.getElementById('leagueSeasonEndTitle').textContent = title;
@@ -4080,16 +4119,20 @@ function leagueShowCareerOver(reason){
 }
 
 function leagueStartPlayoffs(standings){
-  const top4 = standings.slice(0,4);
+  const top8 = standings.slice(0,8);
   LG.phase = 'playoffs';
   LG.playoff = {
     games: [
-      {label:'חצי גמר 1', a:top4[0].id, b:top4[3].id, done:false, winner:null},
-      {label:'חצי גמר 2', a:top4[1].id, b:top4[2].id, done:false, winner:null},
-      {label:'הגמר', a:null, b:null, done:false, winner:null}
+      {label:'רבע גמר 1', a:top8[0].id, b:top8[7].id, done:false, winner:null},
+      {label:'רבע גמר 2', a:top8[1].id, b:top8[6].id, done:false, winner:null},
+      {label:'רבע גמר 3', a:top8[2].id, b:top8[5].id, done:false, winner:null},
+      {label:'רבע גמר 4', a:top8[3].id, b:top8[4].id, done:false, winner:null},
+      {label:'חצי גמר 1', a:null, b:null, sourceA:0, sourceB:1, done:false, winner:null},
+      {label:'חצי גמר 2', a:null, b:null, sourceA:2, sourceB:3, done:false, winner:null},
+      {label:'הגמר', a:null, b:null, sourceA:4, sourceB:5, done:false, winner:null}
     ]
   };
-  leagueAutoResolveNonUserPlayoffGames();
+  leagueAutoResolveNonUserPlayoffGames(false);
   saveLeagueCareer();
   showScreen('screen-league-playoffs');
   renderPlayoffBracket();
@@ -4097,13 +4140,14 @@ function leagueStartPlayoffs(standings){
 
 // פותר אוטומטית כל משחק פלייאוף שהיריבות בו כבר ידועות ושלא כולל אותך - כדי שהוא ירוץ "תוך כדי" ברקע, בדיוק כמו שאר משחקי הסבב בעונה הסדירה.
 // התוצאה מחושבת מיד, אבל מסומנת כ"ממתינה לפרסום" (revealPending) כדי שלא תוצג לך לפני שסיימת לשחק את המשחק שלך.
-function leagueAutoResolveNonUserPlayoffGames(){
+function leagueAutoResolveNonUserPlayoffGames(resolveQuarterfinals=true){
   const userTeam = LG.teams.find(t=>t.isUser);
   let changed = true;
   while(changed){
     changed = false;
     LG.playoff.games.forEach(g=>{
-      if(!g.done && g.a!=null && g.b!=null && g.a!==userTeam.id && g.b!==userTeam.id){
+      const isQuarterfinal = g.label.indexOf('רבע גמר')===0;
+      if(!g.done && g.a!=null && g.b!=null && (!isQuarterfinal || resolveQuarterfinals) && g.a!==userTeam.id && g.b!==userTeam.id){
         const r = leagueSimulateGame(g.a, g.b);
         g.done = true; g.aScore = r.aScore; g.bScore = r.bScore;
         g.winner = r.aScore>r.bScore ? g.a : g.b;
@@ -4111,11 +4155,13 @@ function leagueAutoResolveNonUserPlayoffGames(){
         changed = true;
       }
     });
-    if(LG.playoff.games[0].done && LG.playoff.games[1].done && LG.playoff.games[2].a==null){
-      LG.playoff.games[2].a = LG.playoff.games[0].winner;
-      LG.playoff.games[2].b = LG.playoff.games[1].winner;
-      changed = true;
-    }
+    LG.playoff.games.forEach(g=>{
+      if(g.sourceA!=null && g.sourceB!=null && g.a==null && LG.playoff.games[g.sourceA].done && LG.playoff.games[g.sourceB].done){
+        g.a = LG.playoff.games[g.sourceA].winner;
+        g.b = LG.playoff.games[g.sourceB].winner;
+        changed = true;
+      }
+    });
   }
 }
 
@@ -4132,21 +4178,28 @@ function renderPlayoffBracket(){
       : `<div class="playoff-team-row" style="opacity:.4;"><span>טרם נקבע</span><span></span></div>`;
     return `<div class="playoff-matchup ${extraClass||''}">${rowHtml(teamA, game.aScore, aWon)}<div class="playoff-vs-sep"></div>${rowHtml(teamB, game.bScore, bWon)}</div>`;
   }
-  let html = '<div class="playoff-round-label">חצי גמר</div>';
-  html += `<div class="playoff-semis-row">${matchupHtml(games[0])}${matchupHtml(games[1])}</div>`;
-  html += '<div class="playoff-round-label">הגמר</div>';
-  html += matchupHtml(games[2], 'is-final');
-  if(games[2].done && !games[2].revealPending){
-    const championTeam = teamOf(games[2].winner);
+  let html = '<div class="playoff-round-label">רבע הגמר · שני הצדדים נפגשים במרכז</div>';
+  html += '<div class="playoff-bracket-tree">';
+  html += `<div class="playoff-tree-column playoff-tree-quarter">${matchupHtml(games[0])}${matchupHtml(games[1])}</div>`;
+  html += '<div class="playoff-tree-arrow playoff-tree-arrow-left">→</div>';
+  html += `<div class="playoff-tree-column playoff-tree-semifinal-left"><div class="playoff-round-label">חצי גמר</div>${matchupHtml(games[4])}</div>`;
+  html += `<div class="playoff-tree-column playoff-tree-final"><div class="playoff-round-label">הגמר</div>${matchupHtml(games[6], 'is-final')}</div>`;
+  html += `<div class="playoff-tree-column playoff-tree-semifinal-right"><div class="playoff-round-label">חצי גמר</div>${matchupHtml(games[5])}</div>`;
+  html += '<div class="playoff-tree-arrow playoff-tree-arrow-right">→</div>';
+  html += `<div class="playoff-tree-column playoff-tree-quarter-right">${matchupHtml(games[2])}${matchupHtml(games[3])}</div>`;
+  html += '</div>';
+  if(games[6].done && !games[6].revealPending){
+    const championTeam = teamOf(games[6].winner);
     html += `<div class="playoff-champion-banner">🏆 ${championTeam.isUser?'⭐ ':''}${championTeam.name} — אלופת הליגה!</div>`;
   }
   document.getElementById('leaguePlayoffBracket').innerHTML = html;
 
-  const nextGame = games.find(g=>!g.done && g.a!=null && g.b!=null);
+  const userTeamId = LG.teams.find(team=>team.isUser).id;
+  const nextGame = games.find(g=>!g.done && g.a!=null && g.b!=null && (g.a===userTeamId || g.b===userTeamId));
   const nextBtn = document.getElementById('leaguePlayoffNextBtn');
   if(nextGame){
     nextBtn.style.display = 'inline-block';
-    nextBtn.textContent = nextGame.label==='הגמר' ? '🏀 שחק את הגמר!' : '🏀 שחק את חצי הגמר שלך';
+    nextBtn.textContent = nextGame.label==='הגמר' ? '🏀 שחק את הגמר!' : `🏀 שחק את ${nextGame.label}`;
   } else {
     nextBtn.style.display = 'none';
   }
@@ -4161,10 +4214,10 @@ function leaguePlayNextPlayoffGame(){
   game.done = true;
   game.aScore = aScore; game.bScore = bScore;
   game.winner = aScore>bScore ? game.a : game.b;
-  leagueAutoResolveNonUserPlayoffGames();
+  leagueAutoResolveNonUserPlayoffGames(true);
   LG.pendingAfterGame = 'playoff';
   saveLeagueCareer();
-  leagueShowGameReveal(game.a, game.b, aScore, bScore, game.label==='הגמר');
+  leagueShowGameReveal(game.a, game.b, aScore, bScore, game.label==='הגמר', true);
 }
 
 function leagueContinueAfterPlayoffGame(){
@@ -4175,7 +4228,7 @@ function leagueContinueAfterPlayoffGame(){
   const allDone = LG.playoff.games.every(g=>g.done);
   if(allDone){
     LG.pendingTimeoutHandle = setTimeout(()=>{
-      const champion = LG.teams.find(team=>team.id===LG.playoff.games[2].winner);
+      const champion = LG.teams.find(team=>team.id===LG.playoff.games[6].winner);
       if(champion && champion.isUser && !LG.playoff.championRecorded){
         LG.playoff.championRecorded = true;
         LG.leagueChampionships = (LG.leagueChampionships || 0) + 1;
