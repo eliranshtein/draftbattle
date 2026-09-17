@@ -335,6 +335,10 @@
   .announce-card.win{border-color:var(--green); box-shadow:0 0 40px rgba(62,207,110,.15);}
   .announce-card.lose{border-color:var(--red); box-shadow:0 0 40px rgba(255,59,48,.12);}
   .announce-card.neutral{border-color:var(--gold); box-shadow:0 0 40px rgba(244,185,62,.15);}
+  .announce-avatar-wrap{width:88px; height:88px; border-radius:50%; overflow:hidden; margin:0 auto 12px; border:3px solid rgba(244,185,62,.8); background:var(--surface-2); display:none; align-items:center; justify-content:center; box-shadow:0 8px 25px rgba(0,0,0,.28);}
+  .announce-avatar-wrap.visible{display:flex;}
+  .announce-avatar{width:100%; height:100%; object-fit:cover; object-position:center 35%; display:block;}
+  .announce-avatar-fallback{display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-family:'Rubik'; font-size:26px; font-weight:900; color:var(--ink-dim); background:linear-gradient(160deg,var(--surface-2),#0d1319);}
   .announce-icon{font-size:48px; margin-bottom:10px; line-height:1;}
   .announce-title{font-family:'Rubik'; font-weight:900; font-size:24px; margin-bottom:9px; line-height:1.2;}
   .announce-card.win .announce-title{color:var(--green);}
@@ -1010,6 +1014,10 @@
 
 <div class="announce-bg" id="announceBg">
   <div class="announce-card neutral" id="announceCard">
+    <div class="announce-avatar-wrap" id="announceAvatarWrap">
+      <img class="announce-avatar" id="announceAvatar" src="" alt="" style="display:none;" />
+      <div class="announce-avatar-fallback" id="announceAvatarFallback" style="display:none;">?</div>
+    </div>
     <div class="announce-icon" id="announceIcon">🏆</div>
     <div class="announce-title" id="announceTitle">—</div>
     <div class="announce-sub" id="announceSub">—</div>
@@ -1179,6 +1187,10 @@ const PLAYER_IMAGES = {
 'פרדריק בורדיון':'https://hapoelbc.com/wp-content/uploads/2026/08/WhatsApp-Image-2026-08-05-at-13.47.52.jpeg',
 'מקס היידיגר':'https://hapoelbc.com/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-04-at-13.17.01-1-1-675x1024.jpeg',
 'קני לופטון':'https://www.sport5.co.il/Sip_Storage/FILES/5/1752705.jpg',
+'קנדל מקולום':'https://basket.co.il/pics/2016/2025/Media_days/MRG/10.jpg',
+'רוברט טרנר':'https://basket.co.il/pics/2026-2027/%D7%9E%D7%93%D7%99%D7%94%20%D7%93%D7%99%D7%99%20%D7%9E%D7%9B%D7%91%D7%99%20%D7%90%D7%A9%D7%93%D7%95%D7%93/turner.jpg',
+'צ׳ונסי ג׳נקינס':'https://basket.co.il/pics/2025-2026/%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA%20%D7%A4%D7%A8%D7%95%D7%A4%D7%99%D7%9C%20%D7%A9%D7%97%D7%A7%D7%A0%D7%99%D7%9D%20%D7%97%D7%93%D7%A9%D7%99%D7%9D/Chaunce%20Jenkins_%20copy.png',
+'דאסטי האנס':'https://ibasketball.co.il/wp-content/uploads/2007/10/%D7%A2%D7%99%D7%A6%D7%95%D7%91-%D7%9C%D7%9C%D7%90-%D7%A9%D7%9D-40-240x300.png'
 
 
 };
@@ -1193,7 +1205,7 @@ const ROSTER = [
   {name:'יובל שניידרמן', role:'G', rating:75}, {name:'ג\'ון דיברתולומיאו', role:'G', rating:81},
   {name:'איתי מושקוביץ\'', role:'G', rating:76}, {name:'יאיר קרביץ', role:'G', rating:83},
   {name:'איתן בורג', role:'G', rating:82}, {name:'גיל בני', role:'G', rating:74},
-  {name:'יפתח זיו', role:'G', rating:75}, {name:'גולן גוט', role:'G', rating:74},
+  {name:'יפתח זיו', role:'G', rating:75}, {name:'גולן גוט', role:'G', rating:76},
   {name:'רועי הובר', role:'G', rating:80},
   {name:'גיא פלטין', role:'G', rating:79}, {name:'שחר דורון', role:'G', rating:72},
   {name:'גיל נויוביץ\'', role:'G', rating:72}, {name:'רועי פריצקי', role:'G', rating:77},
@@ -1235,6 +1247,7 @@ const ROSTER = [
  {name:'דניאל תייס', role:'C', rating:90}, {name:'דושאן מילטיץ׳', role:'C', rating:85}, {name:'פרדי גילספי', role:'C', rating:86}, {name:'סם איוריו', role:'C', rating:77},
  {name:'עמית עבו', role:'G', rating:80}, {name:'טי ג׳יי ליף', role:'C', rating:82}, {name:'זאק לידיי', role:'C', rating:92}, {name:'תומר גינת', role:'F', rating:88},
  {name:'פרדריק בורדיון', role:'G', rating:78}, {name:'מקס היידיגר', role:'G', rating:83}, {name:'קני לופטון', role:'F', rating:94},
+ {name:'קנדל מקולום', role:'G', rating:84}, {name:'רוברט טרנר', role:'G', rating:83}, {name:'צ׳ונסי ג׳נקינס', role:'G', rating:82}, {name:'דאסטי האנס', role:'G', rating:82}, 
 ];
 
 function buildPool(){
@@ -1300,6 +1313,10 @@ const ACHIEVEMENTS = [
   {id:'leaguePlayoffs', icon:'🔥', name:'פיינל פור', desc:'להעפיל לפיינל פור של הליגה'},
   {id:'leagueFinal', icon:'🌟', name:'על הבמה הגדולה', desc:'להגיע לגמר הליגה'},
   {id:'leagueChampion', icon:'🏆', name:'אלוף הליגה', desc:'לזכות באליפות הליגה'},
+  {id:'leagueFiveSeasonTitleRun', icon:'👑', name:'5 עונות, 5 אליפויות', desc:'לזכות באליפות לאורך כל 5 עונות הקריירה'},
+  {id:'leagueBuzzerBeater', icon:'⏱️', name:'הבאזר שלך', desc:'לנצח משחק ליגה בנקודה'},
+  {id:'leagueTelAviv', icon:'🌆', name:'תל אביב שלך', desc:'לנצח את הפועל ת״א ומכבי ת״א באותה עונה'},
+  {id:'leagueFiveFinals', icon:'🏟️', name:'5 גמרים ב-5 עונות', desc:'להגיע לגמר בכל 5 עונות הקריירה'},
   {id:'leagueBudgetRun', icon:'💰', name:'כסף על הפרקט', desc:'להעפיל לפיינל פור עם תקציב $40M'},
   {id:'leaguePerfectSeason', icon:'💎', name:'עונה מושלמת', desc:'לנצח את כל משחקי העונה הסדירה'},
   {id:'leagueCareerComplete', icon:'👑', name:'אגדת הליגה', desc:'להשלים קריירה של 5 עונות'},
@@ -1377,6 +1394,20 @@ function recordOnlineWin(margin){
   if(onlineWins >= 10) unlockAchievement('onlineWin10');
   if(onlineWins >= 50) unlockAchievement('onlineWin50');
   if(margin > 20) unlockAchievement('onlineBigWin');
+}
+
+function leagueUpdateTelAvivWins(userWinnerTeamId, opponentTeamId){
+  if(!LG || !userWinnerTeamId || !opponentTeamId) return;
+  const opponentTeam = LG.teams.find(team=>team.id===opponentTeamId);
+  if(!opponentTeam) return;
+  if(opponentTeam.name === 'הפועל ת״א') LG.beatHapoelTAThisSeason = true;
+  if(opponentTeam.name === 'מכבי ת״א') LG.beatMaccabiTAThisSeason = true;
+  if(LG.beatHapoelTAThisSeason && LG.beatMaccabiTAThisSeason) unlockAchievement('leagueTelAviv');
+}
+
+function leagueTrackFinalAppearance(){
+  LG.leagueFinalAppearances = (LG.leagueFinalAppearances || 0) + 1;
+  if(LG.leagueFinalAppearances >= 5) unlockAchievement('leagueFiveFinals');
 }
 
 function openTrophyRoom(){
@@ -1613,7 +1644,7 @@ function listenForOnlineAnnouncements(){
     const announcement = snapshot.val();
     if(!announcement || announcement.id===onlineLastAnnouncementId) return;
     onlineLastAnnouncementId = announcement.id;
-    showAnnounce(announcement.title, announcement.sub, announcement.icon, announcement.type, false);
+    showAnnounce(announcement.title, announcement.sub, announcement.icon, announcement.type, false, announcement.playerImage, announcement.playerName);
     setTimeout(()=>hideAnnounce(false), announcement.duration || ANNOUNCE_MS);
   };
   onlineRoomRef.child('announcement').on('value', onlineAnnouncementListener);
@@ -2122,7 +2153,30 @@ function resetRingDisplay(digitText){
   digit.classList.toggle('warn', S.tLeft<=3);
 }
 
-function showAnnounce(title, sub, icon, type, broadcast=true){
+function showAnnounce(title, sub, icon, type, broadcast=true, playerImage=null, playerName=''){
+  const wrap = document.getElementById('announceAvatarWrap');
+  const img = document.getElementById('announceAvatar');
+  const fallback = document.getElementById('announceAvatarFallback');
+  const hasAvatar = !!(playerImage || playerName);
+  if(hasAvatar && playerImage){
+    img.src = playerImage;
+    img.alt = playerName || 'שחקן';
+    img.style.display = 'block';
+    fallback.style.display = 'none';
+    wrap.classList.add('visible');
+  } else if(hasAvatar && playerName){
+    const initials = playerName.split(' ').map(word=>word[0]).join('');
+    fallback.textContent = initials || '?';
+    fallback.style.display = 'flex';
+    img.style.display = 'none';
+    img.removeAttribute('src');
+    wrap.classList.add('visible');
+  } else {
+    img.removeAttribute('src');
+    img.style.display = 'none';
+    fallback.style.display = 'none';
+    wrap.classList.remove('visible');
+  }
   document.getElementById('announceIcon').textContent = icon;
   document.getElementById('announceTitle').textContent = title;
   document.getElementById('announceSub').textContent = sub;
@@ -2130,7 +2184,7 @@ function showAnnounce(title, sub, icon, type, broadcast=true){
   document.getElementById('announceBg').classList.add('active');
   if(broadcast && onlineRole==='host' && onlineRoomRef){
     const duration = title==='שיבוץ אוטומטי' ? AUTO_PLACEMENT_ANNOUNCE_MS : ANNOUNCE_MS;
-    onlineRoomRef.child('announcement').set({title, sub, icon, type, duration, id:`${Date.now()}-${Math.random()}`});
+    onlineRoomRef.child('announcement').set({title, sub, icon, type, duration, id:`${Date.now()}-${Math.random()}`, playerImage, playerName});
   }
 }
 function hideAnnounce(broadcast=true){
@@ -2216,7 +2270,7 @@ function skipPlayer(role, player){
   document.getElementById('giveUpBtn').disabled = true;
   document.getElementById('bidPrice').textContent = '–';
   document.getElementById('bidHolder').textContent = 'השחקן לא עובר לאף קבוצה';
-  showAnnounce('אף קבוצה לא זכתה', `${player.name} נשאר מחוץ לשתי הקבוצות`, '↩️', 'neutral');
+  showAnnounce('אף קבוצה לא זכתה', `${player.name} נשאר מחוץ לשתי הקבוצות`, '↩️', 'neutral', true, player.image, player.name);
   S.round += 1;
   setTimeout(()=>{ hideAnnounce(); nextRound(); }, ANNOUNCE_MS);
 }
@@ -2236,14 +2290,14 @@ function autoAward(winner, role, player){
     }
     document.getElementById('bidPrice').textContent = '$'+price+'M';
     document.getElementById('bidHolder').textContent = placementMessage;
-    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral');
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral', true, player.image, player.name);
   } else {
     if(S.cpuRoster.length < S.rosterSize){
       S.cpuBudget-=price; S.cpuRoster.push(p); if(role) S.cpuCount[role.key]++;
     }
     document.getElementById('bidPrice').textContent = '$'+price+'M';
     document.getElementById('bidHolder').textContent = placementMessage;
-    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral');
+    showAnnounce('שיבוץ אוטומטי', `${placementMessage} תמורת $${price}M`, '🎯', 'neutral', true, player.image, player.name);
   }
   updateQuotaRow(); updateBudgets(); renderMiniRosters();
   S.round += 1;
@@ -2491,7 +2545,7 @@ function resolveRoundTurn(winner, reason){
     title = `${S.cpuTeamName} זכתה ב-${player.name}`;
     sub = `${S.teamName} ויתרה על ${player.name}`;
   }
-  showAnnounce(title, sub, icon, type);
+  showAnnounce(title, sub, icon, type, true, player.image, player.name);
 
   S.holder = winner;
   updateBudgets();
@@ -3337,6 +3391,9 @@ function createLeagueCareer(budget, teamName, coachName, season, selectedCpuName
     leaguePlayoffSeasons: stats.playoffSeasons || 0,
     leaguePlayoffStreak: stats.playoffStreak || 0,
     leagueChampionships: stats.championships || 0,
+    leagueFinalAppearances: stats.finalAppearances || 0,
+    beatHapoelTAThisSeason: false,
+    beatMaccabiTAThisSeason: false,
     seasonHistory: Array.isArray(seasonHistory) ? seasonHistory : [],
     currentSeasonSummary: null,
     teams,
@@ -3892,7 +3949,12 @@ function leaguePlayMyGame(){
   const [a,b] = myPair;
   const {aScore, bScore} = leagueSimulateGame(a,b);
   const userWon = (a===userTeam.id && aScore>bScore) || (b===userTeam.id && bScore>aScore);
-  if(userWon) unlockAchievement('leagueWin1');
+  if(userWon) {
+    unlockAchievement('leagueWin1');
+    if(Math.abs(aScore-bScore)===1) unlockAchievement('leagueBuzzerBeater');
+    const opponentId = a===userTeam.id ? b : a;
+    leagueUpdateTelAvivWins(userTeam.id, opponentId);
+  }
   pairs.forEach(p=>{
     if(p===myPair){ leagueApplyResult(a,b,aScore,bScore); return; }
     const r = leagueSimulateGame(p[0], p[1]);
@@ -4094,7 +4156,8 @@ function leagueAdvanceToNextSeason(){
   const careerStats = {
     playoffSeasons: LG.leaguePlayoffSeasons || 0,
     playoffStreak: LG.leaguePlayoffStreak || 0,
-    championships: LG.leagueChampionships || 0
+    championships: LG.leagueChampionships || 0,
+    finalAppearances: LG.leagueFinalAppearances || 0
   };
   LG = createLeagueCareer(budget, teamName, coachName, nextSeason, nextCpuNames, careerStats, LG.seasonHistory);
   saveLeagueCareer();
@@ -4209,8 +4272,17 @@ function leaguePlayNextPlayoffGame(){
   const userTeam = LG.teams.find(t=>t.isUser);
   const game = LG.playoff.games.find(g=>!g.done && g.a!=null && g.b!=null && (g.a===userTeam.id || g.b===userTeam.id));
   if(!game) return;
-  if(game.label==='הגמר') unlockAchievement('leagueFinal');
+  if(game.label==='הגמר') {
+    unlockAchievement('leagueFinal');
+    leagueTrackFinalAppearance();
+  }
   const {aScore, bScore} = leagueSimulateGame(game.a, game.b);
+  const userWon = (game.a===userTeam.id && aScore>bScore) || (game.b===userTeam.id && bScore>aScore);
+  if(userWon && Math.abs(aScore-bScore)===1) unlockAchievement('leagueBuzzerBeater');
+  if(userWon){
+    const opponentId = game.a===userTeam.id ? game.b : game.a;
+    leagueUpdateTelAvivWins(userTeam.id, opponentId);
+  }
   game.done = true;
   game.aScore = aScore; game.bScore = bScore;
   game.winner = aScore>bScore ? game.a : game.b;
@@ -4233,6 +4305,7 @@ function leagueContinueAfterPlayoffGame(){
         LG.playoff.championRecorded = true;
         LG.leagueChampionships = (LG.leagueChampionships || 0) + 1;
         unlockAchievement('leagueChampion');
+        if(LG.leagueChampionships >= 5) unlockAchievement('leagueFiveSeasonTitleRun');
         if(LG.leagueChampionships >= 2) unlockAchievement('leagueTitles2');
         if(LG.leagueChampionships >= 3) unlockAchievement('leagueTitles3');
         saveLeagueCareer();
